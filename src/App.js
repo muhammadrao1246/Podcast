@@ -4,7 +4,7 @@ import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import Sidebar from "./scenes/global/ProSidebar";
 import Dashboard from "./scenes/dashboard";
-// import Team from "./scenes/team";
+import Team from "./scenes/team";
 // import Invoices from "./scenes/invoices";
 // import Contacts from "./scenes/contacts";
 // import Bar from "./scenes/bar";
@@ -27,7 +27,7 @@ function App() {
             <Topbar />
             <Routes>
               <Route path="/" element={<Dashboard />}></Route>
-              {/* <Route path="/team" element={<Team />}></Route> */}
+              <Route path="/team" element={<Team />}></Route>
               {/* <Route path="/invoices" element={<Invoices />}></Route> */}
               {/* <Route path="/contacts" element={<Contacts />}></Route> */}
               {/* <Route path="/form" element={<Form />}></Route> */}

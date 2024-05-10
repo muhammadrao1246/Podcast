@@ -28,9 +28,9 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
       }}
       onClick={() => setSelected(title)}
       icon={icon}
+      component={<Link to={to} />}
     >
       <Typography>{title}</Typography>
-      <Link to={to} />
     </MenuItem>
   );
 };
@@ -58,8 +58,9 @@ const ProSidebar = () => {
         },
         "& .ps-menu-button:hover": {
           color: "#868dfb !important",
+          backgroundColor: "transparent !important",
         },
-        "& .ps-menu-button.active": {
+        "& .ps-menu-button.ps-active": {
           color: "#6870fa !important",
         },
       }}
