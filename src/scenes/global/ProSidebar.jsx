@@ -144,9 +144,16 @@ const ProSidebar = () => {
               setSelected={setSelected}
             />
             <Item
+              title="Guests"
+              to="/guests"
+              icon={<ContactsOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
               title="Episodes"
               to="/episodes"
-              icon={<ContactsOutlinedIcon />}
+              icon={<CalendarTodayOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
