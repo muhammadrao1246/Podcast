@@ -7,6 +7,7 @@ import Dashboard from "./scenes/dashboard";
 import Team from "./scenes/team";
 import Guest from "./scenes/guest";
 import Episodes from "./scenes/episodes";
+import CreateGuests from "./scenes/guest/create";
 // import Invoices from "./scenes/invoices";
 // import Contacts from "./scenes/contacts";
 // import Bar from "./scenes/bar";
@@ -33,6 +34,7 @@ function App() {
               {/* <Route path="/invoices" element={<Invoices />}></Route> */}
               <Route path="/guests" element={<Guest />}></Route>
               <Route path="/episodes" element={<Episodes />}></Route>
+              <Route path="/createGuests" element={<CreateGuests />}></Route>
               {/* <Route path="/form" element={<Form />}></Route> */}
               {/* <Route path="/bar" element={<Bar />}></Route> */}
               {/* <Route path="/pie" element={<Pie />}></Route> */}

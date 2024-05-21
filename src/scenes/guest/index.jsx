@@ -1,8 +1,9 @@
-import { Box, useTheme } from "@mui/material";
+import { Box, useTheme, Button } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataGuest } from "../../data/mockData";
 import Header from "../../components/Header";
+import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 
 const Guest = () => {
     const theme = useTheme();
@@ -21,8 +22,26 @@ const Guest = () => {
     ];
     return (
         <Box m="20px">
-            <Header title="Guests" subtitle="List of Guests for Podcast" />
-            <Box m="40px 0 0 0" height="75vh" sx={{
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Header title="Guests" subtitle="List of Guests for Podcast" />
+                <Box>
+                    <Button
+                        sx={{
+                        backgroundColor: colors.blueAccent[700],
+                        color: colors.grey[100],
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        padding: "10px 20px",
+                        }}
+                        href="/createGuests"
+                    >
+                        <PersonAddAltOutlinedIcon sx={{ mr: "10px" }} />
+                        Add New Guest
+                    </Button>
+                </Box>
+            </Box>
+
+            <Box m="10px 0 0 0" height="75vh" sx={{
                 "& .MuiDataGrid-root" : {
                     border: "none",
                 },

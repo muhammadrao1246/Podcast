@@ -1,4 +1,4 @@
-import { Box, useTheme, Grid } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import EpisodeCard from "../../components/EpisodeCard";
@@ -10,13 +10,11 @@ const Episodes = () => {
         <Box m="20px">
             <Header title="Episodes" subtitle="List of all Episodes" />
             <Box sx={{ flexGrow: 1 }}>
-                <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+                <Box display="grid" gap="20px" gridTemplateColumns="repeat(6, minmax(0, 1fr))">
                     {Array.from(Array(6)).map((_, index) => (
-                    <Grid item xs={2} sm={4} md={4} key={index}>
                         <EpisodeCard />
-                    </Grid>
                     ))}
-                </Grid>
+                </Box>
             </Box>
         </Box>
     );
