@@ -33,7 +33,7 @@ const Guest = () => {
                         fontWeight: "bold",
                         padding: "10px 20px",
                         }}
-                        href="/createGuests"
+                        href="/createGuest"
                     >
                         <PersonAddAltOutlinedIcon sx={{ mr: "10px" }} />
                         Add New Guest
