@@ -3,6 +3,7 @@ import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import EpisodeCard from "../../components/EpisodeCard";
 import VideoCallOutlinedIcon from '@mui/icons-material/VideoCallOutlined';
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 
 const Episodes = () => {
     const theme = useTheme();
@@ -25,13 +26,27 @@ const Episodes = () => {
                         <VideoCallOutlinedIcon sx={{ mr: "10px" }} />
                         Add New Episode
                     </Button>
+                    <Button
+                        sx={{
+                        backgroundColor: colors.blueAccent[700],
+                        color: colors.grey[100],
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        padding: "10px 20px",
+                        marginLeft: "10px",
+                        }}
+                        href="/bookEpisode"
+                    >
+                        <CalendarTodayOutlinedIcon sx={{ mr: "10px" }} />
+                        Book Episode
+                    </Button>
                 </Box>
             </Box>
 
             <Box sx={{ flexGrow: 1 }}>
                 <Box display="grid" gap="20px" gridTemplateColumns="repeat(6, minmax(0, 1fr))">
                     {Array.from(Array(6)).map((_, index) => (
-                        <EpisodeCard />
+                        <EpisodeCard key={index} />
                     ))}
                 </Box>
             </Box>
