@@ -21,9 +21,45 @@ const ReelCard = ({chapter, chapterMakerName, chapterTranscript, episodeTranscri
                     Chapter {chapter}
                 </AccordionSummary>
                 <AccordionDetails>
-                    <Box display="flex" justifyContent="space-between" alignItems="cneter">
-                        <Button size="large" color='secondary' variant='outlined' startIcon={<ClosedCaptionOffOutlined />}>Caption</Button>
-                        <Button size="large" color='secondary' variant='outlined' startIcon={<TuneOutlined />}>Design</Button>
+                    <Box
+                        display="grid"
+                        gap="30px"
+                        gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                        sx={{
+                            "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                        }}
+                    >
+                        <Box borderRadius="10px" sx={{ gridColumn: "span 3" }}>
+                            <Box display="flex" justifyContent="space-between" alignItems="cneter">
+                                <Button size="large" color='secondary' variant='outlined' startIcon={<ClosedCaptionOffOutlined />}>Caption</Button>
+                                <Button size="large" color='secondary' variant='outlined' startIcon={<TuneOutlined />}>Design</Button>
+                            </Box>
+                        </Box>
+                        <Box borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 3" }}>
+                            <Typography borderRadius="10px" p="20px" bgcolor={colors.grey[800]}>{episodeTranscript}</Typography>
+                        </Box>
+                        <Box display="flex" justifyContent="space-between" flexDirection="column" p="10px" borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 1" }}>
+                            <img
+                            alt="chapterImage"
+                            width="100%"
+                            src={`${src}`}
+                            />
+                            <Box mt="20px" mb="20px" borderRadius="10px" bgcolor={colors.grey[600]} display="flex" justifyContent="space-between" alignItems="center" p="10px" width="100%">
+                                <IconButton>
+                                    <ShareOutlined />
+                                </IconButton>
+                                <IconButton>
+                                    <OndemandVideoOutlined />
+                                </IconButton>
+                                <IconButton>
+                                    <FileDownloadOutlined />
+                                </IconButton>
+                                <IconButton>
+                                    <EditOutlined />
+                                </IconButton>
+                            </Box>
+                            <Button size="large" color='secondary' variant='contained' >Generate</Button>
+                        </Box>
                     </Box>
                 </AccordionDetails>
             </Accordion>
