@@ -22,7 +22,7 @@ const EpisodeCard = () => {
             </CardContent>
             <CardActions sx={{ backgroundColor: `${colors.primary[400]} !important`, p: "15px" }}>
                 <Button size="small" color='secondary' variant='contained' href='/chapters'>Chapters</Button>
-                <Button size="small" color='secondary' variant='contained' >Reels</Button>
+                <Button size="small" color='secondary' variant='contained' href='/reels'>Reels</Button>
             </CardActions>
         </Card>
     );
