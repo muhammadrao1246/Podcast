@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Typography, Button, useTheme, Card, CardMedia, CardContent, CardActions, IconButton } from "@mui/material";
+import { Typography, Button, useTheme, Card, CardMedia, CardContent, CardActions } from "@mui/material";
 import { tokens } from "../theme";
-import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
 
 const EpisodeCard = () => {
     const theme = useTheme();
@@ -21,11 +20,9 @@ const EpisodeCard = () => {
                     Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.
                 </Typography>
             </CardContent>
-            <CardActions sx={{ backgroundColor: `${colors.primary[400]} !important` }}>
-                <IconButton>
-                    <FavoriteOutlinedIcon sx={{ color: `${colors.redAccent[500]} !important` }} />
-                </IconButton>
-                <Button size="small" color='secondary' variant='contained' >Learn More</Button>
+            <CardActions sx={{ backgroundColor: `${colors.primary[400]} !important`, p: "15px" }}>
+                <Button size="small" color='secondary' variant='contained' href='/chapters'>Chapters</Button>
+                <Button size="small" color='secondary' variant='contained' >Reels</Button>
             </CardActions>
         </Card>
     );

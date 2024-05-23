@@ -13,6 +13,7 @@ import CreateEpisode from "./scenes/episodes/create";
 import BookEpisode from "./scenes/episodes/book";
 import Login from "./scenes/auth/login";
 import Signup from "./scenes/auth/signup";
+import Chapters from "./scenes/chapters";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -30,6 +31,7 @@ function App() {
             <Route path="createGuest" element={<CreateGuest />} />
             <Route path="createEpisode" element={<CreateEpisode />} />
             <Route path="bookEpisode" element={<BookEpisode />} />
+            <Route path="chapters" element={<Chapters />} />
           </Route>
           {/* Routes that do not include the sidebar and topbar */}
           <Route path="/" element={<AuthLayout />}>
