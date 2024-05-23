@@ -1,8 +1,9 @@
-import { Routes, Route } from "react-router-dom";
-import Topbar from "./scenes/global/Topbar";
+// App.js
+import { Routes, Route, Outlet } from "react-router-dom";
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import Sidebar from "./scenes/global/ProSidebar";
+import MainLayout from "./MainLayout";
+import AuthLayout from "./AuthLayout";
 import Dashboard from "./scenes/dashboard";
 import Team from "./scenes/team";
 import Guest from "./scenes/guest";
@@ -10,15 +11,8 @@ import Episodes from "./scenes/episodes";
 import CreateGuest from "./scenes/guest/create";
 import CreateEpisode from "./scenes/episodes/create";
 import BookEpisode from "./scenes/episodes/book";
-// import Invoices from "./scenes/invoices";
-// import Contacts from "./scenes/contacts";
-// import Bar from "./scenes/bar";
-// import Form from "./scenes/form";
-// import Line from "./scenes/line";
-// import Pie from "./scenes/pie";
-// import FAQ from "./scenes/faq";
-// import Geography from "./scenes/geography";
-// import Calendar from "./scenes/calendar";
+import Login from "./scenes/auth/login";
+import Signup from "./scenes/auth/signup";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -26,29 +20,23 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <div className="app">
-          <Sidebar />
-          <main className="content">
-            <Topbar />
-            <Routes>
-              <Route path="/" element={<Dashboard />}></Route>
-              <Route path="/team" element={<Team />}></Route>
-              {/* <Route path="/invoices" element={<Invoices />}></Route> */}
-              <Route path="/guests" element={<Guest />}></Route>
-              <Route path="/episodes" element={<Episodes />}></Route>
-              <Route path="/createGuest" element={<CreateGuest />}></Route>
-              <Route path="/createEpisode" element={<CreateEpisode />}></Route>
-              <Route path="/bookEpisode" element={<BookEpisode />}></Route>
-              {/* <Route path="/form" element={<Form />}></Route> */}
-              {/* <Route path="/bar" element={<Bar />}></Route> */}
-              {/* <Route path="/pie" element={<Pie />}></Route> */}
-              {/* <Route path="/line" element={<Line />}></Route> */}
-              {/* <Route path="/faq" element={<FAQ />}></Route> */}
-              {/* <Route path="/geography" element={<Geography />}></Route> */}
-              {/* <Route path="/calendar" element={<Calendar />}></Route> */}
-            </Routes>
-          </main>
-        </div>
+        <Routes>
+          {/* Routes that include the sidebar and topbar */}
+          <Route path="/" element={<MainLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="team" element={<Team />} />
+            <Route path="guests" element={<Guest />} />
+            <Route path="episodes" element={<Episodes />} />
+            <Route path="createGuest" element={<CreateGuest />} />
+            <Route path="createEpisode" element={<CreateEpisode />} />
+            <Route path="bookEpisode" element={<BookEpisode />} />
+          </Route>
+          {/* Routes that do not include the sidebar and topbar */}
+          <Route path="/" element={<AuthLayout />}>
+            <Route index element={<Login />} />
+            <Route path="signup" element={<Signup />} />
+          </Route>
+        </Routes>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );
