@@ -39,11 +39,11 @@ SECRET_KEY = env('APP_KEY')
 DEBUG = False if env('APP_DEBUG') == "false" else True
 
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", "backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com"]
 
 # Allowed origin
 CORS_ALLOWED_ORIGINS = [
-    env("REACT_SERVER")
+    env("REACT_SERVER"),
 ]
 
 FRONTEND_SERVER_URL = env("REACT_SERVER")
