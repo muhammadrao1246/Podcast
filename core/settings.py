@@ -142,7 +142,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': env('DB_DRIVER'),
         'NAME': env('DB_DATABASE'),
         'USER': env('DB_USERNAME'),
         'PASSWORD': env('DB_PASSWORD'),
