@@ -135,6 +135,25 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 # LOGIN_REDIRECT_URL = "/dashboard"
 # LOGOUT_REDIRECT_URL = "/login"
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/home/twq9coz9yyh6/public_html/backendapi.coffeemapcompany.com/debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 
 
 # Database
