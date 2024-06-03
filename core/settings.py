@@ -39,7 +39,7 @@ SECRET_KEY = env('APP_KEY')
 DEBUG = False if env('APP_DEBUG') == "false" else True
 
 
-ALLOWED_HOSTS = ["*", "backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com"]
+ALLOWED_HOSTS = ["backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com", "backendapi.coffeemapcompany" ]
 
 # Allowed origin
 CORS_ALLOWED_ORIGINS = [
