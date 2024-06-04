@@ -39,7 +39,7 @@ SECRET_KEY = env('APP_KEY')
 DEBUG = False if env('APP_DEBUG') == "false" else True
 
 
-ALLOWED_HOSTS = ["backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com", "backendapi.coffeemapcompany" ]
+ALLOWED_HOSTS = ["127.0.0.1", "127.0.0.1:3010", 'www.127.0.0.1:3010', "backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com", "backendapi.coffeemapcompany" ]
 
 # Allowed origin
 CORS_ALLOWED_ORIGINS = [
@@ -142,7 +142,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/home/twq9coz9yyh6/public_html/backendapi.coffeemapcompany.com/debug.log',
+            'filename': os.path.join(BASE_DIR, "/debug.log"),
         },
     },
     'loggers': {
