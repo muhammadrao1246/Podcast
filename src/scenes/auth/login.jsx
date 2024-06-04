@@ -7,21 +7,46 @@ import { ColorModeContext, tokens } from "../../theme";
 import * as yup from 'yup';
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import { useLoginUserMutation } from "../../app/api";
+import { useNavigate } from "react-router-dom";
+import { getToken, storeToken } from "../../app/token";
+import { setUserToken } from "../../app/authSlice";
 
 const validationSchema = yup.object().shape({
-    email: yup.string().required("required"),
+    email: yup.string().required("required").email(),
     password: yup.string().required("required"),
   });
 
 const Login = () => {
+    const navigate = useNavigate()
+
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const colorMode = useContext(ColorModeContext);
 
     const isNonMobile = useMediaQuery('(min-width:600px)');
 
-    const handleSubmit = (values) => {
-        console.log(values);
+    
+    const [apiErrors, SetApiErrors] = React.useState({})
+    const [loginUser, {isLoading}] = useLoginUserMutation()
+    const handleSubmit = async (values) => {
+
+        const response = await loginUser(values)
+        if (!!response.error) {
+            let dataObject = response.error.data;
+            console.log(dataObject.errors);
+            SetApiErrors(dataObject.errors)
+            
+        } else {
+            console.log("Login Success")
+            let dataObject = response.data;
+            console.log(dataObject.data.token)
+            // setUserToken(dataObject.data.token)
+            storeToken(dataObject.data.token)
+            console.log(dataObject)
+            navigate("/dashboard")
+        }
+
     }
 
     return (
@@ -103,7 +128,7 @@ const Login = () => {
                                 fullWidth
                                 variant="contained"
                                 color="secondary"
-                                href="/dashboard"
+                                // href="/dashboard"
                             >
                                 Sign In
                             </Button>

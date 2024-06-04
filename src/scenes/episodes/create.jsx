@@ -4,24 +4,48 @@ import Header from "../../components/Header";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Formik } from "formik";
+import { useSaveEpisodesSheetMutation } from "../../app/api";
+import { Navigate, useNavigate } from "react-router-dom";
+import React from "react";
 
 const initialValues = {
-    premierProLink: "",
-    driveFolderLink: "",
+    project_link: "",
+    sheet_link: "",
 };
 
 const checkoutSchema = yup.object().shape({
-  premierProLink: yup.string().required("required"),
-  driveFolderLink: yup.string().required("required"),
+  project_link: yup.string().required("required").url(),
+  sheet_link: yup.string().required("required").url(),
 });
 
 const Create = () => {
+    const navigate = useNavigate()
     const isNonMobile = useMediaQuery("(min-width:600px)");
 
-    const handleFormSubmit = (values) => {
+        
+    const [apiErrors, SetApiErrors] = React.useState({})
+    const [saveEpisode, {isLoading}] = useSaveEpisodesSheetMutation()
+    const handleSubmit = async (values) => {
         console.log(values);
+        const response = await saveEpisode(values)
+        if (!!response.error) {
+            let dataObject = response.error.data;
+            console.log(dataObject.errors);
+            SetApiErrors(dataObject.errors)
+            
+        } else {
+            console.log("Sheet Upload Success")
+            let dataObject = response.data;
+
+            console.log(dataObject)
+            navigate("/episodes")
+        }
+
 
     }
+
+
+    
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
@@ -30,7 +54,7 @@ const Create = () => {
             <Header title="Create Episode" subtitle="Create a New Episode" />
 
             <Formik
-                onSubmit={handleFormSubmit}
+                onSubmit={handleSubmit}
                 initialValues={initialValues}
                 validationSchema={checkoutSchema}
             >
@@ -58,10 +82,10 @@ const Create = () => {
                                 label="Link Premier Pro Project"
                                 onBlur={handleBlur}
                                 onChange={handleChange}
-                                value={values.premierProLink}
-                                name="premierProLink"
-                                error={!!touched.premierProLink && !!errors.premierProLink}
-                                helperText={touched.premierProLink && errors.premierProLink}
+                                value={values.project_link}
+                                name="project_link"
+                                error={!!touched.project_link && !!errors.project_link}
+                                helperText={touched.project_link && errors.project_link}
                                 sx={{ gridColumn: "span 3" }}
                             />
                             <TextField
@@ -71,10 +95,10 @@ const Create = () => {
                                 label="Link Folder Drive"
                                 onBlur={handleBlur}
                                 onChange={handleChange}
-                                value={values.driveFolderLink}
-                                name="driveFolderLink"
-                                error={!!touched.driveFolderLink && !!errors.driveFolderLink}
-                                helperText={touched.driveFolderLink && errors.driveFolderLink}
+                                value={values.sheet_link}
+                                name="sheet_link"
+                                error={!!touched.sheet_link && !!errors.sheet_link}
+                                helperText={touched.sheet_link && errors.sheet_link}
                                 sx={{ gridColumn: "span 3" }}
                             />
                         </Box>

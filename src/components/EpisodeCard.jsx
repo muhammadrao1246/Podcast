@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Typography, Button, useTheme, Card, CardMedia, CardContent, CardActions } from "@mui/material";
 import { tokens } from "../theme";
 
-const EpisodeCard = () => {
+const EpisodeCard = ({id, image, title, content, start_time, end_time}) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     return (
@@ -14,15 +14,15 @@ const EpisodeCard = () => {
             />
             <CardContent sx={{ backgroundColor: `${colors.primary[400]} !important` }}>
                 <Typography gutterBottom variant="h5" component="div" color={colors.greenAccent[300]}>
-                Akil Horswen
+                {title}
                 </Typography>
                 <Typography variant="body" color={colors.grey[100]}>
-                    Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.
+                    {content}
                 </Typography>
             </CardContent>
             <CardActions sx={{ backgroundColor: `${colors.primary[400]} !important`, p: "15px" }}>
-                <Button size="small" color='secondary' variant='contained' href='/chapters'>Chapters</Button>
-                <Button size="small" color='secondary' variant='contained' href='/reels'>Reels</Button>
+                <Button size="small" color='secondary' variant='contained' href={`/episodes/${id}/chapters`}>Chapters</Button>
+                <Button size="small" color='secondary' variant='contained' href={`/episodes/${id}/reels`}>Reels</Button>
             </CardActions>
         </Card>
     );

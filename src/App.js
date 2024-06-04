@@ -32,7 +32,7 @@ function App() {
             <Route path="createGuest" element={<CreateGuest />} />
             <Route path="createEpisode" element={<CreateEpisode />} />
             <Route path="bookEpisode" element={<BookEpisode />} />
-            <Route path="chapters" element={<Chapters />} />
+            <Route path="episodes/:episode_id/chapters" element={<Chapters />} />
             <Route path="reels" element={<Reels />} />
           </Route>
           {/* Routes that do not include the sidebar and topbar */}
