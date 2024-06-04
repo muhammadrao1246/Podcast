@@ -36,14 +36,16 @@ from rest_framework_simplejwt.tokens import RefreshToken
 # tester
 class Tester(APIView):
     def get(self, request):
-        myURL = "https://docs.google.com/spreadsheets/d/13FduNu5j0kNVUl2XGXbfiD1VPjQQr_ELXuL46G_Mzgk/edit#gid=1428591798"
-        pr = GoogleSheetProcessor(myURL, myURL)
+        # myURL = "https://docs.google.com/spreadsheets/d/13FduNu5j0kNVUl2XGXbfiD1VPjQQr_ELXuL46G_Mzgk/edit#gid=1428591798"
+        # pr = GoogleSheetProcessor(myURL, myURL)
         
-        print(pr.__str__())
-        # pr.get_episode()
-        pr.save_full_episode_series_sequence()
+        # print(pr.__str__())
+        # # pr.get_episode()
+        # pr.save_full_episode_series_sequence()
         
-        return Response({})
+        return Response({
+            "response": "Level 1 Working"
+        })
 
 # SHeet API
 
