@@ -241,11 +241,11 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, '')
+STATIC_ROOT = os.path.join(BASE_DIR, 'public')
 print(BASE_DIR)
 # cpanel
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
+    os.path.join(STATIC_ROOT, 'static')
 ]
 
 MEDIA_URL = '/media/'
