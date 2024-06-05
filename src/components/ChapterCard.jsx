@@ -28,7 +28,7 @@ const ChapterCard = ({chapter, chapterMakerName, chapterTranscript, episodeTrans
                 }}
             >
                 <Box mt="20px" borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 3" }}>
-                    <Typography borderRadius="10px" p="20px" bgcolor={colors.grey[500]} sx={{ height: '400px', overflow: 'auto', }} >{chapterTranscript}</Typography>
+                    <Typography borderRadius="10px" p="20px" bgcolor={colors.grey[500]} sx={{ height: 'max-content', overflow: 'auto', }} >{chapterTranscript}</Typography>
                     {/* <Typography borderRadius="0 0 10px 10px" p="20px" bgcolor={colors.grey[800]}>{episodeTranscript}</Typography> */}
                 </Box>
                 <Box mt="20px" display="flex" justifyContent="space-between" flexDirection="column" p="10px" borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 1" }}>
@@ -37,7 +37,7 @@ const ChapterCard = ({chapter, chapterMakerName, chapterTranscript, episodeTrans
                     width="100%"
                     src={`${src}`}
                     />
-                    <Box borderRadius="10px" bgcolor={colors.grey[600]} display="flex" justifyContent="space-between" alignItems="center" p="10px" width="100%">
+                    <Box borderRadius="10px" bgcolor={colors.grey[600]} display="flex" justifyContent="space-between" alignItems="center" p="10px" width="100%" mt="15px">
                         <IconButton>
                             <ShareOutlined />
                         </IconButton>
