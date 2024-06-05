@@ -13,7 +13,7 @@ const ChapterCard = ({chapter, chapterMakerName, chapterTranscript, episodeTrans
         <Box m="20px">
             <Box display="flex" alignItems="center" gap="40px">
                 <Typography variant="h2">
-                    Chapter {chapter}
+                    {chapter}
                 </Typography>
                 <Typography variant="h3" color={colors.greenAccent[400]}>
                     {chapterMakerName}
@@ -28,8 +28,8 @@ const ChapterCard = ({chapter, chapterMakerName, chapterTranscript, episodeTrans
                 }}
             >
                 <Box mt="20px" borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 3" }}>
-                    <Typography borderRadius="10px" p="20px" bgcolor={colors.grey[500]}>{chapterTranscript}</Typography>
-                    <Typography borderRadius="0 0 10px 10px" p="20px" bgcolor={colors.grey[800]}>{episodeTranscript}</Typography>
+                    <Typography borderRadius="10px" p="20px" bgcolor={colors.grey[500]} sx={{ height: '400px', overflow: 'auto', }} >{chapterTranscript}</Typography>
+                    {/* <Typography borderRadius="0 0 10px 10px" p="20px" bgcolor={colors.grey[800]}>{episodeTranscript}</Typography> */}
                 </Box>
                 <Box mt="20px" display="flex" justifyContent="space-between" flexDirection="column" p="10px" borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 1" }}>
                     <img
