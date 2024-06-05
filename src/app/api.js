@@ -2,7 +2,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { getToken } from './token'
 
-const {REACT_APP_BACKEND_SERVER} = process.env
+export const {REACT_APP_BACKEND_SERVER} = process.env
 // Define a service using a base URL and expected endpoints
 export const userAuthApi = createApi({
   reducerPath: 'userAuthApi',
@@ -78,7 +78,7 @@ export const userAuthApi = createApi({
                 method: "POST",
                 body: body,
                 headers: {
-                    'Content-Type': 'application/json',
+                    // 'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${getToken().access_token}`
                 }
             }
