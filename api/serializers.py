@@ -7,7 +7,8 @@ from django.utils.encoding import smart_str, DjangoUnicodeDecodeError, force_byt
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
-from api.utils import UTIL
+from .sheets import GoogleSheetProcessor
+from .utils import UTIL
 
 from .models import *
 from core.settings import *
@@ -15,15 +16,41 @@ from core.settings import *
 # Sheet Serializer
 class SheetSerializer(serializers.Serializer):
     
-    sheet_link = serializers.URLField(required=True,error_messages={
-                    'required': 'Sheet Link is required.',
-                })
+    sheet_link = serializers.URLField(required=False)
+    excel_file = serializers.FileField(required=False)
+    
     project_link = serializers.URLField(required=True,error_messages={
                     'required': 'Project Link is required.',
                 })
     
     class Meta:
-        fields = ["sheet_url", "project_url"]
+        fields = ["sheet_url", "project_url", "excel_file"]
+        
+    def validate(self, attrs):
+        user = self.context.get("user")
+        project_link = attrs["project_link"]
+        if bool("sheet_link" in attrs) == bool("excel_file" in attrs):
+            raise ValidationError("Only One Sheet URL or Excel File is required. ")
+        elif bool("sheet_link" in attrs):
+            sheet_link = attrs["sheet_link"]
+            
+            pr = GoogleSheetProcessor(sheet=sheet_link, project_url=project_link, isFile=False)
+            
+            print(pr.__str__())
+            # pr.get_episode()
+            pr.save_full_episode_series_sequence(user)
+            
+        elif bool("excel_file" in attrs):
+            excel_file = attrs["excel_file"]
+            
+            
+            pr = GoogleSheetProcessor(sheet=excel_file, project_url=project_link, isFile=True)
+            
+            print(pr.__str__())
+            # pr.get_episode()
+            pr.save_full_episode_series_sequence(user)
+        
+        return super().validate(attrs)
         
 
 # EPISDOE SERIALIZER

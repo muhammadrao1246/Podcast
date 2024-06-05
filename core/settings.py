@@ -44,7 +44,8 @@ ALLOWED_HOSTS = ["127.0.0.1", "127.0.0.1:3010", 'www.127.0.0.1:3010', "backendap
 SECURE_SSL_REDIRECT = False
 # Allowed origin
 CORS_ALLOWED_ORIGINS = [
-    env("REACT_SERVER"),
+    env("REACT_SERVER_LOCAL"),
+    env("REACT_SERVER_PRODUCTION"),
 ]
 
 FRONTEND_SERVER_URL = env("REACT_SERVER")

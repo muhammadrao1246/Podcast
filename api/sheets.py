@@ -24,13 +24,22 @@ class GoogleSheetProcessor:
     
     all_sheets = {}
     
-    def __init__(self, sheetUrl, project_url):
-        self.sheet_url = sheetUrl
-        self.project_url = project_url
-        self.sheet_key = self.filter_url(sheetUrl)  
-        self.get_google_sheet_file() # load all sheets  
-        self.get_episode_title()
-    
+    # GOOGLE SHEET LINK DATA EXTRACTION
+    def __init__(self, sheet, project_url:str, isFile:bool):
+        
+        if not isFile:
+            self.sheet_url = sheet
+            self.project_url = project_url
+            self.sheet_key = self.filter_url(sheet)  
+            self.load_google_sheet() # load all sheets  
+            self.get_episode_title()
+        else:
+            self.project_url = project_url
+            self.excel_file = sheet
+            self.load_google_sheet_from_file()
+            self.get_episode_title()
+            
+        
     # example sharing link
     # https://docs.google.com/spreadsheets/d/13FduNu5j0kNVUl2XGXbfiD1VPjQQr_ELXuL46G_Mzgk/edit?usp=sharing
     def filter_url(self, sheetSharingUrl: str):
@@ -39,7 +48,7 @@ class GoogleSheetProcessor:
         else:
             raise ValidationError("Invalid Google Sheets sharing link")
         
-    def get_google_sheet_file(self):
+    def load_google_sheet(self):
         try:
             #Create a public URL
             #https://docs.google.com/spreadsheets/d/0Ak1ecr7i0wotdGJmTURJRnZLYlV3M2daNTRubTdwTXc/edit?usp=sharing
@@ -85,23 +94,37 @@ class GoogleSheetProcessor:
         except Exception as ex:
             raise ValidationError("Unable to load xslx file.")
     
+    def load_google_sheet_from_file(self):
+        try:
+            # extracting file name
+            data = self.excel_file
+            
+            self.filename = data._name
+            self.sheet_url = self.filename
+            
+            print(f"Filename: {self.filename}")
+            
+            # Create an empty list to store DataFrames
+            self.all_sheets = {}
+            self.excel_file = pd.ExcelFile(self.excel_file)
+            
+            # Read all sheets using a loop
+            for sheet_name in self.excel_file.sheet_names:
+                df = pd.read_excel(data, sheet_name=sheet_name, header=0)
+                self.all_sheets[sheet_name] = df
+        except Exception as ex:
+            raise ValidationError("Unable to load xslx file.")
+    
+    
     def get_episode_title(self):
         filename = self.filename
         self.episode_title = filename.split("-")[0].strip()
         print(f"Episode Title: {self.episode_title}")
         
-        # episode_object = {
-        #     "title": episode_title,
-        #     "content": "",
-        #     "start_time": "",
-        #     "end_time": "",
-        #     "sheet_link": self.sheet_url,
-        #     "project_link": self.project_url
-        # }
         
     
     def save_full_episode_series_sequence(self, user):
-        episode_sheet_name = ""
+        
         sequences_sheet = self.all_sheets.get("Copy CSV Here", None)
         chapters_filtered_sheet = self.all_sheets.get("Chapter Filtered", None)
         if sequences_sheet is None or chapters_filtered_sheet is None:

@@ -55,19 +55,11 @@ class EpisodeSheetApi(APIView):
     def post(self, request: HttpRequest):
         data = request.data
         
-        serializer = SheetSerializer(data=data)
+        serializer = SheetSerializer(data=data, context={
+            'user': request.user
+        })
         
-        current_user = self.request.user
         if serializer.is_valid():
-            sheetUrl = serializer.validated_data.get("sheet_link")
-            projectUrl = serializer.validated_data.get("project_link")
-            
-            pr = GoogleSheetProcessor(sheetUrl, projectUrl)
-            
-            print(pr.__str__())
-            # pr.get_episode()
-            pr.save_full_episode_series_sequence(current_user)
-            
             return ApiResponseMixin().structure(request, Response(data="Sheet Uploaded Successfully!", status=status.HTTP_200_OK), [])
         else:
             return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), errors=serializer.errors)
