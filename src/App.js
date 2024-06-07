@@ -15,6 +15,7 @@ import Login from "./scenes/auth/login";
 import Signup from "./scenes/auth/signup";
 import Chapters from "./scenes/chapters";
 import Reels from "./scenes/reels";
+import Builder from "./scenes/builder";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -29,6 +30,7 @@ function App() {
             <Route path="team" element={<Team />} />
             <Route path="guests" element={<Guest />} />
             <Route path="episodes" element={<Episodes />} />
+            <Route path="builder" element={<Builder />} />
             <Route path="createGuest" element={<CreateGuest />} />
             <Route path="createEpisode" element={<CreateEpisode />} />
             <Route path="bookEpisode" element={<BookEpisode />} />
