@@ -4,7 +4,7 @@ import Header from "../../components/Header";
 import EpisodeCard from "../../components/EpisodeCard";
 import VideoCallOutlinedIcon from '@mui/icons-material/VideoCallOutlined';
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { useGetEpisodesListMutation } from "../../app/api";
 import React from "react";
 
@@ -12,6 +12,7 @@ const Episodes = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
+    const [loading, setLoading] = useOutletContext().loader
 
     const [data, setData] = React.useState([])
     const [apiErrors, SetApiErrors] = React.useState({})
@@ -19,6 +20,7 @@ const Episodes = () => {
 
 
     const getEpisodesfunc = async ()=>{
+        setLoading(true)
         const response = await getEpisodes()
         if (!!response.error) {
             let dataObject = response.error.data;
@@ -32,6 +34,7 @@ const Episodes = () => {
             // const {access_token} =  getToken()
             console.log(dataObject)
         }
+        setLoading(false)
     }
 
     React.useEffect(()=>{

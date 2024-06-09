@@ -5,7 +5,7 @@ import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Formik } from "formik";
 import { useSaveEpisodesSheetMutation } from "../../app/api";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useOutletContext } from "react-router-dom";
 import React from "react";
 import { CloudUpload } from "@mui/icons-material";
 
@@ -36,12 +36,16 @@ const checkoutSchema = yup.object().shape({
 const Create = () => {
     const navigate = useNavigate()
     const isNonMobile = useMediaQuery("(min-width:600px)");
+    const [loading, setLoading] = useOutletContext().loader
+
+    
     const [apiErrors, SetApiErrors] = React.useState({})
     const [progress, setProgress] = React.useState(0);
     const [saveEpisode, {isLoading}] = useSaveEpisodesSheetMutation()
     const fileInputRef = React.useRef(null);
 
     const handleSubmit = async (values) => {
+        setLoading(true)
         const formData = new FormData();
         formData.append("sheet_link", values.sheet_link)
         formData.append("project_link", values.project_link)
@@ -52,7 +56,7 @@ const Create = () => {
             let dataObject = response.error.data;
             console.log(dataObject.errors);
             SetApiErrors(dataObject.errors)
-            
+            setLoading(false)
         } else {
             console.log("Sheet Upload Success")
             let dataObject = response.data;
@@ -155,7 +159,7 @@ const Create = () => {
                   Upload File
                 </Button>
               </Box>
-              {isLoading && (
+              {/* {isLoading && (
                 <Box mt="20px" width="100%" sx={{ gridColumn: "span 3" }}>
                   <LinearProgress
                     color="secondary"
@@ -166,7 +170,7 @@ const Create = () => {
                     }}
                   />
                 </Box>
-              )}
+              )} */}
               <Box display="flex" justifyContent="start" mt="20px">
                 <Button
                   type="submit"

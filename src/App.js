@@ -35,7 +35,7 @@ function App() {
             <Route path="createEpisode" element={<CreateEpisode />} />
             <Route path="bookEpisode" element={<BookEpisode />} />
             <Route path="episodes/:episode_id/chapters" element={<Chapters />} />
-            <Route path="reels" element={<Reels />} />
+            <Route path="episodes/:episode_id/reels" element={<Reels />} />
           </Route>
           {/* Routes that do not include the sidebar and topbar */}
           <Route path="/" element={<AuthLayout />}>

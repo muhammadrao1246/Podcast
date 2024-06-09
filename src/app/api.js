@@ -48,11 +48,25 @@ export const userAuthApi = createApi({
     getEpisodeChaptersList: builder.mutation({
         query: (episode)=>{
             return  {
-                url: `chapters/${episode}`,
+                url: `episodes/${episode}/chapters`,
                 method: "GET",
                 // body: user,
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken().access_token}`
+                }
+            }
+        }
+    }),
+    updateEpisodeChapter: builder.mutation({
+        query: (data)=>{
+            const {episodeId, chapterId, body} = data
+            return  {
+                url: `episodes/${episodeId}/chapters/${chapterId}`,
+                method: "PUT",
+                body: body,
+                headers: {
+                    // 'Content-Type': 'application/json',
                     'Authorization': `Bearer ${getToken().access_token}`
                 }
             }
@@ -90,4 +104,12 @@ export const userAuthApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useRegisterUserMutation, useLoginUserMutation, useGetEpisodesListMutation, useGetEpisodeChaptersListMutation, useGetEpisodesDetailMutation, useSaveEpisodesSheetMutation } = userAuthApi
+export const {
+  useRegisterUserMutation,
+  useLoginUserMutation,
+  useGetEpisodesListMutation,
+  useGetEpisodeChaptersListMutation,
+  useGetEpisodesDetailMutation,
+  useSaveEpisodesSheetMutation,
+  useUpdateEpisodeChapterMutation,
+} = userAuthApi;
