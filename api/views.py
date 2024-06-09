@@ -56,14 +56,13 @@ class EpisodeSheetApi(APIView):
         data = request.data
         
         serializer = SheetSerializer(data=data, context={
-            'user': request.user
+            # 'user': request.user
         })
         
         if serializer.is_valid():
             return ApiResponseMixin().structure(request, Response(data="Sheet Uploaded Successfully!", status=status.HTTP_200_OK), [])
         else:
             return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), errors=serializer.errors)
-
 
 
 # EPISODE APIS
@@ -88,7 +87,9 @@ class EpisodeListApi(generics.ListAPIView):
         
         queryset =  super().get_queryset()
         
-        filtered = queryset.filter(user = current_user)
+        filtered = queryset.filter(
+            # user = current_user
+            )
         return filtered
     
     def list(self, request, *args, **kwargs):
@@ -119,9 +120,9 @@ class EpisodeDetailApi(APIView):
         if episode_model is None:
             return ApiResponseMixin().structure(request, Response(data="Episode Not Found!", status = 404), [])
         
-        es = EpisodeDetailSerializer(instance=episode_model)
-        # return response
-        return ApiResponseMixin().structure(request, Response(es.data), [])
+        episode_serialized = EpisodeDetailSerializer(instance=episode_model).data
+        
+        return ApiResponseMixin().structure(request, Response(episode_serialized), [])
 
 # CHAPTERS API
 class ChapterListApi(generics.ListAPIView):
@@ -145,7 +146,9 @@ class ChapterListApi(generics.ListAPIView):
         queryset =  super().get_queryset()
         
         episode_id = self.kwargs['episode_id']
-        filtered = queryset.filter(user = current_user, episode = episode_id)
+        filtered = queryset.filter(
+            # user = current_user, 
+            episode = episode_id)
         return filtered
     
     def list(self, request, *args, **kwargs):
@@ -170,22 +173,53 @@ class ChapterListApi(generics.ListAPIView):
 
 class ChapterDetailApi(APIView):
     permission_classes = [IsAuthenticated]
-    
-    def get(self, request, episode_id, uid):
+
+    def verifier(self, episode_id, chapter_id):
         current_user = self.request.user
-        
-        episode_model = EpisodeModel.objects.filter(id = episode_id, user = current_user).first()
+
+        episode_model = EpisodeModel.objects.filter(
+            id=episode_id, 
+            # user=current_user
+        ).first()
         if episode_model is None:
-            return ApiResponseMixin().structure(request, Response(data="Episode Not Found!", status = 404), [])
-        
-        chapter_model = ChapterModel.objects.filter(id = uid, user = current_user).first()
+            return {"data": "Episode Not Found!", "status": 404}
+
+        chapter_model = ChapterModel.objects.filter(id = chapter_id, episode=episode_model).first()
         if chapter_model is None:
-            return ApiResponseMixin().structure(request, Response(data="Chapter Not Found!", status = 404), [])
+            return {"data": "Chapter Not Found!", "status": 404}
         
-        
+        return [episode_model, chapter_model]
+    
+    # reading chapter's detail info
+    def get(self, request, episode_id, uid):
+        verify = self.verifier(episode_id, uid)
+        if type(verify) is dict:
+            return ApiResponseMixin().structure(request, Response(**verify), [])
+
+        episode_model = verify[0]
+        chapter_model = verify[1]
         cs = ChapterDetailSerializer(instance=chapter_model)
         # return response
         return ApiResponseMixin().structure(request, Response(cs.data), [])
+
+    # updating chapter's data
+    def put(self, request, episode_id, uid):
+        verify = self.verifier(episode_id, uid)
+        if type(verify) is dict:
+            return ApiResponseMixin().structure(request, Response(**verify), [])
+
+        episode_model = verify[0]
+        chapter_model = verify[1]
+
+        cs = ChapterUpdateSerializer(data=request.data, context={
+            'episode': episode_model,
+            'chapter': chapter_model
+        })
+        if cs.is_valid():
+            return ApiResponseMixin().structure(request, Response("Chapter Updated Successfully!"), [])
+        else:
+            return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), cs.errors)
+
 
 # AUTHENTICATION API
 

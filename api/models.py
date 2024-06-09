@@ -142,7 +142,7 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
 class EpisodeModel(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     
-    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    # user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     content = models.TextField(blank=True, null=True)
     
@@ -161,7 +161,7 @@ class EpisodeModel(models.Model):
 class SequenceModel(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     episode = models.ForeignKey(EpisodeModel, related_name='sequences', on_delete=models.CASCADE)
-    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    # user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     
     words = models.CharField(max_length=255)
     
@@ -172,13 +172,16 @@ class SequenceModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['sequence_number']
+        
     def __str__(self):
         return self.words
 
 class ChapterModel(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     episode = models.ForeignKey(EpisodeModel, related_name='chapters', on_delete=models.CASCADE)
-    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    # user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     
     title = models.CharField(max_length=255)
     chapter_number = models.PositiveBigIntegerField()  # To maintain the order of chapters
@@ -202,8 +205,8 @@ class ChapterModel(models.Model):
 class ReelModel(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     episode = models.ForeignKey(EpisodeModel, related_name='reels', on_delete=models.CASCADE)
-    chapter = models.ForeignKey(ChapterModel, related_name='reels', on_delete=models.CASCADE)
-    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    # chapter = models.ForeignKey(ChapterModel, related_name='reels', on_delete=models.CASCADE)
+    # user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     
     title = models.CharField(max_length=255)
     reel_number = models.PositiveBigIntegerField()
@@ -219,7 +222,8 @@ class ReelModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('chapter', 'reel_number')
-
+        unique_together = ('episode', 'reel_number')
+        ordering = ['reel_number']
+    
     def __str__(self):
         return f"Reel {self.reel_number}: {self.content[:30]}..."

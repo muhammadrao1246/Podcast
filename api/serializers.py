@@ -27,31 +27,69 @@ class SheetSerializer(serializers.Serializer):
         fields = ["sheet_url", "project_url", "excel_file"]
         
     def validate(self, attrs):
-        user = self.context.get("user")
+        # user = self.context.get("user")
+        print(attrs)
         project_link = attrs["project_link"]
-        if bool("sheet_link" in attrs) == bool("excel_file" in attrs):
+        sheet_link = attrs.get("sheet_link", None)
+        excel_file = attrs.get("excel_file", None)
+        if bool(sheet_link is not None) == bool(excel_file is not None):
             raise ValidationError("Only One Sheet URL or Excel File is required. ")
-        elif bool("sheet_link" in attrs):
-            sheet_link = attrs["sheet_link"]
+        elif sheet_link is not None:
             
             pr = GoogleSheetProcessor(sheet=sheet_link, project_url=project_link, isFile=False)
             
             print(pr.__str__())
             # pr.get_episode()
-            pr.save_full_episode_series_sequence(user)
+            pr.save_full_episode_series_sequence(
+                # user
+                )
             
-        elif bool("excel_file" in attrs):
-            excel_file = attrs["excel_file"]
-            
+        elif excel_file is not None:
             
             pr = GoogleSheetProcessor(sheet=excel_file, project_url=project_link, isFile=True)
             
             print(pr.__str__())
             # pr.get_episode()
-            pr.save_full_episode_series_sequence(user)
+            pr.save_full_episode_series_sequence(
+                # user
+                )
         
         return super().validate(attrs)
+
         
+# EPISODE SEQUENCES SERIALIZER
+
+class SequenceSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    
+    words = serializers.CharField(required=True, max_length = 255, error_messages={
+                    'required': 'Words is required.',
+                    'max_length': 'Words must be less than 255 characters in length.',
+                })
+    sequence_number = serializers.IntegerField(required=True, error_messages={
+                    'required': 'Sequence Number is required.',
+                })
+    
+    start_time = serializers.CharField(required=True, error_messages={
+                    'required': 'Start Time is required.',
+                    'max_length': 'Start Time must be less than equal to 12 in length.',
+                })
+    end_time = serializers.CharField(required=True, error_messages={
+                    'required': 'End Time is required.',
+                    'max_length': 'End Time must be less than equal to 12 in length.',
+                })
+    
+    num_start_time = serializers.SerializerMethodField()
+    num_end_time = serializers.SerializerMethodField()
+    class Meta:
+        model = SequenceModel
+        fields = ['id', 'words', 'sequence_number', 'num_start_time', 'num_end_time', 'start_time', 'end_time']
+
+    def get_num_start_time(self, seq: SequenceModel):
+        return UTIL.convert_time_string_to_seconds(seq.start_time)
+    
+    def get_num_end_time(self, seq: SequenceModel):
+        return UTIL.convert_time_string_to_seconds(seq.end_time)
 
 # EPISDOE SERIALIZER
 
@@ -91,43 +129,150 @@ class EpisodeDetailSerializer(serializers.ModelSerializer):
                     'required': 'Project Link is required.',
                 })
     
+    sequences = SequenceSerializer(many=True, read_only=True)
+    min_difference = serializers.SerializerMethodField()
+    sliderData = serializers.SerializerMethodField()
     class Meta:
         model = EpisodeModel
-        fields = ['id', 'title', 'content', 'start_time', 'end_time', 'sheet_link', 'project_link']
-        
-# EPISODE SEQUENCES SERIALIZER
+        fields = ['id', 'title', 'sliderData', 'sequences', 'min_difference', 'content', 'start_time', 'end_time', 'sheet_link', 'project_link']
 
-class SequenceSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(read_only=True)
     
-    words = serializers.CharField(required=True, max_length = 255, error_messages={
-                    'required': 'Words is required.',
-                    'max_length': 'Words must be less than 255 characters in length.',
-                })
-    sequence_number = serializers.IntegerField(required=True, error_messages={
-                    'required': 'Sequence Number is required.',
-                })
+    def get_sliderData(self, ep: EpisodeModel):
+        sequences_ordered = []
+        slider_data = []
+        
+        sequences = SequenceModel.objects.filter(episode=ep).iterator(1000)
+        for seq in sequences:
+            # slider_data.append({
+            #     "value": seq.sequence_number,
+            #     "label": UTIL.convert_seconds_to_time_string(UTIL.convert_time_string_to_seconds(seq.start_time))
+            # })
+            sequences_ordered.append(seq.start_time)
+            sequences_ordered.append(seq.end_time)
+        
+        sequences_ordered = sorted(set(sequences_ordered))
+        # return sequences_ordered
+        min_diff = 1
+        prev_seq = 0
+        for seq in sequences_ordered:
+            seconds = UTIL.convert_time_string_to_seconds(seq)
+            min_diff = seconds - prev_seq if (seconds - prev_seq) < min_diff and (seconds - prev_seq) > 0 else min_diff
+            prev_seq = seconds
+            slider_data.append({
+                "value": seconds,
+                "label": UTIL.convert_seconds_to_time_string(seconds)
+            })
+        
+        self.context["min_difference"] = min_diff
+        print(min_diff)
+        return slider_data
     
-    start_time = serializers.CharField(required=True, error_messages={
-                    'required': 'Start Time is required.',
-                    'max_length': 'Start Time must be less than equal to 12 in length.',
+    def get_min_difference(self, ep: EpisodeModel):
+        return self.context["min_difference"]
+    
+
+# CHAPTER SERIALIZERS
+class ChapterUpdateSerializer(serializers.Serializer):
+    
+    start_sequence_number = serializers.IntegerField(required=True, error_messages={
+                    'required': 'Start Sequence Number is required.',
                 })
-    end_time = serializers.CharField(required=True, error_messages={
-                    'required': 'End Time is required.',
-                    'max_length': 'End Time must be less than equal to 12 in length.',
+    end_sequence_number = serializers.IntegerField(required=True, error_messages={
+                    'required': 'End Sequence Number is required.',
+                    
                 })
     
     class Meta:
-        model = SequenceModel
-        fields = ['id', 'words', 'sequence_number', 'start_time', 'end_time']
+        fields = ["start_sequence_number", "end_sequence_number"]
+    
+    
+    def update_chapters(self, chapter_model:ChapterModel):
+        sequences = chapter_model.sequences.filter()
+        if sequences.count() > 0:
+            contentJoined = ' '.join([seq.words for seq in sequences])
+            first_seq = sequences.first()
+            last_seq = sequences.last()
 
-# CHAPTER SERIALIZERS
+            chapter_model.start_time = first_seq.start_time
+            chapter_model.end_time = last_seq.end_time
+            chapter_model.content = contentJoined
+            chapter_model.save()
+            # print(chapter_model.start_time, first_seq.start_time)
+            # print(chapter_model.end_time, first_seq.end_time)
+            # print(chapter_model.content, contentJoined)
+
+        else:
+            chapter_model.delete()
+            # chapter_model.start_time = "00:00:00:00"
+            # chapter_model.end_time = "00:00:00:00"
+            # chapter_model.content = ""
+            # chapter_model.save()
+            # print(chapter_model.start_time)
+            # print(chapter_model.end_time)
+            # print(chapter_model.content)
+
+    def validate(self, attrs):
+        episode_model = self.context.get("episode")
+        chapter_model = self.context.get("chapter")
+        start = attrs.get("start_sequence_number")
+        end = attrs.get("end_sequence_number")
+        
+        if start > end:
+            raise ValidationError("Start Value should be less than or equal to End Value")
+        
+        print("Range: ", start, end)
+        # getting new sequences and attaching to chapters
+        new_sequence_models = SequenceModel.objects.filter(episode=episode_model, sequence_number__gte = start, sequence_number__lte = end )
+
+        # other chapter that have these sequences removing them right away
+        other_chapters = ChapterModel.objects.filter(episode=episode_model).exclude(id = chapter_model.id)
+        for och in other_chapters:
+            o_start = och.sequences.filter().first().sequence_number if och.sequences.filter().count() > 0 else 0
+            o_end = och.sequences.filter().last().sequence_number if och.sequences.filter().count() > 0 else 0
+            print(o_start, o_end)
+            if start > o_start and end < o_end:
+                raise ValidationError(f'{chapter_model.title} cannot be a subset of {och.title}')
+            
+        chapter_model.sequences.set(new_sequence_models, clear=True)
+        self.update_chapters(chapter_model)
+        
+        for och in other_chapters:
+            och.sequences.remove(*new_sequence_models)
+            self.update_chapters(och)
+
+        # update chapter itself
+
+        
+        return super().validate(attrs)
+    
 
 class ChapterListSerializer(serializers.ModelSerializer):
     
+    # content = serializers.SerializerMethodField()
+    
+    num_start_time = serializers.SerializerMethodField()
+    num_end_time = serializers.SerializerMethodField()
+    
+    start_sequence_number = serializers.SerializerMethodField()
+    end_sequence_number = serializers.SerializerMethodField()
     class Meta:
         model = ChapterModel
-        fields = ['id', 'episode_id', 'title', 'content', 'start_time', 'end_time', "chapter_number"]
+        fields = ['id', 'episode_id', 'title', 'content', 'start_sequence_number', 'end_sequence_number', 'num_start_time', 'num_end_time', 'start_time', 'end_time', "chapter_number"]
+    
+    # def get_content(self, ch: ChapterModel):
+    #     return ch.content[:200]
+    
+    def get_num_start_time(self, ch: ChapterModel):
+        return UTIL.convert_time_string_to_seconds(ch.start_time)
+    
+    def get_num_end_time(self, ch: ChapterModel):
+        return UTIL.convert_time_string_to_seconds(ch.end_time)
+    
+    def get_start_sequence_number(self, ch: ChapterModel):
+        return ch.sequences.first().sequence_number if ch.sequences.count() > 0 else 0
+    
+    def get_end_sequence_number(self, ch: ChapterModel):
+        return ch.sequences.last().sequence_number if ch.sequences.count() > 0 else 0
     
         
 class ChapterDetailSerializer(serializers.ModelSerializer):
@@ -147,15 +292,11 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
                     'max_length': 'End Time must be less than equal to 12 in length.',
                 })
     
+    
     chapter_number = serializers.IntegerField(required=True, error_messages={
                     'required': 'Chapter Number is required.',
                 })
-    # start_sequence_number = serializers.IntegerField(required=True, error_messages={
-    #                 'required': 'Start Sequence Number is required.',
-    #             })
-    # end_sequence_number = serializers.IntegerField(required=True, error_messages={
-    #                 'required': 'End Sequence Number is required.',
-    #             })
+    
     
     
     id = serializers.UUIDField(read_only=True)
@@ -167,6 +308,7 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
         # fields = ['id', 'episode_id', 'title', 'content', 'start_time', 'end_time', 'start_sequence_number', "end_sequence_number", "chapter_number"]
         
         fields = ['id', 'episode_id', 'title', 'content', 'start_time', 'end_time', "sequences", "chapter_number"]
+    
         
 
 class ReelSerializer(serializers.ModelSerializer):
@@ -258,7 +400,7 @@ class UserPasswordForgotSerializer(serializers.Serializer):
                 print("Encoded UID: ", uid)
                 token = PasswordResetTokenGenerator().make_token(fetched)
                 print("Token Generated: ", token)
-                link = f'{FRONTEND_SERVER_URL}/api/auth/reset/{uid}/{token}'
+                link = f'{9}/api/auth/reset/{uid}/{token}'
                 print("Password Reset Link: ", link)
                 
                 email_data = {

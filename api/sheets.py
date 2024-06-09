@@ -9,7 +9,27 @@ import numpy as np
 from io import BytesIO
 import requests
 
-
+class DatabaseGoogleSheetGenerator:
+    episode = None
+    chapters_sheet_dataframe = pd.DataFrame()
+    chapters_filtered_sheet_dataframe = pd.DataFrame()
+    
+    chapter_sheet_column_names = ["Start Time", "End Time", "Text", "Chapter"]
+    
+    chapter_filtered_sheet_column_names = ["Start Time", "End Time", "Text", "Chapter"]
+    
+    def __init__(self, episode_model: EpisodeModel):
+        self.episode = episode_model
+        
+    
+    def fetch_all_sequences_dataframe(self):
+        sequences = SequenceModel.objects.filter(episode=self.episode).iterator(1000)
+        
+        all_chapters = ChapterModel.objects.filter(episode=self.episode)
+        
+        # for seq in sequences:
+            
+        
 
 class GoogleSheetProcessor:
     sheet_url = None
@@ -123,7 +143,9 @@ class GoogleSheetProcessor:
         
         
     
-    def save_full_episode_series_sequence(self, user):
+    def save_full_episode_series_sequence(self, 
+                                        #   user
+                                          ):
         
         sequences_sheet = self.all_sheets.get("Copy CSV Here", None)
         chapters_filtered_sheet = self.all_sheets.get("Chapter Filtered", None)
@@ -161,7 +183,7 @@ class GoogleSheetProcessor:
         episode_model = EpisodeModel.objects.create(
             title=self.episode_title,
             content="",
-            user=user,
+            # user=user,
             start_time=None,
             end_time=None,
             sheet_link=self.sheet_url,
@@ -200,7 +222,7 @@ class GoogleSheetProcessor:
             sequence_model = SequenceModel(
                 id = sequence_uid,
                 episode=episode_model,
-            user=user,
+                # user=user,
                 words=words,
                 sequence_number=sequence_number,
                 start_time=start_time,
@@ -214,7 +236,7 @@ class GoogleSheetProcessor:
                     chapter_model = ChapterModel(
                         id = chapter_uid,
                         episode = episode_model,
-                        user=user,
+                        # user=user,
                         title = f"Chapter {str(chapter)}",
                         chapter_number = int(chapter),
                         content = words.strip(),
@@ -240,13 +262,13 @@ class GoogleSheetProcessor:
             
             if reel != 0:
                 
-                if f"{str(chapter)}-{str(reel)}" not in reel_models:
+                if f"reel-{str(reel)}" not in reel_models:
                     reel_uid = uuid.uuid4()
                     reel_model = ReelModel(
                         id = reel_uid,
                         episode = episode_model,
-                        user=user,
-                        chapter = chapters_models[str(chapter)],
+                        # user=user,
+                        # chapter = chapters_models[str(chapter)],
                         title = f"Reel {str(reel)}",
                         reel_number = int(reel),
                         content = words.strip(),
@@ -255,22 +277,22 @@ class GoogleSheetProcessor:
                     )
                     reel_model.save()
                     # reel_model.sequences.add(sequence_model)
-                    reel_models[f"{str(chapter)}-{str(reel)}"] = reel_model
+                    reel_models[f"reel-{str(reel)}"] = reel_model
                 else:
-                    reel_model = reel_models[f"{str(chapter)}-{str(reel)}"]
+                    reel_model = reel_models[f"reel-{str(reel)}"]
                     # reel_model.content = reel_model.content + " " + words.strip()
                     reel_model.end_time = end_time
                     # reel_model.sequences.add(sequence_model)
-                    reel_models[f"{str(chapter)}-{str(reel)}"] = reel_model
+                    reel_models[f"reel-{str(reel)}"] = reel_model
                 
                 
-                if f"{str(chapter)}-{str(reel)}" not in reels_sequences_id:
-                    reels_sequences_id[f"{str(chapter)}-{str(reel)}"] = []
-                    reels_contents[f"{str(chapter)}-{str(reel)}"]  = ""
+                if f"reel-{str(reel)}" not in reels_sequences_id:
+                    reels_sequences_id[f"reel-{str(reel)}"] = []
+                    reels_contents[f"reel-{str(reel)}"]  = ""
 
-                reels_contents[f"{str(chapter)}-{str(reel)}"]  += " " + words.strip()
+                reels_contents[f"reel-{str(reel)}"]  += " " + words.strip()
                 
-                reels_sequences_id[f"{str(chapter)}-{str(reel)}"].append(sequence_uid)
+                reels_sequences_id[f"reel-{str(reel)}"].append(sequence_uid)
             
             # print(f"Index: {row.Index}")
             # print(f"Start Time: {row._1}, End Time: {row._2}, Text: {row._3}, Chapter: {row._4}, Reel: {row._5}")
