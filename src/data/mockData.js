@@ -146,7 +146,7 @@ export const mockDataChapters = [
         episodeTranscript: "Lorem ipsum dolor sit amet. Ea earum natus vel voluptatem possimus non vero voluptas vel ipsam nemo qui quam sunt cum quia autem 33 nemo consectetur. Et reiciendis recusandae rem quibusdam amet et consequatur reprehenderit et quae quibusdam aut placeat deleniti. Non molestiae labore qui aperiam odit sed facilis quibusdam sed quae similique aut autem veritatis ut maiores nemo. Et porro dolorem aut dolor libero ea temporibus consectetur et doloribus odio aut perferendis magni. Sed fugiat voluptatem sit internos neque nam similique fugit vel perferendis omnis vel atque labore ea facilis sunt. Aut dolores vitae in dolorum voluptas est enim corrupti et exercitationem debitis. Sit ducimus pariatur sed quibusdam voluptatibus sit itaque corrupti et dolor quibusdam aut eveniet blanditiis ea voluptatem internos. In molestias assumenda est galisum possimus et adipisci magnam eos eaque commodi cum molestias voluptatum.",
         startTime: "00:00:00",
         endTime: "00:00:20",
-        src: "../../assets/benedwards.png"
+        src: "/images/benedwards.png"
     },
     {
         id: 2,
@@ -156,7 +156,7 @@ export const mockDataChapters = [
         episodeTranscript: "Lorem ipsum dolor sit amet. Ea earum natus vel voluptatem possimus non vero voluptas vel ipsam nemo qui quam sunt cum quia autem 33 nemo consectetur. Et reiciendis recusandae rem quibusdam amet et consequatur reprehenderit et quae quibusdam aut placeat deleniti. Non molestiae labore qui aperiam odit sed facilis quibusdam sed quae similique aut autem veritatis ut maiores nemo. Et porro dolorem aut dolor libero ea temporibus consectetur et doloribus odio aut perferendis magni. Sed fugiat voluptatem sit internos neque nam similique fugit vel perferendis omnis vel atque labore ea facilis sunt. Aut dolores vitae in dolorum voluptas est enim corrupti et exercitationem debitis. Sit ducimus pariatur sed quibusdam voluptatibus sit itaque corrupti et dolor quibusdam aut eveniet blanditiis ea voluptatem internos. In molestias assumenda est galisum possimus et adipisci magnam eos eaque commodi cum molestias voluptatum.",
         startTime: "00:00:20",
         endTime: "00:00:40",
-        src: "../../assets/benedwards.png"
+        src: "/images/benedwards.png"
     },
     {
         id: 3,
@@ -166,7 +166,7 @@ export const mockDataChapters = [
         episodeTranscript: "Lorem ipsum dolor sit amet. Ea earum natus vel voluptatem possimus non vero voluptas vel ipsam nemo qui quam sunt cum quia autem 33 nemo consectetur. Et reiciendis recusandae rem quibusdam amet et consequatur reprehenderit et quae quibusdam aut placeat deleniti. Non molestiae labore qui aperiam odit sed facilis quibusdam sed quae similique aut autem veritatis ut maiores nemo. Et porro dolorem aut dolor libero ea temporibus consectetur et doloribus odio aut perferendis magni. Sed fugiat voluptatem sit internos neque nam similique fugit vel perferendis omnis vel atque labore ea facilis sunt. Aut dolores vitae in dolorum voluptas est enim corrupti et exercitationem debitis. Sit ducimus pariatur sed quibusdam voluptatibus sit itaque corrupti et dolor quibusdam aut eveniet blanditiis ea voluptatem internos. In molestias assumenda est galisum possimus et adipisci magnam eos eaque commodi cum molestias voluptatum.",
         startTime: "00:00:40",
         endTime: "00:01:00",
-        src: "../../assets/benedwards.png"
+        src: "/images/benedwards.png"
     },
     {
         id: 4,
@@ -176,7 +176,7 @@ export const mockDataChapters = [
         episodeTranscript: "Lorem ipsum dolor sit amet. Ea earum natus vel voluptatem possimus non vero voluptas vel ipsam nemo qui quam sunt cum quia autem 33 nemo consectetur. Et reiciendis recusandae rem quibusdam amet et consequatur reprehenderit et quae quibusdam aut placeat deleniti. Non molestiae labore qui aperiam odit sed facilis quibusdam sed quae similique aut autem veritatis ut maiores nemo. Et porro dolorem aut dolor libero ea temporibus consectetur et doloribus odio aut perferendis magni. Sed fugiat voluptatem sit internos neque nam similique fugit vel perferendis omnis vel atque labore ea facilis sunt. Aut dolores vitae in dolorum voluptas est enim corrupti et exercitationem debitis. Sit ducimus pariatur sed quibusdam voluptatibus sit itaque corrupti et dolor quibusdam aut eveniet blanditiis ea voluptatem internos. In molestias assumenda est galisum possimus et adipisci magnam eos eaque commodi cum molestias voluptatum.",
         startTime: "00:01:00",
         endTime: "00:01:20",
-        src: "../../assets/benedwards.png"
+        src: "/images/benedwards.png"
     },
     {
         id: 5,
@@ -186,7 +186,7 @@ export const mockDataChapters = [
         episodeTranscript: "Lorem ipsum dolor sit amet. Ea earum natus vel voluptatem possimus non vero voluptas vel ipsam nemo qui quam sunt cum quia autem 33 nemo consectetur. Et reiciendis recusandae rem quibusdam amet et consequatur reprehenderit et quae quibusdam aut placeat deleniti. Non molestiae labore qui aperiam odit sed facilis quibusdam sed quae similique aut autem veritatis ut maiores nemo. Et porro dolorem aut dolor libero ea temporibus consectetur et doloribus odio aut perferendis magni. Sed fugiat voluptatem sit internos neque nam similique fugit vel perferendis omnis vel atque labore ea facilis sunt. Aut dolores vitae in dolorum voluptas est enim corrupti et exercitationem debitis. Sit ducimus pariatur sed quibusdam voluptatibus sit itaque corrupti et dolor quibusdam aut eveniet blanditiis ea voluptatem internos. In molestias assumenda est galisum possimus et adipisci magnam eos eaque commodi cum molestias voluptatum.",
         startTime: "00:01:20",
         endTime: "00:01:40",
-        src: "../../assets/benedwards.png"
+        src: "/images/benedwards.png"
     },
     {
         id: 6,
@@ -196,7 +196,7 @@ export const mockDataChapters = [
         episodeTranscript: "Lorem ipsum dolor sit amet. Ea earum natus vel voluptatem possimus non vero voluptas vel ipsam nemo qui quam sunt cum quia autem 33 nemo consectetur. Et reiciendis recusandae rem quibusdam amet et consequatur reprehenderit et quae quibusdam aut placeat deleniti. Non molestiae labore qui aperiam odit sed facilis quibusdam sed quae similique aut autem veritatis ut maiores nemo. Et porro dolorem aut dolor libero ea temporibus consectetur et doloribus odio aut perferendis magni. Sed fugiat voluptatem sit internos neque nam similique fugit vel perferendis omnis vel atque labore ea facilis sunt. Aut dolores vitae in dolorum voluptas est enim corrupti et exercitationem debitis. Sit ducimus pariatur sed quibusdam voluptatibus sit itaque corrupti et dolor quibusdam aut eveniet blanditiis ea voluptatem internos. In molestias assumenda est galisum possimus et adipisci magnam eos eaque commodi cum molestias voluptatum.",
         startTime: "00:01:40",
         endTime: "00:02:00",
-        src: "../../assets/benedwards.png"
+        src: "/images/benedwards.png"
     },
     {
         id: 7,
@@ -206,7 +206,7 @@ export const mockDataChapters = [
         episodeTranscript: "Lorem ipsum dolor sit amet. Ea earum natus vel voluptatem possimus non vero voluptas vel ipsam nemo qui quam sunt cum quia autem 33 nemo consectetur. Et reiciendis recusandae rem quibusdam amet et consequatur reprehenderit et quae quibusdam aut placeat deleniti. Non molestiae labore qui aperiam odit sed facilis quibusdam sed quae similique aut autem veritatis ut maiores nemo. Et porro dolorem aut dolor libero ea temporibus consectetur et doloribus odio aut perferendis magni. Sed fugiat voluptatem sit internos neque nam similique fugit vel perferendis omnis vel atque labore ea facilis sunt. Aut dolores vitae in dolorum voluptas est enim corrupti et exercitationem debitis. Sit ducimus pariatur sed quibusdam voluptatibus sit itaque corrupti et dolor quibusdam aut eveniet blanditiis ea voluptatem internos. In molestias assumenda est galisum possimus et adipisci magnam eos eaque commodi cum molestias voluptatum.",
         startTime: "00:02:00",
         endTime: "00:02:20",
-        src: "../../assets/benedwards.png"
+        src: "/images/benedwards.png"
     },
     {
         id: 8,
@@ -216,7 +216,7 @@ export const mockDataChapters = [
         episodeTranscript: "Lorem ipsum dolor sit amet. Ea earum natus vel voluptatem possimus non vero voluptas vel ipsam nemo qui quam sunt cum quia autem 33 nemo consectetur. Et reiciendis recusandae rem quibusdam amet et consequatur reprehenderit et quae quibusdam aut placeat deleniti. Non molestiae labore qui aperiam odit sed facilis quibusdam sed quae similique aut autem veritatis ut maiores nemo. Et porro dolorem aut dolor libero ea temporibus consectetur et doloribus odio aut perferendis magni. Sed fugiat voluptatem sit internos neque nam similique fugit vel perferendis omnis vel atque labore ea facilis sunt. Aut dolores vitae in dolorum voluptas est enim corrupti et exercitationem debitis. Sit ducimus pariatur sed quibusdam voluptatibus sit itaque corrupti et dolor quibusdam aut eveniet blanditiis ea voluptatem internos. In molestias assumenda est galisum possimus et adipisci magnam eos eaque commodi cum molestias voluptatum.",
         startTime: "00:02:20",
         endTime: "00:02:40",
-        src: "../../assets/benedwards.png"
+        src: "/images/benedwards.png"
     },
     {
         id: 9,
@@ -226,6 +226,6 @@ export const mockDataChapters = [
         episodeTranscript: "Lorem ipsum dolor sit amet. Ea earum natus vel voluptatem possimus non vero voluptas vel ipsam nemo qui quam sunt cum quia autem 33 nemo consectetur. Et reiciendis recusandae rem quibusdam amet et consequatur reprehenderit et quae quibusdam aut placeat deleniti. Non molestiae labore qui aperiam odit sed facilis quibusdam sed quae similique aut autem veritatis ut maiores nemo. Et porro dolorem aut dolor libero ea temporibus consectetur et doloribus odio aut perferendis magni. Sed fugiat voluptatem sit internos neque nam similique fugit vel perferendis omnis vel atque labore ea facilis sunt. Aut dolores vitae in dolorum voluptas est enim corrupti et exercitationem debitis. Sit ducimus pariatur sed quibusdam voluptatibus sit itaque corrupti et dolor quibusdam aut eveniet blanditiis ea voluptatem internos. In molestias assumenda est galisum possimus et adipisci magnam eos eaque commodi cum molestias voluptatum.",
         startTime: "00:02:40",
         endTime: "00:03:00",
-        src: "../../assets/benedwards.png"
+        src: "/images/benedwards.png"
     }
 ]

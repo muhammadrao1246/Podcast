@@ -1,6 +1,6 @@
 import React from 'react'
 
-import "../assets/css/report-loader.css"
+import "src/assets/css/report-loader.css"
 import { Box } from '@mui/material';
 
 function LongLoader() {
