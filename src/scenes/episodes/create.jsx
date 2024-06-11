@@ -8,6 +8,7 @@ import { useSaveEpisodesSheetMutation } from "../../app/api";
 import { Navigate, useNavigate, useOutletContext } from "react-router-dom";
 import React from "react";
 import { CloudUpload } from "@mui/icons-material";
+import FormAlertsComponent from "../../components/FormAlertsComponent";
 
   
 const initialValues = {
@@ -39,7 +40,7 @@ const Create = () => {
     const [loading, setLoading] = useOutletContext().loader
 
     
-    const [apiErrors, SetApiErrors] = React.useState({})
+    const [apiMessage, SetApiMessage] = React.useState([])
     const [progress, setProgress] = React.useState(0);
     const [saveEpisode, {isLoading}] = useSaveEpisodesSheetMutation()
     const fileInputRef = React.useRef(null);
@@ -55,14 +56,28 @@ const Create = () => {
         if (!!response.error) {
             let dataObject = response.error.data;
             console.log(dataObject.errors);
-            SetApiErrors(dataObject.errors)
+            SetApiMessage(
+              Object.keys(dataObject.errors).map((errorType, index) => {
+                return {
+                  type: errorType,
+                  message: dataObject.errors[errorType],
+                };
+              })
+            );
             setLoading(false)
         } else {
             console.log("Sheet Upload Success")
             let dataObject = response.data;
+            setLoading(false)
 
             console.log(dataObject)
-            navigate("/episodes")
+            SetApiMessage([{
+              type: 'success',
+              message: ["Episode Created Successfully!"],
+            }])
+            setTimeout(() => {
+              navigate("/episodes")
+            }, 1500);
         }
 
     }
@@ -83,7 +98,16 @@ const Create = () => {
     return (
       <Box m="20px">
         <Header title="Create Episode" subtitle="Create a New Episode" />
-
+        {
+                        apiMessage.map(message=>(
+                            <FormAlertsComponent
+                            key={message.type}
+                            type={message.type}
+                            message={message.message}
+                            sx={{mb: 2}} 
+                            />
+                        ))
+                        }
         <Formik
           onSubmit={handleSubmit}
           initialValues={initialValues}

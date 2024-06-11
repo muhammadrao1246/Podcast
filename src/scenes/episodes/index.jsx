@@ -62,6 +62,7 @@ const Episodes = () => {
                         Add New Episode
                     </Button>
                     <Button
+                        LinkComponent={Link}
                         sx={{
                         backgroundColor: colors.blueAccent[700],
                         color: colors.grey[100],
@@ -70,7 +71,7 @@ const Episodes = () => {
                         padding: "10px 20px",
                         marginLeft: "10px",
                         }}
-                        href="/bookEpisode"
+                        to="/episodes/add"
                     >
                         <CalendarTodayOutlinedIcon sx={{ mr: "10px" }} />
                         Book Episode

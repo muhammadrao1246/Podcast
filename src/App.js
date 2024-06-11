@@ -29,10 +29,10 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="team" element={<Team />} />
             <Route path="guests" element={<Guest />} />
-            <Route path="episodes" element={<Episodes />} />
             <Route path="builder" element={<Builder />} />
             <Route path="createGuest" element={<CreateGuest />} />
-            <Route path="createEpisode" element={<CreateEpisode />} />
+            <Route path="episodes" element={<Episodes />} />
+            <Route path="episodes/add" element={<CreateEpisode />} />
             <Route path="bookEpisode" element={<BookEpisode />} />
             <Route path="episodes/:episode_id/chapters" element={<Chapters />} />
             <Route path="episodes/:episode_id/reels" element={<Reels />} />

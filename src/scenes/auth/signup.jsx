@@ -10,6 +10,7 @@ import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import { useRegisterUserMutation } from "../../app/api";
 import { useNavigate } from "react-router-dom";
 import { storeToken } from "../../app/token";
+import FormAlertsComponent from "../../components/FormAlertsComponent";
 
 const validationSchema = yup.object().shape({
     full_name: yup.string().required("required"),
@@ -27,7 +28,7 @@ const Signup = () => {
 
     const isNonMobile = useMediaQuery('(min-width:600px)');
 
-    const [apiErrors, SetApiErrors] = useState({})
+    const [apiMessage, SetApiMessage] = useState([])
     const [registerUser, {isLoading}] = useRegisterUserMutation()
     const handleSubmit = async (values) => {
 
@@ -35,14 +36,27 @@ const Signup = () => {
         if (!!response.error) {
             let dataObject = response.error.data;
             console.log(dataObject.errors);
-            SetApiErrors(dataObject.errors)
             
+            SetApiMessage(
+              Object.keys(dataObject.errors).map((errorType, index) => {
+                return {
+                  type: errorType,
+                  message: dataObject.errors[errorType],
+                };
+              })
+            );
         } else {
             console.log("Registration Success")
             let dataObject = response.data.data;
             storeToken(dataObject.token)
+            SetApiMessage([{
+              type: 'success',
+              message: ["User registered successfully!"],
+            }])
             console.log(dataObject)
-            navigate("/dashboard")
+            setTimeout(() => {
+                navigate("/dashboard")
+            }, 1500);
         }
 
     }
@@ -93,6 +107,17 @@ const Signup = () => {
               Fill out these fields to signup
             </Typography>
 
+            {
+              apiMessage.map(message=>(
+                <FormAlertsComponent
+                key={message.type}
+                  type={message.type}
+                  message={message.message}
+                  sx={{mb: 2}} 
+                  />
+              ))
+            }
+            
             <Formik
               initialValues={{
                 full_name: "",

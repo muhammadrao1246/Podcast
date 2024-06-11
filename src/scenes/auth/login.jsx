@@ -11,6 +11,7 @@ import { useLoginUserMutation } from "../../app/api";
 import { useNavigate } from "react-router-dom";
 import { getToken, storeToken } from "../../app/token";
 import { setUserToken } from "../../app/authSlice";
+import FormAlertsComponent from "../../components/FormAlertsComponent";
 
 const validationSchema = yup.object().shape({
     email: yup.string().required("required").email(),
@@ -27,7 +28,7 @@ const Login = () => {
     const isNonMobile = useMediaQuery('(min-width:600px)');
 
     
-    const [apiErrors, SetApiErrors] = React.useState({})
+    const [apiMessage, SetApiMessage] = React.useState([])
     const [loginUser, {isLoading}] = useLoginUserMutation()
     const handleSubmit = async (values) => {
 
@@ -35,7 +36,14 @@ const Login = () => {
         if (!!response.error) {
             let dataObject = response.error.data;
             console.log(dataObject.errors);
-            SetApiErrors(dataObject.errors)
+            SetApiMessage(
+                Object.keys(dataObject.errors).map((errorType, index) => {
+                  return {
+                    type: errorType,
+                    message: dataObject.errors[errorType],
+                  };
+                })
+              );
             
         } else {
             console.log("Login Success")
@@ -43,8 +51,14 @@ const Login = () => {
             console.log(dataObject.data.token)
             // setUserToken(dataObject.data.token)
             storeToken(dataObject.data.token)
+            SetApiMessage([{
+                type: 'success',
+                message: ["User registered successfully!"],
+              }])
             console.log(dataObject)
-            navigate("/dashboard")
+            setTimeout(() => {
+                navigate("/dashboard")
+            }, 1500);
         }
 
     }
@@ -79,7 +93,17 @@ const Login = () => {
 
                     <Typography variant="h2" color={colors.grey[100]} fontWeight="bold" sx={{ mb: "5px" }}>Hi, Welcome Back!</Typography>
                     <Typography variant="h5" color={colors.greenAccent[400]} sx={{ mb: "36px" }}>login with email and password</Typography>
-
+                    
+                    {
+                        apiMessage.map(message=>(
+                            <FormAlertsComponent
+                            key={message.type}
+                            type={message.type}
+                            message={message.message}
+                            sx={{mb: 2}} 
+                            />
+                        ))
+                        }
                     <Formik
                     initialValues={{ email: '', password: '' }}
                     validationSchema={validationSchema}
