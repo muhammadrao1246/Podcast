@@ -16,17 +16,22 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '16'
-      
-    - name: 🔨 Build Project
-      run: |
-        npm install
-        npm run build
+    
+    - name: Install Dependencies 📦
+      run: npm install
+
+    - name: Build React App / Vue App (depending on user app) 🏗️
+      run: npm run build
     
     - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.GIT_CPANEL_REACT_SERVER }}
         username: ${{ secrets.GIT_CPANEL_REACT_USER }}
         password: ${{ secrets.GIT_CPANEL_REACT_PWD }}
-        protocol: ${{ secrets.GIT_CPANEL_REACT_PROTOCOL }}
         local-dir: ./dist/
+        exclude: |
+          **/.git**
+          **/.git*/**
+          **/node_modules/**
+          **/.**
