@@ -39,7 +39,7 @@ SECRET_KEY = env('APP_KEY')
 DEBUG = False if env('APP_DEBUG') == "false" else True
 
 
-ALLOWED_HOSTS = ["127.0.0.1", "127.0.0.1:3010", 'www.127.0.0.1:3010', "backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com", "backendapi.coffeemapcompany" ]
+ALLOWED_HOSTS = ["127.0.0.1", "127.0.0.1:3010", 'www.127.0.0.1:3010', '13.60.49.220', 'www.13.60.49.220', "backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com", "backendapi.coffeemapcompany" ]
 
 SECURE_SSL_REDIRECT = False
 # Allowed origin
