@@ -120,7 +120,7 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
     
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255)
-    profile_image = models.ImageField(upload_to="uploads", null=True, default=None)
+    profile_image = models.ImageField(upload_to="uploads/user", null=True, default=None)
     is_active = models.BooleanField(default=True)
     is_third_party = models.BooleanField(default=False)
     
@@ -134,6 +134,22 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+    
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        # Simplest possible answer: All admins are staff
+        return True
     
     
 
