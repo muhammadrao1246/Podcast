@@ -63,9 +63,22 @@ if SECURE_SSL_REDIRECT:
 # FRONTEND_SERVER_URL = env("REACT_SERVER_LOCAL")
 
 # GOOGLE SHEETS API
-# GOOGLE_SHEET_SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-# GOOGLE_SHEET_CREDENTIALS = Credentials.from_service_account_file(filename=os.path.join(BASE_DIR, "sheet-credentials.json"), scopes=GOOGLE_SHEET_SCOPES)
-# GOOGLE_SHEET_CLIENT = gspread.authorize(GOOGLE_SHEET_CREDENTIALS)
+GOOGLE_SHEET_SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+GOOGLE_SHEET_CREDENTIALS_DATA = {
+            "type": env("GOOGLE_TYPE"),
+            "project_id": env("GOOGLE_PROJECT_ID"),
+            "private_key_id": env("GOOGLE_PRIVATE_KEY_ID"),
+            "private_key": env("GOOGLE_PRIVATE_KEY").replace('\\n', '\n'),
+            "client_email": env("GOOGLE_CLIENT_EMAIL"),
+            "client_id": env("GOOGLE_CLIENT_ID"),
+            "auth_uri": env("GOOGLE_AUTH_URI"),
+            "token_uri": env("GOOGLE_TOKEN_URI"),
+            "auth_provider_x509_cert_url": env("GOOGLE_AUTH_PROVIDER_X509_CERT_URL"),
+            "client_x509_cert_url": env("GOOGLE_CLIENT_X509_CERT_URL"),
+            "universe_domain": env("GOOGLE_UNIVERSE_DOMAIN")
+        }
+GOOGLE_SHEET_CREDENTIALS = Credentials.from_service_account_info(GOOGLE_SHEET_CREDENTIALS_DATA, scopes=GOOGLE_SHEET_SCOPES)
+GOOGLE_SHEET_CLIENT = gspread.authorize(GOOGLE_SHEET_CREDENTIALS)
 
 
 # Application definition
