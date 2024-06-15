@@ -221,7 +221,7 @@ class ChapterModel(models.Model):
 class ReelModel(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     episode = models.ForeignKey(EpisodeModel, related_name='reels', on_delete=models.CASCADE)
-    # chapter = models.ForeignKey(ChapterModel, related_name='reels', on_delete=models.CASCADE)
+    chapter = models.ForeignKey(ChapterModel, related_name='reels', on_delete=models.CASCADE)
     # user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     
     title = models.CharField(max_length=255)
@@ -238,7 +238,7 @@ class ReelModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('episode', 'reel_number')
+        unique_together = ('chapter', 'reel_number')
         ordering = ['reel_number']
     
     def __str__(self):

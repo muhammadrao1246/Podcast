@@ -1,3 +1,7 @@
+# credentials
+sheet-credentials.json
+combined_data.xslx
+
 # Django #
 *.log
 *.pot

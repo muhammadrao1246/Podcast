@@ -15,6 +15,8 @@ from pathlib import Path
 import os
 import environ
 from datetime import timedelta
+import gspread
+from google.oauth2.service_account import Credentials
 
 
 # initiazlizing environment variables
@@ -39,21 +41,30 @@ SECRET_KEY = env('APP_KEY')
 DEBUG = False if env('APP_DEBUG') == "false" else True
 
 
-ALLOWED_HOSTS = ["127.0.0.1", "127.0.0.1:3010", 'www.127.0.0.1:3010', '13.60.49.220', 'www.13.60.49.220', "backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com", "backendapi.coffeemapcompany" ]
+# ALLOWED_HOSTS = ["127.0.0.1", "127.0.0.1:3010", 'www.127.0.0.1:3010', '13.60.49.220', 'www.13.60.49.220', "backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com", "backendapi.coffeemapcompany" ]
+ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(' ')
 
-SECURE_SSL_REDIRECT = False
+
 # Allowed origin
-CORS_ALLOWED_ORIGINS = [
-    env("REACT_SERVER_LOCAL"),
-    env("REACT_SERVER_PRODUCTION"),
-    env("REACT_SERVER_CICD_PRODUCTION"),
-]
+# CORS_ALLOWED_ORIGINS = [
+#     env("REACT_SERVER_LOCAL"),
+#     env("REACT_SERVER_PRODUCTION"),
+#     env("REACT_SERVER_CICD_PRODUCTION"),
+# ]
+CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(' ')
 
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = \
+    env('SECURE_SSL_REDIRECT') == "true"
+if SECURE_SSL_REDIRECT:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
 # FRONTEND_SERVER_URL = env("REACT_SERVER_LOCAL")
+
+# GOOGLE SHEETS API
+GOOGLE_SHEET_SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+GOOGLE_SHEET_CREDENTIALS = Credentials.from_service_account_file(filename=os.path.join(BASE_DIR, "sheet-credentials.json"), scopes=GOOGLE_SHEET_SCOPES)
+GOOGLE_SHEET_CLIENT = gspread.authorize(GOOGLE_SHEET_CREDENTIALS)
 
 
 # Application definition
