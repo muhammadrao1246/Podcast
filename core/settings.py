@@ -63,9 +63,9 @@ if SECURE_SSL_REDIRECT:
 # FRONTEND_SERVER_URL = env("REACT_SERVER_LOCAL")
 
 # GOOGLE SHEETS API
-GOOGLE_SHEET_SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-GOOGLE_SHEET_CREDENTIALS = Credentials.from_service_account_file(filename=os.path.join(BASE_DIR, "sheet-credentials.json"), scopes=GOOGLE_SHEET_SCOPES)
-GOOGLE_SHEET_CLIENT = gspread.authorize(GOOGLE_SHEET_CREDENTIALS)
+# GOOGLE_SHEET_SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+# GOOGLE_SHEET_CREDENTIALS = Credentials.from_service_account_file(filename=os.path.join(BASE_DIR, "sheet-credentials.json"), scopes=GOOGLE_SHEET_SCOPES)
+# GOOGLE_SHEET_CLIENT = gspread.authorize(GOOGLE_SHEET_CREDENTIALS)
 
 
 # Application definition
