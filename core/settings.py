@@ -20,8 +20,9 @@ from google.oauth2.service_account import Credentials
 
 
 # initiazlizing environment variables
-env = environ.Env()
-environ.Env.read_env()
+# env = environ.Env()
+# environ.Env.read_env()
+env = os.getenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
