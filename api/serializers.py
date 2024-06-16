@@ -185,13 +185,40 @@ class ChapterUpdateSerializer(serializers.Serializer):
     class Meta:
         fields = ["start_sequence_number", "end_sequence_number"]
     
-    
+    def update_chapter_reels(self, reel_model:ReelModel):
+        reel_sequences = reel_model.sequences
+        r_first_seq = reel_sequences.first()
+        r_last_seq = reel_sequences.last()
+        if reel_sequences.count() > 0:
+            contentJoined = ' '.join([seq.words for seq in reel_sequences])
+            first_seq = reel_sequences.first()
+            last_seq = reel_sequences.last()
+            
+            
+            reel_model.start_time = first_seq.start_time
+            reel_model.end_time = last_seq.end_time
+            reel_model.content = contentJoined
+            reel_model.save()
+        else:
+            reel_model.delete()
+            
+            
+        
+
     def update_chapters(self, chapter_model:ChapterModel):
         sequences = chapter_model.sequences.filter()
         if sequences.count() > 0:
             contentJoined = ' '.join([seq.words for seq in sequences])
             first_seq = sequences.first()
             last_seq = sequences.last()
+            
+            # first updating its reels before updating chapter            
+            reels = ReelModel.objects.filter(chapter= chapter_model)
+            for reel in reels:
+                remaining_sequences = reel.sequences & sequences
+                reel.sequences.set(*remaining_sequences)
+                # update whether needs to be deleted or meta needed to be changed
+                self.update_chapter_reels(reel)
 
             chapter_model.start_time = first_seq.start_time
             chapter_model.end_time = last_seq.end_time

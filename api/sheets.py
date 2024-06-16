@@ -21,6 +21,11 @@ class DatabaseGoogleSheetGenerator:
     def __init__(self, episode_model: EpisodeModel):
         self.episode = episode_model
         
+        # initalizing dataframes
+        self.chapters_sheet_dataframe[self.chapter_sheet_column_names] = None
+        self.chapters_filtered_sheet_dataframe[self.chapter_filtered_sheet_column_names] = None
+    
+    
     
     def fetch_all_sequences_dataframe(self):
         sequences = SequenceModel.objects.filter(episode=self.episode).iterator(1000)
