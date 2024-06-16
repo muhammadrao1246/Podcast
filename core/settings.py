@@ -44,7 +44,8 @@ DEBUG = False if env('APP_DEBUG') == "false" else True
 
 # ALLOWED_HOSTS = ["127.0.0.1", "127.0.0.1:3010", 'www.127.0.0.1:3010', '13.60.49.220', 'www.13.60.49.220', "backendapi.coffeemapcompany.com", "www.backendapi.coffeemapcompany.com", "backendapi.coffeemapcompany" ]
 # ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(' ')
-ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME'],os.environ['CUSTOM_HOSTNAME']]
+# ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME'],os.environ['CUSTOM_HOSTNAME']]
+ALLOWED_HOSTS = ["*"]
 
 
 # Allowed origin
