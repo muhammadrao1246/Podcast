@@ -204,130 +204,132 @@ class GoogleSheetProcessor:
         
         reel_models = {}
         reels_sequences_id = {}
-        
-        index = 0
-        for row in combined_df.itertuples(index=True, name='Pandas'):
-            index = row.Index
-            sequence_number = row.Index + 1
-            words = row.Text 
-            start_time = row._2
-            end_time = row._3
-            chapter = row.Chapter
-            reel = row.Reel
-            
-            # adding data to episode model
-            if episode_model.start_time is None:
-                episode_model.start_time = start_time
-            episode_model.end_time = end_time
-            
-            episode_content = episode_content + " " + words.strip()
-            
-            # creating current sequence model
-            sequence_uid = uuid.uuid4()
-            sequence_model = SequenceModel(
-                id = sequence_uid,
-                episode=episode_model,
-                # user=user,
-                words=words,
-                sequence_number=sequence_number,
-                start_time=start_time,
-                end_time=end_time
-            )
-            sequence_models.append(sequence_model)
-            
-            if chapter != 0:
-                if str(chapter) not in chapters_models:
-                    chapter_uid = uuid.uuid4()
-                    chapter_model = ChapterModel(
-                        id = chapter_uid,
-                        episode = episode_model,
-                        # user=user,
-                        title = f"Chapter {str(chapter)}",
-                        chapter_number = int(chapter),
-                        content = words.strip(),
-                        start_time = start_time,
-                        end_time = end_time,
-                    )
-                    chapter_model.save()
-                    # chapter_model.sequences.add(sequence_model)
-                    chapters_models[str(chapter)] = chapter_model
-                else:
-                    chapter_model = chapters_models[str(chapter)]
-                    # chapter_model.content = chapter_model.content + " " + words.strip()
-                    chapter_model.end_time = end_time
-                    # chapter_model.sequences.add(sequence_model)
-                    chapters_models[str(chapter)] = chapter_model
+        try:    
+            index = 0
+            for row in combined_df.itertuples(index=True, name='Pandas'):
+                index = row.Index
+                sequence_number = row.Index + 1
+                words = row.Text 
+                start_time = row._2
+                end_time = row._3
+                chapter = row.Chapter
+                reel = row.Reel
+                
+                # adding data to episode model
+                if episode_model.start_time is None:
+                    episode_model.start_time = start_time
+                episode_model.end_time = end_time
+                
+                episode_content = episode_content + " " + words.strip()
+                
+                # creating current sequence model
+                sequence_uid = uuid.uuid4()
+                sequence_model = SequenceModel(
+                    id = sequence_uid,
+                    episode=episode_model,
+                    # user=user,
+                    words=words,
+                    sequence_number=sequence_number,
+                    start_time=start_time,
+                    end_time=end_time
+                )
+                sequence_models.append(sequence_model)
+                
+                if chapter != 0:
+                    if str(chapter) not in chapters_models:
+                        chapter_uid = uuid.uuid4()
+                        chapter_model = ChapterModel(
+                            id = chapter_uid,
+                            episode = episode_model,
+                            # user=user,
+                            title = f"Chapter {str(chapter)}",
+                            chapter_number = int(chapter),
+                            content = words.strip(),
+                            start_time = start_time,
+                            end_time = end_time,
+                        )
+                        chapter_model.save()
+                        # chapter_model.sequences.add(sequence_model)
+                        chapters_models[str(chapter)] = chapter_model
+                    else:
+                        chapter_model = chapters_models[str(chapter)]
+                        # chapter_model.content = chapter_model.content + " " + words.strip()
+                        chapter_model.end_time = end_time
+                        # chapter_model.sequences.add(sequence_model)
+                        chapters_models[str(chapter)] = chapter_model
 
-                if str(chapter) not in chapters_sequences_id:
-                    chapters_sequences_id[str(chapter)] = []
-                    chapter_contents[str(chapter)]  = ""
+                    if str(chapter) not in chapters_sequences_id:
+                        chapters_sequences_id[str(chapter)] = []
+                        chapter_contents[str(chapter)]  = ""
+                    
+                    chapter_contents[str(chapter)] += " " + words.strip()
+                    chapters_sequences_id[str(chapter)].append(sequence_uid)
                 
-                chapter_contents[str(chapter)] += " " + words.strip()
-                chapters_sequences_id[str(chapter)].append(sequence_uid)
-            
-            if reel != 0:
-                
-                if f"reel-{str(reel)}" not in reel_models:
-                    reel_uid = uuid.uuid4()
-                    reel_model = ReelModel(
-                        id = reel_uid,
-                        episode = episode_model,
-                        # user=user,
-                        # chapter = chapters_models[str(chapter)],
-                        title = f"Reel {str(reel)}",
-                        reel_number = int(reel),
-                        content = words.strip(),
-                        start_time = start_time,
-                        end_time = end_time,
-                    )
-                    reel_model.save()
-                    # reel_model.sequences.add(sequence_model)
-                    reel_models[f"reel-{str(reel)}"] = reel_model
-                else:
-                    reel_model = reel_models[f"reel-{str(reel)}"]
-                    # reel_model.content = reel_model.content + " " + words.strip()
-                    reel_model.end_time = end_time
-                    # reel_model.sequences.add(sequence_model)
-                    reel_models[f"reel-{str(reel)}"] = reel_model
-                
-                
-                if f"reel-{str(reel)}" not in reels_sequences_id:
-                    reels_sequences_id[f"reel-{str(reel)}"] = []
-                    reels_contents[f"reel-{str(reel)}"]  = ""
+                if reel != 0:
+                    
+                    if f"reel-{str(reel)}" not in reel_models:
+                        reel_uid = uuid.uuid4()
+                        reel_model = ReelModel(
+                            id = reel_uid,
+                            episode = episode_model,
+                            # user=user,
+                            chapter = chapters_models.get(str(chapter)),
+                            title = f"Reel {str(reel)}",
+                            reel_number = int(reel),
+                            content = words.strip(),
+                            start_time = start_time,
+                            end_time = end_time,
+                        )
+                        reel_model.save()
+                        # reel_model.sequences.add(sequence_model)
+                        reel_models[f"reel-{str(reel)}"] = reel_model
+                    else:
+                        reel_model = reel_models[f"reel-{str(reel)}"]
+                        # reel_model.content = reel_model.content + " " + words.strip()
+                        reel_model.end_time = end_time
+                        # reel_model.sequences.add(sequence_model)
+                        reel_models[f"reel-{str(reel)}"] = reel_model
+                    
+                    
+                    if f"reel-{str(reel)}" not in reels_sequences_id:
+                        reels_sequences_id[f"reel-{str(reel)}"] = []
+                        reels_contents[f"reel-{str(reel)}"]  = ""
 
-                reels_contents[f"reel-{str(reel)}"]  += " " + words.strip()
+                    reels_contents[f"reel-{str(reel)}"]  += " " + words.strip()
+                    
+                    reels_sequences_id[f"reel-{str(reel)}"].append(sequence_uid)
                 
-                reels_sequences_id[f"reel-{str(reel)}"].append(sequence_uid)
+                # print(f"Index: {row.Index}")
+                # print(f"Start Time: {row._1}, End Time: {row._2}, Text: {row._3}, Chapter: {row._4}, Reel: {row._5}")
+            # Perform your operations here
+            print("LOOP Completed")
             
-            # print(f"Index: {row.Index}")
-            # print(f"Start Time: {row._1}, End Time: {row._2}, Text: {row._3}, Chapter: {row._4}, Reel: {row._5}")
-        # Perform your operations here
-        print("LOOP Completed")
-        
-        # Bulk create sequences
-        SequenceModel.objects.bulk_create(sequence_models)
-        print("Sequences Entered")
-        
-        # adding sequences 
-        for chapterKey, chapterModel in chapters_models.items():
-            print(chapterModel)
-            chapterModel.content = chapter_contents[chapterKey]
-            chapterModel.save()
-            for sequence_id in chapters_sequences_id[chapterKey]:
-                chapterModel.sequences.add(SequenceModel.objects.get(id = sequence_id))
-        
-        
-        for reelKey, reelModel in reel_models.items():
-            print(reelModel)
-            reelModel.content = reels_contents[reelKey]
-            reelModel.save()
-            for sequence_id in reels_sequences_id[reelKey]:
-                reelModel.sequences.add(SequenceModel.objects.get(id = sequence_id))
-                
-        # Save the final state of episode_model
-        episode_model.content = episode_content
-        episode_model.save()
-
+            # Bulk create sequences
+            SequenceModel.objects.bulk_create(sequence_models)
+            print("Sequences Entered")
+            
+            # adding sequences 
+            for chapterKey, chapterModel in chapters_models.items():
+                print(chapterModel)
+                chapterModel.content = chapter_contents[chapterKey]
+                chapterModel.save()
+                for sequence_id in chapters_sequences_id[chapterKey]:
+                    chapterModel.sequences.add(SequenceModel.objects.get(id = sequence_id))
+            
+            
+            for reelKey, reelModel in reel_models.items():
+                print(reelModel)
+                reelModel.content = reels_contents[reelKey]
+                reelModel.save()
+                for sequence_id in reels_sequences_id[reelKey]:
+                    reelModel.sequences.add(SequenceModel.objects.get(id = sequence_id))
+                    
+            # Save the final state of episode_model
+            episode_model.content = episode_content
+            episode_model.save()
+        except Exception as ex:
+            episode_model.delete()
+            raise ValidationError("Unable to create episode. Try later!")
     
         
     
