@@ -8,7 +8,7 @@ export default function ScreenLoader(){
       {/* preloader */}
       <Box
             id="loading"
-            style={{ backgroundImage: "url('/public/icons/logo512.png')" }}
+            style={{ backgroundImage: "url('/icons/logo512.png')" }}
           >
             <div id="loading-center"></div>
           </Box>
