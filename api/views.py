@@ -1,3 +1,4 @@
+import time
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics, filters
@@ -220,11 +221,98 @@ class ChapterDetailApi(APIView):
         else:
             return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), cs.errors)
 
+# REELS API
+class ReelListApi(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    serializer_class = ReelListSerializer
+    
+    pagination_class = ReelPagination
+    
+    queryset = ReelModel.objects.all()
+    
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title']
+    
+    ordering_fields = ['reel_number']
+    
+    def get_queryset(self):
+        current_user = self.request.user
+        
+        queryset =  super().get_queryset()
+        
+        episode_id = self.kwargs['episode_id']
+        chapter_id = self.kwargs['chapter_id']
+        filtered = queryset.filter(
+            # user = current_user, 
+            episode = episode_id,
+            chapter = chapter_id)
+        return filtered
+    
+    def list(self, request, *args, **kwargs):
+        
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+            
+            
+        response = None
+        errors = []
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            response = Response(serializer.data)
+           
+            
+        # return response
+        return ApiResponseMixin().structure(request, response, errors, *args, **kwargs)
+
+class ReelDetailApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def verifier(self, episode_id, chapter_id, reel_id):
+        current_user = self.request.user
+
+        episode_model = EpisodeModel.objects.filter(
+            id=episode_id, 
+            # user=current_user
+        ).first()
+        if episode_model is None:
+            return {"data": "Episode Not Found!", "status": 404}
+
+        chapter_model = ChapterModel.objects.filter(id = chapter_id, episode=episode_model).first()
+        if chapter_model is None:
+            return {"data": "Chapter Not Found!", "status": 404}
+        
+        reel_model = ReelModel.objects.filter(id = reel_id).first()
+        if reel_model is None:
+            return {"data": "Reel Not Found!", "status": 404}
+        
+        return [episode_model, chapter_model, reel_model]
+    
+    # reading chapter's detail info
+    def get(self, request, episode_id, chapter_id, uid):
+        verify = self.verifier(episode_id, chapter_id, uid)
+        if type(verify) is dict:
+            return ApiResponseMixin().structure(request, Response(**verify), [])
+
+        episode_model = verify[0]
+        chapter_model = verify[1]
+        reel_model = verify[2]
+        cs = ReelDetailSerializer(instance=reel_model)
+        # return response
+        return ApiResponseMixin().structure(request, Response(cs.data), [])
+
 
 # AUTHENTICATION API
 
 def get_user_token(user):
+    start = time.time()
     token = RefreshToken.for_user(user)
+    duration = (time.time() - start) * 1000
+    print("Token generation: ", duration, " ms")
     return {
         "access_token": str(token.access_token),
         "refresh_token": str(token)
@@ -253,6 +341,8 @@ class UserRegistrationApi(APIView):
 class UserLoginApi(APIView):
     def post(self, request: HttpRequest):
         data = request.data
+        print(timezone.now())
+        start = time.time()
         
         serializer = UserLoginSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
@@ -260,11 +350,20 @@ class UserLoginApi(APIView):
             password = serializer.validated_data.get("password")
             print(email, password)
             
-            user = authenticate(email = email, password=password)
+            duration = (time.time() - start) * 1000
+            print("Validation: ", duration, " ms")
+            start = time.time()
+            user = authenticate(email=email, password=password)
+            duration = (time.time() - start) * 1000
+            print("Authentication: ", duration, " ms")
             
-            # databse level errors
             if user is not None:
+                start = time.time()
                 token = get_user_token(user)
+                duration = (time.time() - start) * 1000
+                print("Token generation: ", duration, " ms")
+                
+                print(timezone.now())
                 return ApiResponseMixin().structure(request, Response(data={
                     "token": token
                     }, status=status.HTTP_200_OK), [])
@@ -277,7 +376,6 @@ class UserLoginApi(APIView):
                 
         else:
             return ApiResponseMixin().structure(request, Response(data={}, status=status.HTTP_400_BAD_REQUEST), errors=serializer.errors)
-
 class UserProfileUpdateApi(APIView):
     
     permission_classes = [IsAuthenticated]

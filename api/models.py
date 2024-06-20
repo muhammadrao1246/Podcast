@@ -165,7 +165,7 @@ class EpisodeModel(models.Model):
     start_time = models.CharField(max_length=12, null=True)
     end_time = models.CharField(max_length=12, null=True)
     
-    sheet_link = models.URLField()
+    sheet_link = models.FilePathField()
     project_link = models.URLField()
     
     created_at = models.DateTimeField(auto_now_add=True)

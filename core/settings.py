@@ -81,7 +81,7 @@ GOOGLE_SHEET_CREDENTIALS_DATA = {
         }
 GOOGLE_SHEET_CREDENTIALS = Credentials.from_service_account_info(GOOGLE_SHEET_CREDENTIALS_DATA, scopes=GOOGLE_SHEET_SCOPES)
 GOOGLE_SHEET_CLIENT = gspread.authorize(GOOGLE_SHEET_CREDENTIALS)
-print(GOOGLE_SHEET_CREDENTIALS_DATA)
+# print(GOOGLE_SHEET_CREDENTIALS_DATA)
 
 # Application definition
 
@@ -171,25 +171,25 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 # LOGIN_REDIRECT_URL = "/dashboard"
 # LOGOUT_REDIRECT_URL = "/login"
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, "debug.log"),
+if not DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'file': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': os.path.join(BASE_DIR, "debug.log"),
+            },
         },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
+        'loggers': {
+            'django': {
+                'handlers': ['file'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
         },
-    },
-}
+    }
 
 
 
@@ -204,6 +204,11 @@ DATABASES = {
         'PASSWORD': env('DB_PASSWORD'),
         'HOST':env('DB_HOST'),
         'PORT':env('DB_PORT'),
+        'CONN_MAX_AGE': 600,  # 10 minutes
+        "OPTIONS": {
+            'driver': 'ODBC Driver 17 for SQL Server',  # Make sure to have the appropriate ODBC driver installed
+            'extra_params': 'Encrypt=yes;TrustServerCertificate=no',
+        } if env("DB_DRIVER") == "mssql" else {},
     }
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
@@ -228,28 +233,19 @@ DATABASES = {
     #     'PORT':env('DB_PORT'),
     # }
 }
+  
 
-# S3 BUCKET
-AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = env('AWS_BUCKET_NAME')
-AWS_S3_SIGNATURE_NAME = 's3v4'
-AWS_S3_REGION_NAME = env('AWS_DEFAULT_REGION')
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL =  None
-AWS_S3_VERITY = True
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'     
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-#         'LOCATION': os.path.join(BASE_DIR, "cache"),
-#         'TIMEOUT': None,
-#         'OPTIONS': {
-#             'MAX_ENTRIES': 5000
-#         }
-#     }
-# }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, "cache"),
+        'TIMEOUT': None,
+        'OPTIONS': {
+            'MAX_ENTRIES': 5000
+        }
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -283,30 +279,61 @@ USE_TZ = True
 
 #   STORAGES
 # Add compression and caching support
-STORAGES = {
-    # ...
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage"
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+# STORAGES = {
+#     # ...
+#     # "default": {
+#     #     "BACKEND": "storages.backends.s3boto3.S3Boto3Storage"
+#     # },
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+#     },
+# }
 
-# Static files (CSS, JavaScript, Images)
+# Serving files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+if env("USE_CLOUD_STORAGE") == "aws":
+    # S3 BUCKET
+    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_BUCKET_NAME')
+    AWS_S3_SIGNATURE_NAME = 's3v4'
+    AWS_S3_REGION_NAME = env('AWS_DEFAULT_REGION')
+    # AWS_S3_FILE_OVERWRITE = False
+    # AWS_DEFAULT_ACL =  None
+    AWS_S3_VERITY = True
+    
+    # PREPARING ROUTES
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    
+    # s3 static settings
+    # STATIC_LOCATION = 'static'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+    # setting static files backend
+    STATICFILES_STORAGE = 'api.backends.StaticStorage'
+    
+    # s3 public media settings
+    # PUBLIC_MEDIA_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+    # setting media files backend
+    DEFAULT_FILE_STORAGE = 'api.backends.PublicMediaStorage'
+else:
+    STATIC_URL = '/static/' # through this user will access the static files
+    
+    # in production server all files from all apps will be copied to this place for serve
+    STATIC_ROOT = os.path.join(BASE_DIR, 'public') 
+    print(BASE_DIR)
+    # cpanel
+    # django should look in this folder for user managed static files
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static')
+    ]
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'public')
-print(BASE_DIR)
-# cpanel
-STATICFILES_DIRS = [
-    os.path.join(STATIC_ROOT, 'static')
-]
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Adjusted path for media files
+    # through this user will be able to access the media files in the storage
+    MEDIA_URL = '/media/'
+    # in this directory django should look for media files
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Adjusted path for media files
 
 
 # Default primary key field type

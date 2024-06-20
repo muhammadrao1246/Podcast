@@ -187,8 +187,6 @@ class ChapterUpdateSerializer(serializers.Serializer):
     
     def update_chapter_reels(self, reel_model:ReelModel):
         reel_sequences = reel_model.sequences
-        r_first_seq = reel_sequences.first()
-        r_last_seq = reel_sequences.last()
         if reel_sequences.count() > 0:
             contentJoined = ' '.join([seq.words for seq in reel_sequences])
             first_seq = reel_sequences.first()
@@ -215,7 +213,7 @@ class ChapterUpdateSerializer(serializers.Serializer):
             # first updating its reels before updating chapter            
             reels = ReelModel.objects.filter(chapter= chapter_model)
             for reel in reels:
-                remaining_sequences = reel.sequences & sequences
+                remaining_sequences = reel.sequences.filter() & sequences
                 reel.sequences.set(*remaining_sequences)
                 # update whether needs to be deleted or meta needed to be changed
                 self.update_chapter_reels(reel)
@@ -337,8 +335,38 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'episode_id', 'title', 'content', 'start_time', 'end_time', "sequences", "chapter_number"]
     
         
+# REELS SERIALIZERS
 
-class ReelSerializer(serializers.ModelSerializer):
+class ReelListSerializer(serializers.ModelSerializer):
+    
+    # content = serializers.SerializerMethodField()
+    
+    num_start_time = serializers.SerializerMethodField()
+    num_end_time = serializers.SerializerMethodField()
+    
+    start_sequence_number = serializers.SerializerMethodField()
+    end_sequence_number = serializers.SerializerMethodField()
+    class Meta:
+        model = ChapterModel
+        fields = ['id', 'episode_id', 'chapter_id', 'title', 'content', 'start_sequence_number', 'end_sequence_number', 'num_start_time', 'num_end_time', 'start_time', 'end_time', "chapter_number"]
+    
+    # def get_content(self, ch: ChapterModel):
+    #     return ch.content[:200]
+    
+    def get_num_start_time(self, ch: ChapterModel):
+        return UTIL.convert_time_string_to_seconds(ch.start_time)
+    
+    def get_num_end_time(self, ch: ChapterModel):
+        return UTIL.convert_time_string_to_seconds(ch.end_time)
+    
+    def get_start_sequence_number(self, ch: ChapterModel):
+        return ch.sequences.first().sequence_number if ch.sequences.count() > 0 else 0
+    
+    def get_end_sequence_number(self, ch: ChapterModel):
+        return ch.sequences.last().sequence_number if ch.sequences.count() > 0 else 0
+    
+    
+class ReelDetailSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     sequences = SequenceSerializer(many=True, read_only=True)
     episode_id = serializers.PrimaryKeyRelatedField(queryset=EpisodeModel.objects.all())

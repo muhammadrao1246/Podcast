@@ -19,6 +19,9 @@ urlpatterns = [
     
     path("episodes/<str:episode_id>/chapters", views.ChapterListApi.as_view()),
     path("episodes/<str:episode_id>/chapters/<str:uid>", views.ChapterDetailApi.as_view()),
+        
+    path("episodes/<str:episode_id>/chapters/<str:chapter_id>/reels", views.ReelListApi.as_view()),
+    path("episodes/<str:episode_id>/chapters/<str:chapter_id>/reels/<str:uid>", views.ReelDetailApi.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
