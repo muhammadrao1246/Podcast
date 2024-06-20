@@ -318,6 +318,22 @@ if env("USE_CLOUD_STORAGE") == "aws":
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
     # setting media files backend
     DEFAULT_FILE_STORAGE = 'api.backends.PublicMediaStorage'
+
+elif env("USE_CLOUD_STORAGE") == "azure":
+    DEFAULT_FILE_STORAGE = 'api.backends.AzureMediaStorage'
+    STATICFILES_STORAGE = 'api.backends.AzureStaticStorage'
+
+    AZURE_ACCOUNT_NAME = env('AZURE_STORAGE_ACCOUNT_NAME')
+    AZURE_ACCOUNT_KEY = env('AZURE_STORAGE_ACCOUNT_KEY')
+    AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+
+    STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/static/'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'public') 
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static')
+    ]
+    MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 else:
     STATIC_URL = '/static/' # through this user will access the static files
     
