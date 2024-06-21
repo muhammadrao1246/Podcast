@@ -87,6 +87,19 @@ export const userAuthApi = createApi({
             }
         }
     }),
+    deleteEpisodes: builder.mutation({
+        query: (episode)=>{
+            return  {
+                url: `episodes/${episode}/delete`,
+                method: "GET",
+                // body: user,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken().access_token}`
+                }
+            }
+        }
+    }),
     saveEpisodesSheet: builder.mutation({
         query: (body)=>{
             return  {
@@ -114,4 +127,5 @@ export const {
   useGetEpisodesDetailMutation,
   useSaveEpisodesSheetMutation,
   useUpdateEpisodeChapterMutation,
+  useDeleteEpisodesMutation
 } = userAuthApi;

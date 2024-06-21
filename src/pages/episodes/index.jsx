@@ -43,10 +43,14 @@ const Episodes = () => {
         setLoading(false)
     }
 
+    
+    const [refreshNeeded, setRefreshNeeded] = React.useState(0)
     React.useEffect(()=>{
         getEpisodesfunc()
-    }, [])
+    }, [refreshNeeded])
 
+
+    
 
 
     return (
@@ -96,6 +100,7 @@ const Episodes = () => {
                             content={ep.content}
                             start_time={ep.start_time}
                             end_time={ep.end_time}
+                            refresher={()=>setRefreshNeeded(refreshNeeded+1)}
                         />
                     )}
                 </Box>

@@ -12,12 +12,33 @@ import {
 } from "@mui/material";
 import { tokens } from "src/theme";
 import { DeleteOutlineOutlined } from "@mui/icons-material";
+import { useDeleteEpisodesMutation } from "src/services/api";
 
-import { Link as DOMLink } from "react-router-dom";
+import { Link as DOMLink, useOutletContext } from "react-router-dom";
 
-const EpisodeCard = ({ id, image, title, content, start_time, end_time }) => {
+const EpisodeCard = ({ id, image, title, content, start_time, end_time, refresher }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  
+  const [loading, setLoading] = useOutletContext().loader
+  
+    // generate button clicked now update the chapter and all database
+    const [apiErrors, SetApiErrors] = React.useState({})
+    const [deleteEpisode, {isLoading}] = useDeleteEpisodesMutation()
+    const handleDelete = async (e) => {
+        const response = await deleteEpisode(id)
+        if (!!response.error) {
+            let dataObject = response.error.data;
+            console.log(dataObject.errors);
+            SetApiErrors(dataObject.errors)
+        } else {
+            let dataObject = response.data.data;
+            refresher()
+            // navigate(`/episodes/${episodeId}/chapters`)
+        }
+        console.log("Delete Episode: ", title)
+    };
+
   return (
     <Card sx={{ gridColumn: "span 2" }}>
       <CardMedia
@@ -71,7 +92,7 @@ const EpisodeCard = ({ id, image, title, content, start_time, end_time }) => {
           </Button>
         </Box>
         <IconButton>
-          <DeleteOutlineOutlined />
+          <DeleteOutlineOutlined onClick={handleDelete} />
         </IconButton>
       </CardActions>
     </Card>
