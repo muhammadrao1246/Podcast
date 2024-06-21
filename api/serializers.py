@@ -25,10 +25,10 @@ class SheetSerializer(serializers.Serializer):
     
     class Meta:
         fields = ["sheet_url", "project_url", "excel_file"]
-        
+    
     def validate(self, attrs):
+        
         # user = self.context.get("user")
-        print(attrs)
         project_link = attrs["project_link"]
         sheet_link = attrs.get("sheet_link", None)
         excel_file = attrs.get("excel_file", None)
@@ -186,12 +186,12 @@ class ChapterUpdateSerializer(serializers.Serializer):
         fields = ["start_sequence_number", "end_sequence_number"]
     
     def update_chapter_reels(self, reel_model:ReelModel):
-        reel_sequences = reel_model.sequences
+        reel_sequences = reel_model.sequences.get_queryset()
+        
         if reel_sequences.count() > 0:
-            contentJoined = ' '.join([seq.words for seq in reel_sequences])
+            contentJoined = ' '.join([seq.words for seq in reel_sequences.only("words")])
             first_seq = reel_sequences.first()
             last_seq = reel_sequences.last()
-            
             
             reel_model.start_time = first_seq.start_time
             reel_model.end_time = last_seq.end_time
@@ -204,17 +204,21 @@ class ChapterUpdateSerializer(serializers.Serializer):
         
 
     def update_chapters(self, chapter_model:ChapterModel):
-        sequences = chapter_model.sequences.filter()
+        sequences = chapter_model.sequences.get_queryset()
+        
+        # c_s_queryset = sequences.get_queryset()
         if sequences.count() > 0:
-            contentJoined = ' '.join([seq.words for seq in sequences])
+            
+            contentJoined = ' '.join([seq.words for seq in sequences.only("words")])
             first_seq = sequences.first()
             last_seq = sequences.last()
             
             # first updating its reels before updating chapter            
             reels = ReelModel.objects.filter(chapter= chapter_model)
             for reel in reels:
-                remaining_sequences = reel.sequences.filter() & sequences
-                reel.sequences.set(*remaining_sequences)
+                remaining_sequences = reel.sequences.get_queryset() & sequences
+                
+                reel.sequences.set(objs=remaining_sequences)
                 # update whether needs to be deleted or meta needed to be changed
                 self.update_chapter_reels(reel)
 
@@ -347,8 +351,8 @@ class ReelListSerializer(serializers.ModelSerializer):
     start_sequence_number = serializers.SerializerMethodField()
     end_sequence_number = serializers.SerializerMethodField()
     class Meta:
-        model = ChapterModel
-        fields = ['id', 'episode_id', 'chapter_id', 'title', 'content', 'start_sequence_number', 'end_sequence_number', 'num_start_time', 'num_end_time', 'start_time', 'end_time', "chapter_number"]
+        model = ReelModel
+        fields = ['id', 'episode_id', 'chapter_id', 'title', 'content', 'start_sequence_number', 'end_sequence_number', 'num_start_time', 'num_end_time', 'start_time', 'end_time', "reel_number"]
     
     # def get_content(self, ch: ChapterModel):
     #     return ch.content[:200]

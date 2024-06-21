@@ -1,4 +1,5 @@
 import time
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics, filters
@@ -38,7 +39,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class Tester(APIView):
     def get(self, request):
         # myURL = "https://docs.google.com/spreadsheets/d/13FduNu5j0kNVUl2XGXbfiD1VPjQQr_ELXuL46G_Mzgk/edit#gid=1428591798"
-        # pr = GoogleSheetProcessor(myURL, myURL)
+        # pr = GoogleSheetProcessor(myURL, myURL, isFile=False)
         
         # print(pr.__str__())
         # # pr.get_episode()
@@ -117,6 +118,7 @@ class EpisodeDetailApi(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request, uid):
+        
         episode_model = EpisodeModel.objects.filter(id = uid).first()
         if episode_model is None:
             return ApiResponseMixin().structure(request, Response(data="Episode Not Found!", status = 404), [])
@@ -124,6 +126,19 @@ class EpisodeDetailApi(APIView):
         episode_serialized = EpisodeDetailSerializer(instance=episode_model).data
         
         return ApiResponseMixin().structure(request, Response(episode_serialized), [])
+    
+class EpisodeDeleteApi(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, uid):
+        episode_model = EpisodeModel.objects.filter(id = uid).first()
+        if episode_model is None:
+            return ApiResponseMixin().structure(request, Response(data="Episode Not Found!", status = 404), [])
+        episode_model.delete()
+        return ApiResponseMixin().structure(request, Response(data="Episode Deleted Successfully!", status = 200), [])
+    
+
+
 
 # CHAPTERS API
 class ChapterListApi(generics.ListAPIView):

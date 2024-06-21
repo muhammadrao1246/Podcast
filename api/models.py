@@ -120,7 +120,7 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
     
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255)
-    profile_image = models.ImageField(upload_to="uploads/user", null=True, default=None)
+    profile_image = models.ImageField(upload_to="user", null=True, default=None)
     is_active = models.BooleanField(default=True)
     is_third_party = models.BooleanField(default=False)
     
@@ -165,7 +165,7 @@ class EpisodeModel(models.Model):
     start_time = models.CharField(max_length=12, null=True)
     end_time = models.CharField(max_length=12, null=True)
     
-    sheet_link = models.FilePathField()
+    sheet_link = models.URLField()
     project_link = models.URLField()
     
     created_at = models.DateTimeField(auto_now_add=True)
