@@ -10,7 +10,7 @@ import { useDeleteReelsMutation, useUpdateEpisodeChapterMutation, useUpdateReelM
 
 import RangeSlider, {timeStringToSeconds, secondsToTimeString} from 'src/components/RangeSlider';
 import $ from 'jquery'
-import { ClosableToast } from '../Toast';
+import { ClosableToast } from 'src/components/Toast';
 
 export function SequenceElastic(sequences, currStartTime, currEndTime) {
     console.log({sequences, currStartTime, currEndTime})
