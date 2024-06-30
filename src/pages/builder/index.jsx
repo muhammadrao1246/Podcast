@@ -11,6 +11,7 @@ import Header from "src/components/Layouts/Header/Header";
 import EpisodeCard from "src/components/episodes/EpisodeCard";
 import { useGetEpisodesListMutation } from "src/services/api";
 import { ROUTES } from "src/routes";
+import { BusAlertTwoTone } from "@mui/icons-material";
 
 
 const Builder = () => {
@@ -42,16 +43,20 @@ const Builder = () => {
         setLoading(false)
     }
 
+    
+    const [refreshNeeded, setRefreshNeeded] = React.useState(0)
     React.useEffect(()=>{
         getEpisodesfunc()
-    }, [])
+    }, [refreshNeeded])
 
+
+    
 
 
     return (
         <Box m="20px">
             <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Header title="Builders" subtitle="List of all Builders" />
+                <Header title="Builders" subtitle="List of all Builders" />
                 <Box>
                     <Button
                         sx={{
@@ -95,6 +100,7 @@ const Builder = () => {
                             content={ep.content}
                             start_time={ep.start_time}
                             end_time={ep.end_time}
+                            refresher={()=>setRefreshNeeded(refreshNeeded+1)}
                         />
                     )}
                 </Box>

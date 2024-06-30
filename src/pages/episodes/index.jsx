@@ -101,6 +101,7 @@ const Episodes = () => {
                             start_time={ep.start_time}
                             end_time={ep.end_time}
                             refresher={()=>setRefreshNeeded(refreshNeeded+1)}
+                            download={ep.download_link}
                         />
                     )}
                 </Box>

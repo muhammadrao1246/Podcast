@@ -11,12 +11,12 @@ import {
   IconButton,
 } from "@mui/material";
 import { tokens } from "src/theme";
-import { DeleteOutlineOutlined } from "@mui/icons-material";
+import { DeleteOutlineOutlined, Launch, } from "@mui/icons-material";
 import { useDeleteEpisodesMutation } from "src/services/api";
 
-import { Link as DOMLink, useOutletContext } from "react-router-dom";
+import { Link as DOMLink, Link, useOutletContext } from "react-router-dom";
 
-const EpisodeCard = ({ id, image, title, content, start_time, end_time, refresher }) => {
+const EpisodeCard = ({ id, image, title, content, start_time, end_time, refresher, download }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   
@@ -91,9 +91,14 @@ const EpisodeCard = ({ id, image, title, content, start_time, end_time, refreshe
             Reels
           </Button>
         </Box>
+        <Box>
         <IconButton>
           <DeleteOutlineOutlined onClick={handleDelete} />
         </IconButton>
+        <IconButton title="Download or Go To Google Sheet" href={download} target="_blank">
+          <Launch />
+        </IconButton>
+        </Box>
       </CardActions>
     </Card>
   );

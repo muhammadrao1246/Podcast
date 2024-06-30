@@ -60,6 +60,20 @@ export const userAuthApi = createApi({
             }
         }
     }),
+    getEpisodeChapterDetail: builder.mutation({
+        query: (data)=>{
+            const {episodeId, chapterId} = data
+            return  {
+                url: `episodes/${episodeId}/chapters/${chapterId}`,
+                method: "GET",
+                // body: user,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken().access_token}`
+                }
+            }
+        }
+    }),
     updateEpisodeChapter: builder.mutation({
         query: (data)=>{
             const {episodeId, chapterId, body} = data
@@ -113,6 +127,76 @@ export const userAuthApi = createApi({
             }
         }
     }),
+    
+    getReelsList: builder.mutation({
+        query: (data)=>{
+            const {episodeId, chapterId} = data
+            return  {
+                url: `episodes/${episodeId}/chapters/${chapterId}/reels`,
+                method: "GET",
+                // body: user,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken().access_token}`
+                }
+            }
+        }
+    }),
+    getReelsDetail: builder.mutation({
+        query: (param)=>{
+            return  {
+                url: `episodes/${param.episode}/chapters/${param.chapter}/reels/${param.reel}`,
+                method: "GET",
+                // body: user,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken().access_token}`
+                }
+            }
+        }
+    }),
+    addReel: builder.mutation({
+        query: (data)=>{
+            const {episodeId, chapterId, body} = data
+            return  {
+                url: `episodes/${episodeId}/chapters/${chapterId}/reels/add`,
+                method: "POST",
+                body: body,
+                headers: {
+                    // 'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken().access_token}`
+                }
+            }
+        }
+    }),
+    updateReel: builder.mutation({
+        query: (data)=>{
+            const {episodeId, chapterId, reelId, body} = data
+            return  {
+                url: `episodes/${episodeId}/chapters/${chapterId}/reels/${reelId}`,
+                method: "PUT",
+                body: body,
+                headers: {
+                    // 'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken().access_token}`
+                }
+            }
+        }
+    }),
+    deleteReels: builder.mutation({
+        query: (data)=>{
+            const {episodeId, chapterId, reelId} = data
+            return  {
+                url: `episodes/${episodeId}/chapters/${chapterId}/reels/${reelId}`,
+                method: "DELETE",
+                // body: user,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken().access_token}`
+                }
+            }
+        }
+    }),
   }),
 })
 
@@ -124,8 +208,14 @@ export const {
   useLoginUserMutation,
   useGetEpisodesListMutation,
   useGetEpisodeChaptersListMutation,
+  useGetEpisodeChapterDetailMutation,
   useGetEpisodesDetailMutation,
   useSaveEpisodesSheetMutation,
   useUpdateEpisodeChapterMutation,
-  useDeleteEpisodesMutation
+  useDeleteEpisodesMutation,
+  useGetReelsListMutation,
+  useAddReelMutation,
+  useDeleteReelsMutation,
+  useUpdateReelMutation,
+  useGetReelsDetailMutation,
 } = userAuthApi;
