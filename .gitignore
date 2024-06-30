@@ -1,6 +1,6 @@
 # credentials
 sheet-credentials.json
-combined_data.xslx
+*.xslx
 debug.log
 
 # Django #

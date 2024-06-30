@@ -19,6 +19,7 @@ from django.core.cache import cache
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
+from .utils import *
 from .models import *
 from .serializers import *
 from .requests import *
@@ -34,7 +35,6 @@ from dateutil.relativedelta import relativedelta
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
 # tester
 class Tester(APIView):
     def get(self, request):
@@ -44,6 +44,10 @@ class Tester(APIView):
         # print(pr.__str__())
         # # pr.get_episode()
         # pr.save_full_episode_series_sequence()
+        
+        # ep = EpisodeModel.objects.filter(sheet_link__icontains="http").order_by("-created_at").first()
+        # ep = EpisodeModel.objects.get(id="45b02c04-e021-45cf-8e7d-018e3e7cde27")
+        # up = DatabaseToGoogleSheetUpdater(ep)
         
         return Response({
             "response": "Level 1 Working"
@@ -127,10 +131,7 @@ class EpisodeDetailApi(APIView):
         
         return ApiResponseMixin().structure(request, Response(episode_serialized), [])
     
-class EpisodeDeleteApi(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request, uid):
+    def delete(self, request, uid):
         episode_model = EpisodeModel.objects.filter(id = uid).first()
         if episode_model is None:
             return ApiResponseMixin().structure(request, Response(data="Episode Not Found!", status = 404), [])
@@ -190,25 +191,9 @@ class ChapterListApi(generics.ListAPIView):
 class ChapterDetailApi(APIView):
     permission_classes = [IsAuthenticated]
 
-    def verifier(self, episode_id, chapter_id):
-        current_user = self.request.user
-
-        episode_model = EpisodeModel.objects.filter(
-            id=episode_id, 
-            # user=current_user
-        ).first()
-        if episode_model is None:
-            return {"data": "Episode Not Found!", "status": 404}
-
-        chapter_model = ChapterModel.objects.filter(id = chapter_id, episode=episode_model).first()
-        if chapter_model is None:
-            return {"data": "Chapter Not Found!", "status": 404}
-        
-        return [episode_model, chapter_model]
-    
     # reading chapter's detail info
     def get(self, request, episode_id, uid):
-        verify = self.verifier(episode_id, uid)
+        verify = ModelExistenceChecker.chapter_verifier(self.request, episode_id, uid)
         if type(verify) is dict:
             return ApiResponseMixin().structure(request, Response(**verify), [])
 
@@ -220,7 +205,7 @@ class ChapterDetailApi(APIView):
 
     # updating chapter's data
     def put(self, request, episode_id, uid):
-        verify = self.verifier(episode_id, uid)
+        verify = ModelExistenceChecker.chapter_verifier(self.request, episode_id, uid)
         if type(verify) is dict:
             return ApiResponseMixin().structure(request, Response(**verify), [])
 
@@ -237,6 +222,27 @@ class ChapterDetailApi(APIView):
             return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), cs.errors)
 
 # REELS API
+class ReelAddApi(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request: HttpRequest, episode_id, chapter_id,):
+        verify = ModelExistenceChecker.chapter_verifier(self.request, episode_id, chapter_id)
+        if type(verify) is dict:
+            return ApiResponseMixin().structure(request, Response(**verify), [])
+
+        episode_model = verify[0]
+        chapter_model = verify[1]
+
+        cs = ReelAddSerializer(data=request.data, context={
+            'episode': episode_model,
+            'chapter': chapter_model
+        })
+        if cs.is_valid():
+            return ApiResponseMixin().structure(request, Response("Reel Added Successfully!"), [])
+        else:
+            return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), cs.errors)
+
+
 class ReelListApi(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     
@@ -287,29 +293,10 @@ class ReelListApi(generics.ListAPIView):
 class ReelDetailApi(APIView):
     permission_classes = [IsAuthenticated]
 
-    def verifier(self, episode_id, chapter_id, reel_id):
-        current_user = self.request.user
 
-        episode_model = EpisodeModel.objects.filter(
-            id=episode_id, 
-            # user=current_user
-        ).first()
-        if episode_model is None:
-            return {"data": "Episode Not Found!", "status": 404}
-
-        chapter_model = ChapterModel.objects.filter(id = chapter_id, episode=episode_model).first()
-        if chapter_model is None:
-            return {"data": "Chapter Not Found!", "status": 404}
-        
-        reel_model = ReelModel.objects.filter(id = reel_id).first()
-        if reel_model is None:
-            return {"data": "Reel Not Found!", "status": 404}
-        
-        return [episode_model, chapter_model, reel_model]
-    
     # reading chapter's detail info
     def get(self, request, episode_id, chapter_id, uid):
-        verify = self.verifier(episode_id, chapter_id, uid)
+        verify = ModelExistenceChecker.reel_verifier(self.request, episode_id, chapter_id, uid)
         if type(verify) is dict:
             return ApiResponseMixin().structure(request, Response(**verify), [])
 
@@ -319,6 +306,38 @@ class ReelDetailApi(APIView):
         cs = ReelDetailSerializer(instance=reel_model)
         # return response
         return ApiResponseMixin().structure(request, Response(cs.data), [])
+    
+    def put(self, request, episode_id, chapter_id, uid):
+        verify = ModelExistenceChecker.reel_verifier(self.request, episode_id, chapter_id, uid)
+        if type(verify) is dict:
+            return ApiResponseMixin().structure(request, Response(**verify), [])
+
+        episode_model = verify[0]
+        chapter_model = verify[1]
+        reel_model = verify[2]
+        
+        cs = ReelUpdateSerializer(data=request.data, context={
+            'episode': episode_model,
+            'chapter': chapter_model,
+            'reel': reel_model
+        })
+        if cs.is_valid():
+            return ApiResponseMixin().structure(request, Response("Reel Updated Successfully!"), [])
+        else:
+            return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), cs.errors)
+    
+    def delete(self, request, episode_id, chapter_id, uid):
+        verify = ModelExistenceChecker.reel_verifier(self.request, episode_id, chapter_id, uid)
+        if type(verify) is dict:
+            return ApiResponseMixin().structure(request, Response(**verify), [])
+
+        episode_model = verify[0]
+        chapter_model = verify[1]
+        reel_model = verify[2]
+        
+        reel_model.delete()
+        # return response
+        return ApiResponseMixin().structure(request, Response(data="Reel Deleted Successfully!", status = 200), [])
 
 
 # AUTHENTICATION API
@@ -391,6 +410,7 @@ class UserLoginApi(APIView):
                 
         else:
             return ApiResponseMixin().structure(request, Response(data={}, status=status.HTTP_400_BAD_REQUEST), errors=serializer.errors)
+        
 class UserProfileUpdateApi(APIView):
     
     permission_classes = [IsAuthenticated]

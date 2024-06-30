@@ -1,7 +1,70 @@
 from math import floor
 from django.core.mail import EmailMessage
 from core.settings import *
+from .models import *
+from django.core.files.storage import default_storage
 
+class FileManager:
+    @staticmethod
+    def exists(filepath):
+        return default_storage.exists(filepath)
+    
+    @staticmethod
+    def save(filepath, file):
+        return default_storage.save(filepath, file)
+    
+    @staticmethod
+    def delete(filepath):
+        return default_storage.delete(filepath)
+    
+    @staticmethod
+    def open(filepath, mode = "rb"):
+        return default_storage.open(filepath, mode)
+    
+    @staticmethod
+    def url(filepath):
+        return default_storage.url(filepath)
+    
+class ModelExistenceChecker:
+    @staticmethod
+    def chapter_verifier(request, episode_id, chapter_id):
+        current_user = request.user
+        
+        episode_model = EpisodeModel.objects.filter(
+            id=episode_id, 
+            # user=current_user
+        ).first()
+        if episode_model is None:
+            return {"data": "Episode Not Found!", "status": 404}
+
+        chapter_model = ChapterModel.objects.filter(id = chapter_id, episode=episode_model).first()
+        if chapter_model is None:
+            return {"data": "Chapter Not Found!", "status": 404}
+        
+        return [episode_model, chapter_model]
+    
+    @staticmethod
+    def reel_verifier(request, episode_id, chapter_id, reel_id):
+        current_user = request.user
+
+        episode_model = EpisodeModel.objects.filter(
+            id=episode_id, 
+            # user=current_user
+        ).first()
+        if episode_model is None:
+            return {"data": "Episode Not Found!", "status": 404}
+
+        chapter_model = ChapterModel.objects.filter(id = chapter_id, episode=episode_model).first()
+        if chapter_model is None:
+            return {"data": "Chapter Not Found!", "status": 404}
+        
+        reel_model = ReelModel.objects.filter(id = reel_id).first()
+        if reel_model is None:
+            return {"data": "Reel Not Found!", "status": 404}
+        
+        return [episode_model, chapter_model, reel_model]
+    
+    
 class UTIL:
     @staticmethod
     def send_email(data):

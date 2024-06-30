@@ -21,6 +21,7 @@ class AzureMediaStorage(AzureStorage):
     account_key = env('AZURE_STORAGE_ACCOUNT_KEY')
     azure_container = 'media'
     expiration_secs = None
+    overwrite_files = True
 
 
 class AzureStaticStorage(AzureStorage):
@@ -28,3 +29,4 @@ class AzureStaticStorage(AzureStorage):
     account_key = env('AZURE_STORAGE_ACCOUNT_KEY')
     azure_container = 'static'
     expiration_secs = None
+    

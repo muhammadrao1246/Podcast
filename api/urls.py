@@ -16,11 +16,12 @@ urlpatterns = [
     path("episodes/add", views.EpisodeSheetApi.as_view()),
     path("episodes", views.EpisodeListApi.as_view()),
     path("episodes/<str:uid>", views.EpisodeDetailApi.as_view()),
-    path("episodes/<str:uid>/delete", views.EpisodeDeleteApi.as_view()),
     
     path("episodes/<str:episode_id>/chapters", views.ChapterListApi.as_view()),
     path("episodes/<str:episode_id>/chapters/<str:uid>", views.ChapterDetailApi.as_view()),
         
+    
+    path("episodes/<str:episode_id>/chapters/<str:chapter_id>/reels/add", views.ReelAddApi.as_view()),
     path("episodes/<str:episode_id>/chapters/<str:chapter_id>/reels", views.ReelListApi.as_view()),
     path("episodes/<str:episode_id>/chapters/<str:chapter_id>/reels/<str:uid>", views.ReelDetailApi.as_view()),
 ]
