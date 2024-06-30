@@ -8,6 +8,7 @@ import { useOutletContext, useParams } from "react-router-dom";
 import React from "react";
 import { useGetEpisodeChaptersListMutation } from "src/services/api";
 import ChapterReelsComponent from "src/components/reels/ChapterReelsComponent";
+// import ChapterReelsComponent from "src/components/reels/ChapterReelsComponent";
 // import { C } from "@fullcalendar/core/internal-common";
 
 const Reels = () => {
