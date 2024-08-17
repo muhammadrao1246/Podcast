@@ -808,7 +808,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
                     'required': 'Password is required.',
                     'min_length': 'Password must be greater than 8 in length.'
                 })
-    
+     
     class Meta:
         model = UserModel
         fields = ['email', 'password',]
