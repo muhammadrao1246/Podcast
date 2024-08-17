@@ -1,26 +1,4 @@
 {
-    "routes": [
-      {
-        "route": "/api/*",
-        "allowedRoles": ["anonymous"]
-      }
-    ],
-    "globalHeaders": {
-      "x-powered-by": "Azure Static Web Apps"
-    },
-    "auth": {
-      "identityProviders": {
-        "github": {
-          "clientIdSettingName": "GITHUB_CLIENT_ID",
-          "clientSecretSettingName": "GITHUB_CLIENT_SECRET"
-        }
-      }
-    },
-    "responseOverrides": {
-      "404": {
-        "rewrite": "/index.html"
-      }
-    },
     "environmentVariables": {
       "VITE_APP_BACKEND_SERVER": "https://backend-podcaststudio.azurewebsites.net"
     }

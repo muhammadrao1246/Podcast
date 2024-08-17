@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { getToken } from './token'
 
 
-
+console.log(import.meta.env)
 export const {VITE_APP_BACKEND_SERVER} = import.meta.env
 // Define a service using a base URL and expected endpoints
 export const userAuthApi = createApi({
