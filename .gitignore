@@ -12,6 +12,8 @@ db.sqlite3
 media/
 api/core/__pycache__/*.pyc
 core/core/__pycache__/*.pyc
+cache/
+public/
 
 # Backup files # 
 *.bak 

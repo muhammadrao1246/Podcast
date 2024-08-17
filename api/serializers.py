@@ -402,6 +402,31 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
         return ch.sequences.last().sequence_number if ch.sequences.count() > 0 else 0
         
 # REELS SERIALIZERS
+class ReelDeleteSerializer(serializers.Serializer):
+    
+    class Meta:
+        pass
+    
+    def validate(self, attrs):
+        episode_model = self.context.get("episode") 
+        chapter_model = self.context.get("chapter")
+        reel_model = self.context.get("reel")
+        
+ 
+        print("Deleting REEL IN THE DATABASE")
+        try:
+            # starting a transaction session so if there any error occurs all changes to the database will be rolled back
+            with transaction.atomic():
+                reel_model.delete()
+                # Commit the transaction before running DatabaseToGoogleSheetUpdater
+                DatabaseToGoogleSheetUpdater(episode_model)
+        except DatabaseError as ex:
+            print(ex)
+            raise ValidationError("Unable to delete reel. Some Error Occured.")
+        
+        return super().validate(attrs)
+ 
+ 
 class ReelUpdateSerializer(serializers.Serializer):
     start_sequence_number = serializers.IntegerField(required=True, min_value = 1, error_messages={
                     'invalid': 'Start Sequence Number is required.',

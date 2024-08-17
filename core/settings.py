@@ -49,11 +49,6 @@ ALLOWED_HOSTS = ["*"]
 
 
 # Allowed origin
-# CORS_ALLOWED_ORIGINS = [
-#     env("REACT_SERVER_LOCAL"),
-#     env("REACT_SERVER_PRODUCTION"),
-#     env("REACT_SERVER_CICD_PRODUCTION"),
-# ]
 CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(' ')
 
 

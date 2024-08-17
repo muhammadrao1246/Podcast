@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.Tester.as_view()),
     path("auth/register", views.UserRegistrationApi.as_view()),
     path("auth/login", views.UserLoginApi.as_view()),
+    path("auth/verify", views.UserVerifyApi.as_view()),
     path("auth/change/password", views.UserPasswordChangeApi.as_view()),
     path("auth/forgot", views.UserPasswordForgotApi.as_view()),
     path("auth/reset/<str:uid>/<str:token>", views.UserPasswordResetApi.as_view()),

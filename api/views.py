@@ -335,10 +335,16 @@ class ReelDetailApi(APIView):
         chapter_model = verify[1]
         reel_model = verify[2]
         
-        reel_model.delete()
-        # return response
-        return ApiResponseMixin().structure(request, Response(data="Reel Deleted Successfully!", status = 200), [])
-
+        cs = ReelDeleteSerializer(data=request.data, context={
+            'episode': episode_model,
+            'chapter': chapter_model,
+            'reel': reel_model
+        })
+        if cs.is_valid():
+            return ApiResponseMixin().structure(request, Response("Reel Deleted Successfully!"), [])
+        
+        return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), cs.errors)
+        
 
 # AUTHENTICATION API
 
@@ -367,7 +373,8 @@ class UserRegistrationApi(APIView):
             print(user_model)
             token = get_user_token(user_model)
             return ApiResponseMixin().structure(request, Response(data={
-                    "token": token
+                    "token": token,
+                    "user": UserDetailSerializer(instance=user_model).data
                     }, status=status.HTTP_201_CREATED), [])
         else:
             return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), errors=serializer.errors)
@@ -399,7 +406,8 @@ class UserLoginApi(APIView):
                 
                 print(timezone.now())
                 return ApiResponseMixin().structure(request, Response(data={
-                    "token": token
+                    "token": token,
+                    "user": UserDetailSerializer(instance=user).data
                     }, status=status.HTTP_200_OK), [])
             else:
                 return ApiResponseMixin().structure(request, Response(status=status.HTTP_400_BAD_REQUEST), errors={
@@ -410,6 +418,17 @@ class UserLoginApi(APIView):
                 
         else:
             return ApiResponseMixin().structure(request, Response(data={}, status=status.HTTP_400_BAD_REQUEST), errors=serializer.errors)
+        
+
+class UserVerifyApi(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request: HttpRequest):
+        user = self.request.user
+        
+        return ApiResponseMixin().structure(request, Response(data={
+                "user": UserDetailSerializer(instance=user).data
+            }, status=status.HTTP_200_OK), errors=[])
         
 class UserProfileUpdateApi(APIView):
     
