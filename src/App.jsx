@@ -42,7 +42,27 @@ const EPISODES_BOOK_PAGE = React.lazy(() => import("src/pages/episodes/book"))
 const EPISODES_CHAPTERS_PAGE = React.lazy(() => import("src/pages/chapters/index"))
 const EPISODES_REELS_PAGE = React.lazy(() => import("src/pages/reels/index"))
 
+// error pages
+function ErrorHandler(){
+  const error = useRouteError()
 
+  // if item not found or page not found error
+  if (isRouteErrorResponse(error) && error.status == 404)
+  {
+    return <h1>Not Found Error 404</h1>
+  }
+  // if a server error
+  else if(isRouteErrorResponse(error) && error.status == 500)
+  {
+    return <h1>Internal Server Error 500</h1>
+  }
+  else if(isRouteErrorResponse(error) && error.status == 401)
+  {
+    return <h1>Token Expired Error 401</h1>
+  }
+
+  return <h1>Unknown Error</h1>
+}
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -52,14 +72,15 @@ function App() {
     TimeAgo.addLocale(en); // setting output timesince language as english
   },[])
 
+
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Routes>
           {/* Routes that include the sidebar and topbar */}
-          <Route path="/" element={<MainLayout />}>
-            <Route title="Dashboard" path={ROUTES.DASHBOARD} element={<DASHBOARD_PAGE />} />
+          <Route ErrorBoundary={<ErrorHandler />} path="/" element={<MainLayout />}>
+            <Route path={ROUTES.DASHBOARD} element={<DASHBOARD_PAGE />} />
             <Route path={ROUTES.TEAM} element={<TEAM_PAGE />} />
             <Route path={ROUTES.GUESTS} element={<GUESTS_PAGE />} />
             <Route path={ROUTES.GUESTS_ADD} element={<GUESTS_ADD_PAGE />} />
@@ -71,7 +92,7 @@ function App() {
             <Route path={ROUTES.REELS} element={<EPISODES_REELS_PAGE />} />
           </Route>
           {/* Routes that do not include the sidebar and topbar */}
-          <Route path="/" element={<AuthLayout />}>
+          <Route ErrorBoundary={<ErrorHandler />} path="/" element={<AuthLayout />}>
             <Route index path={ROUTES.LOGIN} element={<Login />} />
             <Route path={ROUTES.SIGNUP} element={<Signup />} />
           </Route>

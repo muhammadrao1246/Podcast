@@ -166,15 +166,12 @@ const Login = () => {
                     error={!!touched.password && !!errors.password}
                     helperText={touched.password && errors.password}
                   />
-                  <Typography variant="body2" align="right" gutterBottom>
-                    <Link 
-                    
-                      LinkComponent={DOMLink}
-                      to={"#"}
-                       color={colors.greenAccent[400]}>
+                    <Link
+                    component={DOMLink}
+                     variant="body2" align="right" gutterBottom
+                      color={colors.greenAccent[400]}>
                       Forgot Password?
                     </Link>
-                  </Typography>
                   <Button
                     type="submit"
                     fullWidth
