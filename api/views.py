@@ -46,8 +46,8 @@ class Tester(APIView):
         # pr.save_full_episode_series_sequence()
         
         # ep = EpisodeModel.objects.filter(sheet_link__icontains="http").order_by("-created_at").first()
-        # ep = EpisodeModel.objects.get(id="45b02c04-e021-45cf-8e7d-018e3e7cde27")
-        # up = DatabaseToGoogleSheetUpdater(ep)
+        ep = EpisodeModel.objects.get(id="d76e4639-d7a3-4fd9-9321-922a58415809")
+        up = DatabaseToGoogleSheetUpdater(ep)
         
         return Response({
             "response": "Level 1 Working"

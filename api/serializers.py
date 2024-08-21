@@ -484,8 +484,11 @@ class ReelUpdateSerializer(serializers.Serializer):
                     'min_value': 'End Sequence Number must be less than or equal to 1.'
                 })
     
+    edit_sequences = serializers.DictField()
+    sequences = serializers.ListField(child=serializers.UUIDField())
     class Meta:
-        fields = ["start_sequence_number", "end_sequence_number"]
+        # fields = ["start_sequence_number", "end_sequence_number"]
+        fields= "__all__"
     
     def update_chapter_reels(self, reel_model:ReelModel):
         reel_sequences = reel_model.sequences.get_queryset()
@@ -509,6 +512,8 @@ class ReelUpdateSerializer(serializers.Serializer):
         
         start = attrs.get("start_sequence_number")
         end = attrs.get("end_sequence_number")
+        edit_dict = attrs.get("edit_sequences")
+        rl_sequences = attrs.get("sequences")
         
         
         if start > end:
@@ -532,9 +537,6 @@ class ReelUpdateSerializer(serializers.Serializer):
             if start in reel_range or end in reel_range:
                 raise ValidationError(f'This Reel cannot not intersect an existing ({orl.title}) reel.')
             
-        # getting new sequences and attaching to reel
-        new_sequence_models = chapter_model.sequences.filter(sequence_number__gte = start, sequence_number__lte = end )
-           
         
         # raise ValidationError(f'This Reel cannot be a subset of existing reel.')
  
@@ -542,6 +544,22 @@ class ReelUpdateSerializer(serializers.Serializer):
         try:
             # starting a transaction session so if there any error occurs all changes to the database will be rolled back
             with transaction.atomic():
+                
+                # first update all the edited sequences
+                for id, word in edit_dict.items():
+                    update_sequence = SequenceUpdateSerializer(
+                        data={"id": id, "words": word},
+                        context={"episode": episode_model},
+                    )
+                    update_sequence.is_valid()
+
+                # getting new sequences and attaching to reel
+                # new_sequence_models = chapter_model.sequences.filter(sequence_number__gte = start, sequence_number__lte = end )
+                # delete sequences from current manytomany sequences queryset
+                
+                new_sequence_models = chapter_model.sequences.filter(episode=episode_model, id__in=rl_sequences)
+
+        
                 reel_model.sequences.set(new_sequence_models, clear=True)
                 self.update_chapter_reels(reel_model)
                 
