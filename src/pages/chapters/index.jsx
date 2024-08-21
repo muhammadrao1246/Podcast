@@ -77,6 +77,7 @@ const Chapters = () => {
     const [refreshNeeded, setRefreshNeeded] = React.useState(0)
     React.useEffect(()=>{
         window.scrollTo({behavior: "smooth", top: 0})
+        setSelectedChapter(null);
         getEpisodeDetailFunc()
     }, [refreshNeeded])
 
