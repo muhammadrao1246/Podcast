@@ -60,7 +60,7 @@ class SheetSerializer(serializers.Serializer):
         
         return super().validate(attrs)
 
-        
+
 # EPISODE SEQUENCES SERIALIZER
 
 class SequenceSerializer(serializers.ModelSerializer):
@@ -95,6 +95,30 @@ class SequenceSerializer(serializers.ModelSerializer):
     def get_num_end_time(self, seq: SequenceModel):
         return UTIL.convert_time_string_to_seconds(seq.end_time)
 
+class SequenceUpdateSerializer(serializers.Serializer):
+    id = serializers.UUIDField(required=True)
+    
+    words = serializers.CharField(required=True, max_length = 255, error_messages={
+                    'required': 'Words is required.',
+                    'max_length': 'Words must be less than 255 characters in length.',
+                })
+    
+    class Meta:
+        fields = ['id', 'words']
+    
+    def validate(self, attrs):
+        episode = self.context.get("episode")
+        id = attrs.get("id")
+        words = attrs.get("words")
+        sequence = SequenceModel.objects.filter(id=id, episode=episode).first()
+        if sequence is None:
+            raise ValidationError(f"'{id}' No Sequence found with given Id.")
+        sequence.words = words
+        sequence.save()
+        print(sequence)
+        return super().validate(attrs)
+
+
 # EPISDOE SERIALIZER
 
 class EpisodeListSerializer(serializers.ModelSerializer):
@@ -113,8 +137,8 @@ class EpisodeListSerializer(serializers.ModelSerializer):
         if "episodes/" in episode.sheet_link:
             return FileManager.url(episode.sheet_link)
         return episode.sheet_link
-        
-        
+
+
 class EpisodeDetailSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     
@@ -180,11 +204,11 @@ class EpisodeDetailSerializer(serializers.ModelSerializer):
     
     def get_min_difference(self, ep: EpisodeModel):
         return self.context["min_difference"]
-    
+
 
 # CHAPTER SERIALIZERS
 class ChapterUpdateSerializer(serializers.Serializer):
-    
+
     start_sequence_number = serializers.IntegerField(required=True, min_value = 1, error_messages={
                     'invalid': 'Start Sequence Number is required.',
                     'min_value': 'Start Sequence Number must be greater than or equal to 1.',
@@ -193,38 +217,48 @@ class ChapterUpdateSerializer(serializers.Serializer):
                     'invalid': 'End Sequence Number is required.',
                     'min_value': 'End Sequence Number must be less than or equal to 1.'
                 })
-    
+    edit_sequences = serializers.DictField()
+    sequences = serializers.ListField(child=serializers.UUIDField())
+
     class Meta:
-        fields = ["start_sequence_number", "end_sequence_number"]
-    
+        # fields = ["start_sequence_number", "end_sequence_number", "edit_sequences", "delete_sequences"]
+        fields = "__all__"
+        
     def update_chapter_reels(self, reel_model:ReelModel):
         reel_sequences = reel_model.sequences.get_queryset()
-        
+
+        print(reel_model.title)
         if reel_sequences.count() > 0:
             contentJoined = ' '.join([seq.words for seq in reel_sequences.only("words")])
             first_seq = reel_sequences.first()
             last_seq = reel_sequences.last()
-            
+
             reel_model.start_time = first_seq.start_time
             reel_model.end_time = last_seq.end_time
             reel_model.content = contentJoined
-            reel_model.save()
+            reel_model.save() 
+            print("Content: ", contentJoined)
         else:
+            print("Delete Reel Content: ")
             reel_model.delete()
-            
+        
+        
+        
+        # print("Start Sequences: ", first_seq.sequence_number, " End Sequence: ", last_seq.sequence_number)
+
     def update_chapters(self, chapter_model:ChapterModel):
         sequences = chapter_model.sequences.get_queryset()
-        
+
         if sequences.count() > 0:
             contentJoined = ' '.join([seq.words for seq in sequences.only("words")])
             first_seq = sequences.first()
             last_seq = sequences.last()
-            
-            # first updating its reels before updating chapter            
+
+            # first updating its reels before updating chapter
             reels = ReelModel.objects.filter(chapter= chapter_model)
             for reel in reels:
                 remaining_sequences = reel.sequences.get_queryset() & sequences
-                
+
                 reel.sequences.set(objs=remaining_sequences)
                 # update whether needs to be deleted or meta needed to be changed
                 self.update_chapter_reels(reel)
@@ -235,24 +269,23 @@ class ChapterUpdateSerializer(serializers.Serializer):
             chapter_model.save()
         else:
             chapter_model.delete()
-            
-        
+
         print(chapter_model.title)
         print("Content: ", chapter_model.content) 
         print("Start Sequences: ", first_seq.sequence_number, " End Sequence: ", last_seq.sequence_number)
-        
+
     def validate(self, attrs):
         episode_model = self.context.get("episode")
         chapter_model = self.context.get("chapter")
         start = attrs.get("start_sequence_number")
         end = attrs.get("end_sequence_number")
+        edit_dict = attrs.get("edit_sequences")
+        ch_sequences = attrs.get("sequences")
         
         if start > end:
             raise ValidationError("Start Value should be less than or equal to End Value")
-        
+
         print("Range: ", start, end)
-        # getting new sequences and attaching to chapters
-        new_sequence_models = SequenceModel.objects.filter(episode=episode_model, sequence_number__gte = start, sequence_number__lte = end )
 
         # other chapter that have these sequences removing them right away
         other_chapters = ChapterModel.objects.filter(episode=episode_model).exclude(id = chapter_model.id)
@@ -262,27 +295,41 @@ class ChapterUpdateSerializer(serializers.Serializer):
             print(o_start, o_end)
             if start > o_start and end < o_end:
                 raise ValidationError(f'{chapter_model.title} cannot be a subset of {och.title}')
-            
-        
- 
+
         print("UPDATING CHAPTERS IN THE DATABASE")
+
         try:
             # starting a transaction session so if there any error occurs all changes to the database will be rolled back
             with transaction.atomic():
+                # first update all the edited sequences
+                for id, word in edit_dict.items():
+                    update_sequence = SequenceUpdateSerializer(
+                        data={"id": id, "words": word},
+                        context={"episode": episode_model},
+                    )
+                    update_sequence.is_valid()
+
+                # delete sequences from current manytomany sequences queryset
+                # getting new sequences and attaching to chapters
+                # new_sequence_models = SequenceModel.objects.filter(episode=episode_model, sequence_number__gte = start, sequence_number__lte = end )
+                new_sequence_models = SequenceModel.objects.filter(episode=episode_model, id__in=ch_sequences)
+
+                print(' '.join([s.words for s in new_sequence_models]))
                 chapter_model.sequences.set(new_sequence_models, clear=True)
                 self.update_chapters(chapter_model)
-                
+
                 for och in other_chapters:
                     och.sequences.remove(*new_sequence_models)
                     self.update_chapters(och)
-                
+
+                # raise ValidationError("Testing")
                 # Commit the transaction before running DatabaseToGoogleSheetUpdater
                 DatabaseToGoogleSheetUpdater(episode_model)
         except DatabaseError as ex:
             raise ValidationError("Unable to update sheet data. Some Error Occured.")
-        
+
         return super().validate(attrs)
-    
+
 
 class ChapterListSerializer(serializers.ModelSerializer):
     
@@ -311,8 +358,8 @@ class ChapterListSerializer(serializers.ModelSerializer):
     
     def get_end_sequence_number(self, ch: ChapterModel):
         return ch.sequences.last().sequence_number if ch.sequences.count() > 0 else 0
-    
-        
+
+
 class ChapterDetailSerializer(serializers.ModelSerializer):
     title = serializers.CharField(required=True, max_length = 255, error_messages={
                     'required': 'Title is required.',
@@ -400,7 +447,7 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
     
     def get_end_sequence_number(self, ch: ChapterModel):
         return ch.sequences.last().sequence_number if ch.sequences.count() > 0 else 0
-        
+
 # REELS SERIALIZERS
 class ReelDeleteSerializer(serializers.Serializer):
     
@@ -425,8 +472,8 @@ class ReelDeleteSerializer(serializers.Serializer):
             raise ValidationError("Unable to delete reel. Some Error Occured.")
         
         return super().validate(attrs)
- 
- 
+
+
 class ReelUpdateSerializer(serializers.Serializer):
     start_sequence_number = serializers.IntegerField(required=True, min_value = 1, error_messages={
                     'invalid': 'Start Sequence Number is required.',
@@ -509,7 +556,7 @@ class ReelUpdateSerializer(serializers.Serializer):
             raise ValidationError("Unable to update reel. Some Error Occured.")
         
         return super().validate(attrs)
-  
+
 class ReelAddSerializer(serializers.Serializer):
     start_sequence_number = serializers.IntegerField(required=True, min_value = 1, error_messages={
                     'invalid': 'Start Sequence Number is required.',
@@ -588,8 +635,8 @@ class ReelAddSerializer(serializers.Serializer):
             raise ValidationError("Unable to add reel. Some Error Occured.")
         
         return super().validate(attrs)
-        
-        
+
+
 class ReelListSerializer(serializers.ModelSerializer):
     
     # content = serializers.SerializerMethodField()
@@ -617,7 +664,7 @@ class ReelListSerializer(serializers.ModelSerializer):
     
     def get_end_sequence_number(self, ch: ChapterModel):
         return ch.sequences.last().sequence_number if ch.sequences.count() > 0 else 0
-        
+
 class ReelDetailSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     sequences = SequenceSerializer(many=True, read_only=True)
@@ -648,8 +695,6 @@ class ReelDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReelModel
         fields = ['id', 'episode_id', 'chapter_id', 'title', 'reel_number', 'sequences', 'content', 'start_time', 'end_time']
-
-    
 
 
 # AUTH SERIALIZERS
@@ -795,7 +840,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             # print(image.__dict__)
             
         return image
-        
+
 
 class UserLoginSerializer(serializers.ModelSerializer):
     
