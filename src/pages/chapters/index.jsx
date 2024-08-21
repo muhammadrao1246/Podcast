@@ -174,7 +174,7 @@ const ChapterContentEditor = React.memo(function ChapterContentEditor({open, set
   // fetch Chapter Details
   React.useEffect(()=>{
     getChapterDetailFunc()
-  },[])   
+  },[episodeId, chapterId])   
 
 
   const [updateChapter,] = useUpdateEpisodeChapterMutation()
