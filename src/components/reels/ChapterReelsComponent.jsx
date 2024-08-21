@@ -25,6 +25,8 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
     const colors = tokens(theme.palette.mode);
 
     console.log(episodeId, chapterId)
+
+    // getting the chapter details which is loaded as list
     const [chapter, setChapter] = React.useState(null)
     const [getChapterDetail, {isLoading}] = useGetEpisodeChapterDetailMutation()
     const getChapterDetailFunc = async ()=>{
@@ -46,7 +48,8 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
         }
     }
 
-    const [data, setData] = React.useState([])
+    // getting all reels list under the chapter
+    const [reels, setReels] = React.useState([])
     const [apiErrors, SetApiErrors] = React.useState({})
     const [getReel, {isReelLoading}] = useGetReelsListMutation()
 
@@ -58,7 +61,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
             SetApiErrors(dataObject.errors)
         } else {
             let dataObject = response.data.data;
-            setData(dataObject.results)
+            setReels(dataObject.results)
             console.log(dataObject)
         }
     }
@@ -66,6 +69,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
     // ADD MODAL
     const [addModal, setAddModal] = React.useState(false)
     
+    // if a reel updated do a refresh
     const [refreshNeeded, setRefreshNeeded] = React.useState(0)
     React.useEffect(()=>{
         if(refreshNeeded == 0) return;
@@ -73,6 +77,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
         getChapterDetailFunc()
     }, [refreshNeeded])
 
+    // if dropdown expanded then fetch the chapter details and then reels details on wards
     const handleAccordion = (e)=>{
         if(chapter == null){
             getChapterDetailFunc()
@@ -106,7 +111,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                             </Box>
                         </Box>
                         <Box borderRadius="10px" bgcolor={colors.grey[700]} sx={{ gridColumn: "span 4" }}>
-                        { chapter != null && data.map((reel, index)=>
+                        { chapter != null && reels.map((reel, index)=>
                             <>
                             <ReelCard 
                                 key={reel.id+reel.start_sequence_number+reel.end_sequence_number}
@@ -128,7 +133,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                                 min_step={chapter.min_difference}
                                 refresher={()=>setRefreshNeeded(refreshNeeded+1)}
                             />
-                            {index < data.length-1 && <Divider></Divider>}
+                            {index < reels.length-1 && <Divider></Divider>}
                             </>
                             
                         )}

@@ -88,6 +88,7 @@ const RangeSlider = ({ timeStamps, startTime, endTime, handleChange, min_step })
 
   return (
     <Slider
+      disabled
       sx={{width: "65%"}}
       color="secondary"
       value={sliderValue}
