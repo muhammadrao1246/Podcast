@@ -15,6 +15,7 @@ import ReelCard, { SequenceElastic, SequenceTextJoiner } from './ReelCard';
 import { useOutletContext } from 'react-router-dom';
 import $ from 'jquery'
 import { ClosableToast } from '../Toast';
+import { ReelContentEditor } from '../ContentEditorModals';
 
 const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -68,15 +69,27 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
 
     // ADD MODAL
     const [addModal, setAddModal] = React.useState(false)
+
+    
+    // Modal state
+    const [openEditor, setOpenEditor] = React.useState(false);
+    const [selectedReel, setSelectedReel] = React.useState(null);
+
     
     // if a reel updated do a refresh
     const [refreshNeeded, setRefreshNeeded] = React.useState(0)
     React.useEffect(()=>{
         if(refreshNeeded == 0) return;
         // window.scrollTo({behavior: "smooth", top: 0})
+        setSelectedReel(null);
         getChapterDetailFunc()
     }, [refreshNeeded])
 
+    const handleEditClick = (reel) => {
+        setSelectedReel(reel);
+        setOpenEditor(true);
+    };
+    
     // if dropdown expanded then fetch the chapter details and then reels details on wards
     const handleAccordion = (e)=>{
         if(chapter == null){
@@ -120,6 +133,8 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                                 reelId={reel.id}
                                 
                                 reelTitle={reel.title} 
+                                reelTranscript={reel.content}
+                                
                                 
                                 startTime={reel.num_start_time}
                                 endTime={reel.num_end_time}
@@ -132,6 +147,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                                 timeStamps={chapter.sliderData}
                                 min_step={chapter.min_difference}
                                 refresher={()=>setRefreshNeeded(refreshNeeded+1)}
+                                onEditClick={()=>handleEditClick(reel)}
                             />
                             {index < reels.length-1 && <Divider></Divider>}
                             </>
@@ -179,6 +195,22 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                                 />
                             )
                         }
+                        {selectedReel && (
+                            <ReelContentEditor
+                                key={episodeId+chapterId+selectedReel.id}
+                                open={openEditor}
+                                setOpen={setOpenEditor}
+                                episodeId={selectedReel.episode_id}
+                                chapterId={selectedReel.chapter_id}
+                                reelId={selectedReel.id}
+                                title={selectedReel.title}
+                                startSeq={selectedReel.start_sequence_number}
+                                endSeq={selectedReel.end_sequence_number}
+                                startTime={selectedReel.num_start_time}
+                                endTime={selectedReel.num_end_time}
+                                refresher={() => setRefreshNeeded(refreshNeeded + 1)}
+                            />
+                        )}
                     </Box>
                 </AccordionDetails>
             </Accordion>
@@ -319,6 +351,7 @@ function AddReelComponent({ open, setOpen, episodeId, chapterId, startSeq, endSe
             key={chapterId + "-add-reel-slider"}
             timeStamps={timeStamps}
             handleChange={handleChange}
+            isDisabled={false}
             startTime={currStartTime}
             endTime={currEndTime}
             min_step={min_step}

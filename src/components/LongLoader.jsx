@@ -6,7 +6,7 @@ import { Box } from '@mui/material';
 function LongLoader() {
   return (
     // <div className="report-loader"></div>
-    <Box bgcolor={"rgba(1, 1, 1, .5)"} width={"100vw"} height={"100vh"} zIndex={9999} display={"flex"} justifyContent={"center"} alignItems={"center"} position={"fixed"}>
+    <Box bgcolor={"rgba(1, 1, 1, .5)"} width={"100vw"} height={"100vh"} zIndex={1350} display={"flex"} justifyContent={"center"} alignItems={"center"} position={"fixed"}>
       <div className="report-loader">
       <div className="loader_cogs">
         <div className="loader_cogs__top">

@@ -11,6 +11,9 @@ export function ClosableToast(message, status, duration = 2000, props) {
     return enqueueSnackbar(message,{
         anchorOrigin: {vertical: "top", horizontal: "center"},
         autoHideDuration: duration,
+        style: {
+            zIndex: "10000 !important"
+        },
         action: key=>(
             <IconButton onClick={()=>closeSnackbar(key)}>
                 <CloseOutlined />

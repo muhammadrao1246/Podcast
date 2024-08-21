@@ -9,6 +9,7 @@ import LongLoader from 'src/components/LongLoader';
 
 import LoadingBar from 'react-top-loading-bar'
 import ScreenLoader from 'src/components/ScreenLoader';
+import { ClosableToast } from '../Toast';
 
 
 
@@ -25,9 +26,10 @@ const MainLayout = () => {
       }
     }
   },[])
-
+  // ClosableToast("kjjkjk", "success", 10000)
   return (
     <>
+    {/* not used currently */}
     <LoadingBar
           color="var(--bg-primary)"
           progress={progress}
@@ -37,10 +39,12 @@ const MainLayout = () => {
         />
     <div className="app" style={{scrollBehavior:"smooth"}}>
       <Sidebar />
-      
+      {/* shown for large data operation */}
       {loading && <LongLoader />}
+  {/* <LongLoader /> */}
       <main className="content">
         <Topbar />
+        {/* screen loader not configured currently */}
         <Suspense fallback={<ScreenLoader />}>
                   <Outlet context={{loader: [loading, setLoading], progress: [progress, setProgress]}} />
         </Suspense>

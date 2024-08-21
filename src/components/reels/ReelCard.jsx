@@ -27,7 +27,7 @@ export function SequenceTextJoiner(sequences) {
     .join(" ");
 }
 
-const ReelCard = ({episodeId, chapterId, reelId, reelTitle, startSeq, endSeq, startTime, endTime, src, sequences, timeStamps, min_step, refresher}) => {
+const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTranscript, startSeq, endSeq, startTime, endTime, src, sequences, timeStamps, min_step, refresher}) => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
     
     const [loading, setLoading] = useOutletContext().loader
@@ -42,88 +42,90 @@ const ReelCard = ({episodeId, chapterId, reelId, reelTitle, startSeq, endSeq, st
     const [startSequence, setStartSequence] = React.useState(startSeq)
     const [endSequence, setEndSequence] = React.useState(endSeq)
     
-    const [text, setText] = React.useState(SequenceTextJoiner(SequenceElastic(sequences, currStartTime, currEndTime)));
 
-    const handleChange = (newValue) => {
-        console.log("In Reel Change", newValue)
-        setStartTime(newValue[0]);
-        setEndTime(newValue[1])
-        let filteredSequences = SequenceElastic(sequences, currStartTime, currEndTime)
+
+    // const [text, setText] = React.useState(SequenceTextJoiner(SequenceElastic(sequences, currStartTime, currEndTime)));
+
+    // const handleChange = (newValue) => {
+    //     console.log("In Reel Change", newValue)
+    //     setStartTime(newValue[0]);
+    //     setEndTime(newValue[1])
+    //     let filteredSequences = SequenceElastic(sequences, currStartTime, currEndTime)
         
-        if (filteredSequences.length > 0) {
-            setStartSequence(filteredSequences[0].sequence_number)
-            setEndSequence(filteredSequences[filteredSequences.length - 1].sequence_number)
-        } else {
-            setStartSequence(0)
-            setEndSequence(0)
-        }
+    //     if (filteredSequences.length > 0) {
+    //         setStartSequence(filteredSequences[0].sequence_number)
+    //         setEndSequence(filteredSequences[filteredSequences.length - 1].sequence_number)
+    //     } else {
+    //         setStartSequence(0)
+    //         setEndSequence(0)
+    //     }
 
-        setText(SequenceTextJoiner(filteredSequences))
-        document.getElementsByClassName(`${reelId}-sequence-box`)[0].scrollIntoViewIfNeeded({block: "nearest", behaviour: "smooth"})
-    };
+    //     setText(SequenceTextJoiner(filteredSequences))
+    //     document.getElementsByClassName(`${reelId}-sequence-box`)[0].scrollIntoViewIfNeeded({block: "nearest", behaviour: "smooth"})
+    // };
 
-    React.useEffect(()=>{
-        $(`.${reelId}-sequence-box`).scrollTop(0)
-    },[currStartTime, reelId])
-    React.useEffect(()=>{
-        $(`.${reelId}-sequence-box`).scrollTop(1000000)
-    },[currEndTime, reelId])
+    // React.useEffect(()=>{
+    //     $(`.${reelId}-sequence-box`).scrollTop(0)
+    // },[currStartTime, reelId])
+    // React.useEffect(()=>{
+    //     $(`.${reelId}-sequence-box`).scrollTop(1000000)
+    // },[currEndTime, reelId])
 
     // ClosableToast("Reel Edited Successfully!", "success", 2000)
 
     // generate button clicked now update the chapter and all database
     const [apiErrors, SetApiMessages] = React.useState({})
 
-    const [updateReel, {isLoading}] = useUpdateReelMutation()
-    const handleGenerate = async (e) => {
-        setLoading(true)
-        let body = {
-            start_sequence_number: startSequence,
-            end_sequence_number: endSequence,
-        }
-        console.log(episodeId, chapterId, body)
-        const response = await updateReel({episodeId, chapterId, reelId, body})
-        if (!!response.error) {
-            let dataObject = response.error.data;
-            console.log(dataObject.errors);
+    // const [updateReel, {isLoading}] = useUpdateReelMutation()
+    // const handleGenerate = async (e) => {
+    //     setLoading(true)
+    //     let body = {
+    //         start_sequence_number: startSequence,
+    //         end_sequence_number: endSequence,
+    //     }
+    //     console.log(episodeId, chapterId, body)
+    //     const response = await updateReel({episodeId, chapterId, reelId, body})
+    //     if (!!response.error) {
+    //         let dataObject = response.error.data;
+    //         console.log(dataObject.errors);
             
-            SetApiMessages(
-                Object.keys(dataObject.errors).map((errorType, index) => {
+    //         SetApiMessages(
+    //             Object.keys(dataObject.errors).map((errorType, index) => {
                   
-                  ClosableToast(dataObject.errors[errorType][0], "error", 2000)
-                  return {
-                    type: errorType,
-                    message: dataObject.errors[errorType],
-                  };
-                })
-              );
-            setLoading(false)
+    //               ClosableToast(dataObject.errors[errorType][0], "error", 2000)
+    //               return {
+    //                 type: errorType,
+    //                 message: dataObject.errors[errorType],
+    //               };
+    //             })
+    //           );
+    //         setLoading(false)
             
-        } else {
-            let dataObject = response.data.data;
-            ClosableToast("Reel Edited Successfully!", "success", 2000)
-            refresher()
-            // navigate(`/episodes/${episodeId}/chapters`)
-        }
-        console.log("Generate: ", e)
-    };
+    //     } else {
+    //         let dataObject = response.data.data;
+    //         ClosableToast("Reel Edited Successfully!", "success", 2000)
+    //         refresher()
+    //         // navigate(`/episodes/${episodeId}/chapters`)
+    //     }
+    //     console.log("Generate: ", e)
+    // };
 
     
 
-    // handle reset
-    const handleReset = (e) => {
-        setStartTime(startTime)
-        setEndTime(endTime)
-        let filteredSequences = SequenceElastic(sequences, startTime, endTime)
-        setText(SequenceTextJoiner(filteredSequences))
-        setStartSequence(startSeq)
-        setEndSequence(endSeq)
-    };
+    // // handle reset
+    // const handleReset = (e) => {
+    //     setStartTime(startTime)
+    //     setEndTime(endTime)
+    //     let filteredSequences = SequenceElastic(sequences, startTime, endTime)
+    //     setText(SequenceTextJoiner(filteredSequences))
+    //     setStartSequence(startSeq)
+    //     setEndSequence(endSeq)
+    // };
 
     // handle delete
     const [deleteReel, {isDeleteLoading}] = useDeleteReelsMutation()
     const handleDelete = async (e) => {
-        // setLoading(true)
+        setLoading(true)
         const response = await deleteReel({episodeId, chapterId, reelId})
         if (!!response.error) {
             let dataObject = response.error.data;
@@ -172,6 +174,20 @@ const ReelCard = ({episodeId, chapterId, reelId, reelTitle, startSeq, endSeq, st
             sx={{ gridColumn: "span 3" }}
           >
             <Typography
+              borderRadius="10px"
+              p="20px"
+              textAlign="justify"
+              bgcolor={colors.grey[800]}
+              color={colors.grey[0]}
+              sx={{
+                height: "400px",
+                overflow: "auto",
+                scrollBehavior: "smooth",
+              }}
+            >
+              {reelTranscript}
+            </Typography>
+            {/* <Typography
               className={`${reelId}-sequence-box`}
               borderRadius="10px"
               p="20px"
@@ -185,7 +201,7 @@ const ReelCard = ({episodeId, chapterId, reelId, reelTitle, startSeq, endSeq, st
               }}
             >
               {text}
-            </Typography>
+            </Typography> */}
             {/* <Typography borderRadius="0 0 10px 10px" p="20px" bgcolor={colors.grey[800]}>{episodeTranscript}</Typography> */}
           </Box>
           <Box
@@ -241,7 +257,9 @@ const ReelCard = ({episodeId, chapterId, reelId, reelTitle, startSeq, endSeq, st
             <RangeSlider
               key={reelId + "-slider"}
               timeStamps={timeStamps}
-              handleChange={handleChange}
+              // handleChange={handleChange}
+              handleChange={(value)=>value}
+              isDisabled={true}
               startTime={currStartTime}
               endTime={currEndTime}
               min_step={min_step}
@@ -260,8 +278,9 @@ const ReelCard = ({episodeId, chapterId, reelId, reelTitle, startSeq, endSeq, st
             alignItems="center"
             gap="10px"
             sx={{ gridColumn: "span 1" }}
-          >
-            <Button
+          > 
+            <Button onClick={onEditClick} p="15px 20px" size="large" color='secondary' variant='contained' sx={{ width: "100%", p: "15px" }}>Edit Reel</Button>
+            {/* <Button
               onClick={handleReset}
               p="15px 20px"
               size="large"
@@ -280,7 +299,7 @@ const ReelCard = ({episodeId, chapterId, reelId, reelTitle, startSeq, endSeq, st
               sx={{ width: "100%", p: "15px" }}
             >
               Generate
-            </Button>
+            </Button> */}
           </Box>
         </Box>
       </Box>

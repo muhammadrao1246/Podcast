@@ -143,9 +143,10 @@ export const userAuthApi = createApi({
         }
     }),
     getReelsDetail: builder.mutation({
-        query: (param)=>{
+        query: (data)=>{
+            const {episodeId, chapterId, reelId} = data
             return  {
-                url: `episodes/${param.episode}/chapters/${param.chapter}/reels/${param.reel}`,
+                url: `episodes/${episodeId}/chapters/${chapterId}/reels/${reelId}`,
                 method: "GET",
                 // body: user,
                 headers: {

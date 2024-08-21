@@ -156,14 +156,16 @@ const ChapterCard = ({onEditClick, episodeId, chapterId, chapterTitle, chapterMa
                 <Box display="flex" justifyContent="space-between" gap="10px" alignItems="center" sx={{ gridColumn: "span 3" }}>
                     <Typography borderRadius="10px" p="15px 20px" bgcolor={colors.grey[800]} >{secondsToTimeString(currStartTime, false)}</Typography>
                     
-                    {/* <RangeSlider
+                    <RangeSlider
                         key={chapterId+'-slider'}
                         timeStamps={timeStamps}
-                        handleChange={handleChange}
+                        // handleChange={handleChange}
+                        handleChange={(value)=>value}
+                        isDisabled={true}
                         startTime={currStartTime}
                         endTime={currEndTime}
                         min_step={min_step}
-                    /> */}
+                    />
                     <Typography borderRadius="10px" p="15px 20px" bgcolor={colors.grey[800]} >{secondsToTimeString(currEndTime, false)}</Typography>
                 </Box>
                 <Box display="flex" justifyContent="space-between" alignItems="center"  gap="10px" sx={{ gridColumn: "span 1" }}>

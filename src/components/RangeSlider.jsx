@@ -40,7 +40,7 @@ const ValueLabelComponent = (props) => {
 };
 
 
-const RangeSlider = ({ timeStamps, startTime, endTime, handleChange, min_step }) => {
+const RangeSlider = ({ timeStamps, startTime, endTime, handleChange, min_step, isDisabled }) => {
   const maxMarksToShow = 5; // Limit number of marks shown
   const step = Math.max(1, Math.floor(timeStamps.length / maxMarksToShow));
 
@@ -88,7 +88,7 @@ const RangeSlider = ({ timeStamps, startTime, endTime, handleChange, min_step })
 
   return (
     <Slider
-      disabled
+      disabled={isDisabled}
       sx={{width: "65%"}}
       color="secondary"
       value={sliderValue}
