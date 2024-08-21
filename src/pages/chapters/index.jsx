@@ -111,6 +111,7 @@ const Chapters = () => {
             </Box>
             {selectedChapter && (
                 <ChapterContentEditor
+                    key={episode.id+selectedChapter.id}
                     open={openEditor}
                     setOpen={setOpenEditor}
                     episodeId={selectedChapter.episode_id}
