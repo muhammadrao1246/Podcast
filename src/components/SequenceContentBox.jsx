@@ -6,18 +6,21 @@ import { tokens } from "src/theme";
 import EditSequencePopover from "src/components/EditSequencePopover";
 import { DeleteForeverOutlined, EditNoteOutlined } from "@mui/icons-material";
 
-const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_number, word, onEdit, onDelete}){
+const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_number, word, onEdit, onDelete, onUndoDelete, isDeletedInList}){
     
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
   
   
   //  anchor popover element
+  const [isDeleted, setIsDeleted] = React.useState(isDeletedInList)
+  
     const [words, setWords] = React.useState(word)
     const anchorEl = React.useRef(null);
   
     const [contextMenu, setContextMenu] = React.useState(null);
     const handleContextMenu = (event) => {
+      if(isDeleted) return;
       anchorEl.current = event.target
       event.preventDefault();
       setContextMenu(
@@ -41,21 +44,33 @@ const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_
       const [popOpen, setPopOpen] = React.useState(false)
       const handleSubmit = async (values) => {
           console.log(values)
-          onEdit(id, values.words)
+          if(values.words != words){
+            onEdit(id, values.words)
+            setWords(values.words)
+          }
           setPopOpen(false)
-          setWords(values.words)
+      }
+
+
+      const unDelete = ()=>{
+        if (isDeleted){
+            setIsDeleted(false)
+            onUndoDelete(id)
+        }
       }
     
-      
+      let note = "\nNote: Edited Deleted Sequences would not be updated on Save."
       return (
-          <div onContextMenu={handleContextMenu} style={{ cursor: 'context-menu' }}>
+          <div onContextMenu={handleContextMenu} onClick={unDelete} title={isDeleted ?  "Click to Undo Delete" : "Right Click to Open Menu"} style={{ cursor: 'context-menu' }}>
               <Typography
                   // textAlign="justify"
-                  color={colors.grey[0]}
+                  color={isDeleted ? colors.grey[400] : colors.grey[0]}
+                
                   sx={{
                       "&:hover": {
-                          color: colors.grey[400]
-                      }
+                          color: isDeleted ? colors.grey[0] : colors.grey[400]
+                      },
+                      textDecoration: isDeleted ? "line-through" : "unset"
                   }}
               >
                   {words}
@@ -76,7 +91,7 @@ const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_
                       </ListItemIcon>
                       <ListItemText>Edit</ListItemText>
                   </MenuItem>
-                  <MenuItem onClick={()=>{handleContextMenuClose();onDelete();}}>
+                  <MenuItem onClick={()=>{handleContextMenuClose();setIsDeleted(true);onDelete();}}>
                       <ListItemIcon>
                           <DeleteForeverOutlined fontSize="small" />
                       </ListItemIcon>

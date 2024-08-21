@@ -153,6 +153,7 @@ const ChapterContentEditor = React.memo(function ChapterContentEditor({open, set
   
   const [chapterSequences, setChapterSequences] = React.useState([]);
   const editedSequences = React.useRef({});
+  const deletedSequences = React.useRef(new Set())
 
 
   const [getChapterDetail,] = useGetEpisodeChapterDetailMutation()
@@ -180,13 +181,17 @@ const ChapterContentEditor = React.memo(function ChapterContentEditor({open, set
 
   const [updateChapter,] = useUpdateEpisodeChapterMutation()
   const handleSave = async (e) => {
+    // all deleted sequences previous editing will not be saved
+    deletedSequences.current.forEach(id=>delete editedSequences.current[id])
     let body = {
-        sequences: chapterSequences.map(seq => seq.id),
+        sequences: chapterSequences.filter(seq=>!deletedSequences.current.has(seq.id)).map(seq => seq.id),
         start_sequence_number: startSeq,
         end_sequence_number: endSeq,
         edit_sequences: editedSequences.current,
+        // deleted_sequences: Array.from(deletedSequences.current)
     };
-    
+    console.log(body)
+    // return
     setLoading(true);
     
     requestAnimationFrame(async () => {
@@ -214,9 +219,18 @@ const ChapterContentEditor = React.memo(function ChapterContentEditor({open, set
   }
   
   const handleDelete = React.useCallback(debounce((id) => {
-        setChapterSequences(prevSequences => prevSequences.filter(seq => seq.id !== id));
+        // setChapterSequences(prevSequences => prevSequences.filter(seq => seq.id !== id));
+        deletedSequences.current.add(id)
+        console.log(`${id} Deleted: `, editedSequences.current, deletedSequences.current)
     }, 300), []);
 
+  const handleUndoDelete = React.useCallback(debounce((id) => {
+        // setChapterSequences(prevSequences => prevSequences.filter(seq => seq.id !== id));
+        
+        deletedSequences.current.delete(id)
+        console.log(`${id} UnDeleted: `, editedSequences.current, deletedSequences.current)
+    }, 300), []);
+    
   return (
     <Dialog maxWidth="md" open={open} fullWidth={true} onClose={handleClose}>
       <DialogTitle>Edit {title}</DialogTitle>
@@ -246,6 +260,8 @@ const ChapterContentEditor = React.memo(function ChapterContentEditor({open, set
                                 index={index}
                                 word={seq.id in editedSequences.current ? editedSequences.current[seq.id] : seq.words}
                                 sequence_number={seq.sequence_number}
+                                isDeletedInList={deletedSequences.current.has(seq.id)}
+                                onUndoDelete={()=>handleUndoDelete(seq.id)}
                                 onEdit={handleEdit}
                                 onDelete={()=>handleDelete(seq.id)}
                             />
