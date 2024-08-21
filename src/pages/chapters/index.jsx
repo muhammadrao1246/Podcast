@@ -238,7 +238,7 @@ const ChapterContentEditor = React.memo(function ChapterContentEditor({open, set
           }}
         >
             {
-                chapterSequences.map((seq, index)=>(
+                chapterSequences.length > 0 && chapterSequences.map((seq, index)=>(
                     <SequenceContentBox 
                                 key={seq.id}
                                 id={seq.id}
