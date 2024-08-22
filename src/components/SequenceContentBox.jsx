@@ -52,30 +52,44 @@ const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_
       }
 
 
-      const unDelete = ()=>{
+      const performDeleteOrUndo = ()=>{
+        if (popOpen) return;
         if (isDeleted){
             setIsDeleted(false)
             onUndoDelete(id)
+        }else{
+            setIsDeleted(true)
+            onDelete(id)
         }
       }
+
+      const handleRightClickForEdit = (event)=>{
+        if(isDeleted) return;
+                anchorEl.current = event.target;
+                event.preventDefault();
+                setPopOpen(true);
+      }
     
-      let note = "\nNote: Edited Deleted Sequences would not be updated on Save."
+      let note = "\nNote: Editing in Deleted Sequences will not be saved."
       return (
-          <div onContextMenu={handleContextMenu} onClick={unDelete} title={isDeleted ?  "Click to Undo Delete" : "Right Click to Open Menu"} style={{ cursor: 'context-menu' }}>
+          <div 
+        //   onContextMenu={handleContextMenu} 
+            onContextMenu={handleRightClickForEdit}
+          onClick={performDeleteOrUndo} title={isDeleted ?  "Click to Undo Delete" +note: "Click to Delete | Right Click to Edit"} style={{ cursor: 'context-menu' }}>
               <Typography
                   // textAlign="justify"
                   color={isDeleted ? colors.grey[400] : colors.grey[0]}
                 
                   sx={{
                       "&:hover": {
-                          color: isDeleted ? colors.grey[0] : colors.grey[400]
+                          color: isDeleted ? colors.grey[500] : colors.grey[400]
                       },
                       textDecoration: isDeleted ? "line-through" : "unset"
                   }}
               >
                   {words}
               </Typography>
-              <Menu
+              {/* <Menu
                   open={contextMenu !== null}
                   onClose={handleContextMenuClose}
                   anchorReference="anchorPosition"
@@ -97,11 +111,11 @@ const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_
                       </ListItemIcon>
                       <ListItemText>Delete</ListItemText>
                   </MenuItem>
-              </Menu>
+              </Menu> */}
               <EditSequencePopover 
                   popOpen={popOpen}
                   setPopOpen={setPopOpen}
-                  word={word}
+                  word={words}
                   handleSubmit={handleSubmit}
                   target={anchorEl.current}
               />

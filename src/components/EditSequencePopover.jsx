@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Popover, TextField, useTheme } from "@mui/material";
+import { Box, Button, Popover, TextField, useTheme } from "@mui/material";
 import { Formik, Form } from "formik";
 import { tokens } from "src/theme";
 
@@ -49,11 +49,14 @@ function EditSequencePopover({
               display: "flex",
               flexDirection: "column",
               gap: theme.spacing(2),
+              padding: theme.spacing(1),
             }}
+            // color={colors.blueAccent[100]}
           >
             <TextField
               fullWidth
               variant="filled"
+              size="small"
               type="text"
               label="Modify Words"
               onBlur={handleBlur}
@@ -64,17 +67,20 @@ function EditSequencePopover({
               helperText={touched.words && errors.words}
             />
 
-            <Button
-              onClick={() => setPopOpen(false)}
-              fullWidth
-              variant="outlined"
-              color="secondary"
-            >
-              Cancel
-            </Button>
-            <Button type="submit" fullWidth variant="contained" color="warning">
-              Modify
-            </Button>
+            <Box display={"flex"} justifyContent={"end"} gap={"10px"}>
+              <Button
+                onClick={() => setPopOpen(false)}
+                variant="outlined"
+                color="info"
+                fullWidth
+                size="medium"
+              >
+                Cancel
+              </Button>
+              <Button fullWidth size="medium" type="submit" variant="contained" color="warning">
+                Modify
+              </Button>
+            </Box>
           </Form>
         )}
       </Formik>

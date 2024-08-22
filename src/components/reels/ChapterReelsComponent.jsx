@@ -125,33 +125,26 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                         </Box>
                         <Box borderRadius="10px" bgcolor={colors.grey[700]} sx={{ gridColumn: "span 4" }}>
                         { chapter != null && reels.map((reel, index)=>
-                            <>
-                            <ReelCard 
-                                key={reel.id+reel.start_sequence_number+reel.end_sequence_number}
-                                episodeId={reel.episode_id}
-                                chapterId={reel.chapter_id}
-                                reelId={reel.id}
-                                
-                                reelTitle={reel.title} 
-                                reelTranscript={reel.content}
-                                
-                                
-                                startTime={reel.num_start_time}
-                                endTime={reel.num_end_time}
-                                startSeq={reel.start_sequence_number}
-                                endSeq={reel.end_sequence_number}
-                                
-                                src={"/images/benedwards.png"}
-                                
-                                sequences={chapter.sequences}
-                                timeStamps={chapter.sliderData}
-                                min_step={chapter.min_difference}
-                                refresher={()=>setRefreshNeeded(refreshNeeded+1)}
-                                onEditClick={()=>handleEditClick(reel)}
-                            />
-                            {index < reels.length-1 && <Divider></Divider>}
-                            </>
-                            
+                            <React.Fragment key={reel.id+reel.start_sequence_number.toString()+reel.end_sequence_number.toString()}>
+                              <ReelCard 
+                                  episodeId={reel.episode_id}
+                                  chapterId={reel.chapter_id}
+                                  reelId={reel.id}
+                                  reelTitle={reel.title} 
+                                  reelTranscript={reel.content}
+                                  startTime={reel.num_start_time}
+                                  endTime={reel.num_end_time}
+                                  startSeq={reel.start_sequence_number}
+                                  endSeq={reel.end_sequence_number}
+                                  src={"/images/benedwards.png"}
+                                  sequences={chapter.sequences}
+                                  timeStamps={chapter.sliderData}
+                                  min_step={chapter.min_difference}
+                                  refresher={()=>setRefreshNeeded(refreshNeeded+1)}
+                                  onEditClick={()=>handleEditClick(reel)}
+                              />
+                              {index < reels.length - 1 && <Divider />}
+                          </React.Fragment>
                         )}
                         
                         </Box>
@@ -176,7 +169,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                         {
                             chapter != null && (
                                 <AddReelComponent
-                                    key={chapterId+"-"+chapter.end_sequence_number} 
+                                    key={chapterId+"-"+chapter.end_sequence_number.toString()} 
                                     open={addModal}
                                     setOpen={setAddModal}
                                     episodeId={episodeId}
@@ -197,7 +190,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                         }
                         {selectedReel && (
                             <ReelContentEditor
-                                key={episodeId+chapterId+selectedReel.id}
+                                key={episodeId+chapterId+selectedReel.id+"-content-editor"}
                                 open={openEditor}
                                 setOpen={setOpenEditor}
                                 episodeId={selectedReel.episode_id}
