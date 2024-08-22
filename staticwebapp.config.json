@@ -1,7 +1,4 @@
 {
-    "environmentVariables": {
-      "VITE_APP_BACKEND_SERVER": "https://backend-podcaststudio.azurewebsites.net"
-    },
     "navigationFallback": {
    "rewrite": "/index.html"
   }
