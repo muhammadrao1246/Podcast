@@ -16,6 +16,7 @@ import { useOutletContext } from 'react-router-dom';
 import $ from 'jquery'
 import { ClosableToast } from '../Toast';
 import { ReelContentEditor } from '../ContentEditorModals';
+import { ButtonFilledOutlinedStyles } from 'src/utils/utils';
 
 const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -100,11 +101,17 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
     
     return (
         <div>
-            <Accordion onChange={(handleAccordion)}>
+            <Accordion sx={{
+              backgroundColor: colors.grey[900],
+              border: `1px solid ${colors.grey[400]}`
+            }} onChange={(handleAccordion)}>
                 <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1-content"
                 id="panel1-header"
+                sx={{
+                  fontSize: "16px"
+                }}
                 >
                     {chapterTitle}
                 </AccordionSummary>
@@ -118,12 +125,22 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                         }}
                     >
                         <Box borderRadius="10px" sx={{ gridColumn: "span 3" }}>
-                            <Box display="flex" justifyContent="space-between" alignItems="cneter">
-                                <Button size="large" color='secondary' variant='outlined' startIcon={<ClosedCaptionOffOutlined />}>Caption</Button>
-                                <Button size="large" color='secondary' variant='outlined' startIcon={<TuneOutlined />}>Design</Button>
+                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                                <Button size="large" color='secondary' variant='contained' 
+                                startIcon={<ClosedCaptionOffOutlined />}
+                                
+            sx={{
+              ...ButtonFilledOutlinedStyles(colors.greenAccent[400], colors.grey[900], false)
+            }}
+            >Caption</Button>
+                                <Button size="large" color='secondary' variant='contained' startIcon={<TuneOutlined />}
+                                sx={{
+                                  ...ButtonFilledOutlinedStyles(colors.greenAccent[400], colors.grey[900], false)
+                                }}
+                                >Design</Button>
                             </Box>
                         </Box>
-                        <Box borderRadius="10px" bgcolor={colors.grey[700]} sx={{ gridColumn: "span 4" }}>
+                        <Box borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 4", border: `1px solid ${colors.grey[400]}` }}>
                         { chapter != null && reels.map((reel, index)=>
                             <React.Fragment key={reel.id+reel.start_sequence_number.toString()+reel.end_sequence_number.toString()}>
                               <ReelCard 
@@ -313,8 +330,8 @@ function AddReelComponent({ open, setOpen, episodeId, chapterId, startSeq, endSe
             borderRadius="10px"
             p="20px"
             textAlign="justify"
-            bgcolor={colors.grey[800]}
-            color={colors.grey[0]}
+          bgcolor={colors.grey[600]}
+          color="#e0e0e0"
             sx={{
               height: "300px",
               overflow: "auto",
@@ -336,7 +353,9 @@ function AddReelComponent({ open, setOpen, episodeId, chapterId, startSeq, endSe
           <Typography
             borderRadius="10px"
             p="15px 20px"
-            bgcolor={colors.grey[800]}
+            
+          bgcolor={colors.grey[600]}
+          color="#e0e0e0"
           >
             {secondsToTimeString(currStartTime, false)}
           </Typography>
@@ -352,7 +371,9 @@ function AddReelComponent({ open, setOpen, episodeId, chapterId, startSeq, endSe
           <Typography
             borderRadius="10px"
             p="15px 20px"
-            bgcolor={colors.grey[800]}
+            
+          bgcolor={colors.grey[600]}
+          color="#e0e0e0"
           >
             {secondsToTimeString(currEndTime, false)}
           </Typography>
@@ -362,12 +383,15 @@ function AddReelComponent({ open, setOpen, episodeId, chapterId, startSeq, endSe
         <Button 
               size="large"
               color="info"
-              variant="text"
+              variant="outlined"
               onClick={handleClose}>Cancel</Button>
         <Button
               size="large"
               color="secondary"
               variant="contained"
+            sx={{
+              ...ButtonFilledOutlinedStyles(colors.greenAccent[400], colors.grey[900], false)
+            }}
               onClick={handleGenerate}>Generate Reel</Button>
       </DialogActions>
     </Dialog>

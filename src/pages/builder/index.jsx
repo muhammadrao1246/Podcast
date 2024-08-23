@@ -12,9 +12,10 @@ import EpisodeCard from "src/components/episodes/EpisodeCard";
 import { useGetEpisodesListMutation } from "src/services/api";
 import { ROUTES } from "src/routes";
 import { BusAlertTwoTone } from "@mui/icons-material";
+import { ButtonFilledOutlinedStyles } from "src/utils/utils";
 
 
-const Builder = () => {
+const Episodes = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
@@ -60,7 +61,8 @@ const Builder = () => {
                 <Box>
                     <Button
                         sx={{
-                        backgroundColor: colors.blueAccent[700],
+                        backgroundColor: "transparent",
+                        border: `1.5px solid ${colors.grey[100]}`,
                         color: colors.grey[100],
                         fontSize: "14px",
                         fontWeight: "bold",
@@ -74,7 +76,8 @@ const Builder = () => {
                     </Button>
                     <Button
                         sx={{
-                        backgroundColor: colors.blueAccent[700],
+                        backgroundColor: "transparent",
+                        border: `1.5px solid ${colors.grey[100]}`,
                         color: colors.grey[100],
                         fontSize: "14px",
                         fontWeight: "bold",
@@ -101,6 +104,7 @@ const Builder = () => {
                             start_time={ep.start_time}
                             end_time={ep.end_time}
                             refresher={()=>setRefreshNeeded(refreshNeeded+1)}
+                            download={ep.download_link}
                         />
                     )}
                 </Box>
@@ -109,4 +113,4 @@ const Builder = () => {
     );
 }
 
-export default Builder;
+export default Episodes;

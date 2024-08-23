@@ -15,6 +15,7 @@ import { DeleteOutlineOutlined, Launch, } from "@mui/icons-material";
 import { useDeleteEpisodesMutation } from "src/services/api";
 
 import { Link as DOMLink, Link, useOutletContext } from "react-router-dom";
+import { ButtonFilledOutlinedStyles } from "src/utils/utils";
 
 const EpisodeCard = ({ id, image, title, content, start_time, end_time, refresher, download }) => {
   const theme = useTheme();
@@ -40,7 +41,11 @@ const EpisodeCard = ({ id, image, title, content, start_time, end_time, refreshe
     };
 
   return (
-    <Card sx={{ gridColumn: "span 2" }}>
+    <Card
+      sx={{ gridColumn: "span 2", 
+        // border: `1px solid ${colors.primary[500]}`,
+      }}
+    >
       <CardMedia
         sx={{
           height: 140,
@@ -50,7 +55,7 @@ const EpisodeCard = ({ id, image, title, content, start_time, end_time, refreshe
         title="green iguana"
       />
       <CardContent
-        sx={{ backgroundColor: `${colors.primary[400]} !important` }}
+        sx={{ backgroundColor: `${colors.primary[900]} !important` }}
       >
         <Typography
           gutterBottom
@@ -66,7 +71,7 @@ const EpisodeCard = ({ id, image, title, content, start_time, end_time, refreshe
       </CardContent>
       <CardActions
         sx={{
-          backgroundColor: `${colors.primary[400]} !important`,
+          backgroundColor: `${colors.primary[900]} !important`,
           p: "15px",
           justifyContent: "space-between",
         }}
@@ -78,6 +83,12 @@ const EpisodeCard = ({ id, image, title, content, start_time, end_time, refreshe
             variant="contained"
             LinkComponent={DOMLink}
             to={`/episodes/${id}/chapters`}
+            sx={{
+              ...ButtonFilledOutlinedStyles(
+                colors.primary[200],
+                colors.primary[900]
+              ),
+            }}
           >
             Chapters
           </Button>
@@ -87,17 +98,27 @@ const EpisodeCard = ({ id, image, title, content, start_time, end_time, refreshe
             variant="contained"
             LinkComponent={DOMLink}
             to={`/episodes/${id}/reels`}
+            sx={{
+              ...ButtonFilledOutlinedStyles(
+                colors.primary[200],
+                colors.primary[900]
+              ),
+            }}
           >
             Reels
           </Button>
         </Box>
         <Box>
-        <IconButton>
-          <DeleteOutlineOutlined onClick={handleDelete} />
-        </IconButton>
-        <IconButton title="Download or Go To Google Sheet" href={download} target="_blank">
-          <Launch />
-        </IconButton>
+          <IconButton>
+            <DeleteOutlineOutlined onClick={handleDelete} />
+          </IconButton>
+          <IconButton
+            title="Download or Go To Google Sheet"
+            href={download}
+            target="_blank"
+          >
+            <Launch />
+          </IconButton>
         </Box>
       </CardActions>
     </Card>

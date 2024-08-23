@@ -31,8 +31,9 @@ const Guest = () => {
                 <Box>
                     <Button
                         sx={{
-                        backgroundColor: colors.blueAccent[700],
-                        color: colors.grey[100],
+                            backgroundColor: "transparent",
+                            border: `1.5px solid ${colors.grey[100]}`,
+                            color: colors.grey[100],
                         fontSize: "14px",
                         fontWeight: "bold",
                         padding: "10px 20px",
@@ -47,9 +48,10 @@ const Guest = () => {
                 </Box>
             </Box>
 
-            <Box m="10px 0 0 0" height="75vh" sx={{
+            <Box m="10px 0 0 0" height="70vh" sx={{
                 "& .MuiDataGrid-root" : {
                     border: "none",
+                    // borderRadius: "15px"
                 },
                 "& .MuiDataGrid-cell" : {
                     borderBottom: "none",
@@ -62,7 +64,7 @@ const Guest = () => {
                     borderBottom: "none",
                 },
                 "& .MuiDataGrid-virtualScroller" : {
-                    backgroundColor: colors.primary[400],
+                    backgroundColor: colors.blueAccent[900],
                 },
                 "& .MuiDataGrid-footerContainer" : {
                     borderTop: "none",
@@ -73,6 +75,8 @@ const Guest = () => {
                   },
             }}>
                 <DataGrid
+                sx={{height: "100%", borderRadius: "5px"}}
+                    
                     rows={mockDataGuest}
                     columns={columns}
                     slots={{ toolbar: GridToolbar }}

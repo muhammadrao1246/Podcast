@@ -26,7 +26,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
     <MenuItem
       active={selected === title}
       style={{
-        color: colors.grey[100],
+        color: "#e0e0e0",
       }}
       onClick={() => setSelected(title)}
       icon={icon}
@@ -46,8 +46,11 @@ const ProSidebar = () => {
   return (
     <Box
       sx={{
+        "& .MuiBox-root": {
+          background: `#3f0e40 !important`,
+        },
         "& .ps-sidebar-container": {
-          background: `${colors.primary[400]} !important`,
+          background: `#3f0e40 !important`,
         },
         "& .ps-sidebar-root": {
           borderColor: "transparent !important",
@@ -56,14 +59,16 @@ const ProSidebar = () => {
           backgroundColor: "transparent !important",
         },
         "& .ps-menu-button": {
-          padding: "5px 35px 5px 20px !important",
+          padding: "5px 20px 5px 20px !important",
         },
         "& .ps-menu-button:hover": {
-          color: "#868dfb !important",
+          color: "#7d3986 !important",
           backgroundColor: "transparent !important",
         },
         "& .ps-menu-button.ps-active": {
-          color: "#6870fa !important",
+          color: "#e0e0e0 !important",
+          backgroundColor: "#7d3986 !important",
+          borderRadius: "10px",
         },
       }}
     >
@@ -75,7 +80,7 @@ const ProSidebar = () => {
             icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
             style={{
               margin: "10px 0 20px 0",
-              color: colors.grey[100],
+              color: "#e0e0e0",
             }}
           >
             {!isCollapsed && (
@@ -85,11 +90,11 @@ const ProSidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Typography variant="h3" color={colors.grey[100]}>
+                <Typography variant="h3" color="#e0e0e0">
                   Podcast
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
-                  <MenuOutlinedIcon />
+                  <MenuOutlinedIcon sx={{ color:"#e0e0e0" }} />
                 </IconButton>
               </Box>
             )}
@@ -108,21 +113,21 @@ const ProSidebar = () => {
               </Box>
               <Box textAlign="center">
                 <Typography
-                  variant="h2"
-                  color={colors.grey[100]}
+                  variant="h3"
+                  color= "#e0e0e0"
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
                   Ben Edwards
                 </Typography>
-                <Typography variant="h5" color={colors.greenAccent[500]}>
+                {/* <Typography variant="h5" color={colors.greenAccent[500]}>
                   Podcast Admin
-                </Typography>
+                </Typography> */}
               </Box>
             </Box>
           )}
 
-          <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+          <Box padding={isCollapsed ? undefined : "5%"}>
             <Item
               title="Dashboard"
               to="/dashboard"
@@ -131,13 +136,13 @@ const ProSidebar = () => {
               setSelected={setSelected}
             />
 
-            <Typography
+            {/* <Typography
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
               Data
-            </Typography>
+            </Typography> */}
             <Item
               title="Manage Team"
               to="/team"

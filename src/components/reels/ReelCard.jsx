@@ -11,6 +11,7 @@ import { useDeleteReelsMutation, useUpdateEpisodeChapterMutation, useUpdateReelM
 import RangeSlider, {timeStringToSeconds, secondsToTimeString} from 'src/components/RangeSlider';
 import $ from 'jquery'
 import { ClosableToast } from 'src/components/Toast';
+import { ButtonFilledOutlinedStyles } from 'src/utils/utils';
 
 export function SequenceElastic(sequences, currStartTime, currEndTime) {
     console.log({sequences, currStartTime, currEndTime})
@@ -152,11 +153,24 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
     };
 
     return (
-      <Box m="20px" >
-        <Box display="flex" alignItems="center" justifyContent={"space-between"} gap="40px">
+      <Box m="20px">
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent={"space-between"}
+          gap="40px"
+        >
           <Typography variant="h4">{reelTitle}</Typography>
-          <Button onClick={handleDelete} size="medium" variant="outlined" color="error">
-                Delete Reel 
+          <Button
+            onClick={handleDelete}
+            size="medium"
+            variant="contained"
+            color="error"
+            sx={{
+              ...ButtonFilledOutlinedStyles(colors.redAccent[400], colors.grey[900], false)
+            }}
+          >
+            Delete Reel
           </Button>
         </Box>
         <Box
@@ -167,22 +181,18 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
             "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
           }}
         >
-          <Box
-            mt="20px"
-            borderRadius="10px"
-            bgcolor={colors.grey[800]}
-            sx={{ gridColumn: "span 3" }}
-          >
+          <Box mt="20px" borderRadius="10px" sx={{ gridColumn: "span 3" }}>
             <Typography
               borderRadius="10px"
               p="20px"
               textAlign="justify"
-              bgcolor={colors.grey[800]}
-              color={colors.grey[0]}
+              bgcolor={colors.grey[600]}
+              color={"#e0e0e0"}
               sx={{
                 height: "400px",
                 overflow: "auto",
                 scrollBehavior: "smooth",
+                border: `1px solid ${colors.grey[300]}` 
               }}
             >
               {reelTranscript}
@@ -212,13 +222,13 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
             flexDirection="column"
             p="10px"
             borderRadius="10px"
-            bgcolor={colors.grey[800]}
-            sx={{ gridColumn: "span 1" }}
+            bgcolor={colors.grey[600]}
+            sx={{ gridColumn: "span 1", border: `1px solid ${colors.grey[300]}`  }}
           >
-            <img alt="reelImage" width="100%" src={src} />
+            <img alt="chapterImage" width="100%" src={`${src}`} />
             <Box
               borderRadius="10px"
-              bgcolor={colors.grey[600]}
+              bgcolor={colors.grey[400]}
               display="flex"
               justifyContent="space-between"
               alignItems="center"
@@ -227,16 +237,16 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
               mt="15px"
             >
               <IconButton>
-                <ShareOutlined />
+                <ShareOutlined sx={{ color: "#e0e0e0" }} />
               </IconButton>
               <IconButton>
-                <OndemandVideoOutlined />
+                <OndemandVideoOutlined sx={{ color: "#e0e0e0" }} />
               </IconButton>
               <IconButton>
-                <FileDownloadOutlined />
+                <FileDownloadOutlined sx={{ color: "#e0e0e0" }} />
               </IconButton>
               <IconButton>
-                <EditOutlined />
+                <EditOutlined sx={{ color: "#e0e0e0" }} />
               </IconButton>
             </Box>
           </Box>
@@ -250,7 +260,9 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
             <Typography
               borderRadius="10px"
               p="15px 20px"
-              bgcolor={colors.grey[800]}
+              bgcolor={colors.grey[600]}
+              color="#e0e0e0"
+              sx={{border: `1px solid ${colors.grey[300]}` }}
             >
               {secondsToTimeString(currStartTime, false)}
             </Typography>
@@ -258,7 +270,7 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
               key={reelId + "-slider"}
               timeStamps={timeStamps}
               // handleChange={handleChange}
-              handleChange={(value)=>value}
+              handleChange={(value) => value}
               isDisabled={true}
               startTime={currStartTime}
               endTime={currEndTime}
@@ -267,7 +279,9 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
             <Typography
               borderRadius="10px"
               p="15px 20px"
-              bgcolor={colors.grey[800]}
+              bgcolor={colors.grey[600]}
+              color="#e0e0e0"
+              sx={{border: `1px solid ${colors.grey[300]}` }}
             >
               {secondsToTimeString(currEndTime, false)}
             </Typography>
@@ -278,8 +292,21 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
             alignItems="center"
             gap="10px"
             sx={{ gridColumn: "span 1" }}
-          > 
-            <Button onClick={onEditClick} p="15px 20px" size="large" color='secondary' variant='contained' sx={{ width: "100%", p: "15px" }}>Edit Reel</Button>
+          >
+            <Button
+              onClick={onEditClick}
+              p="15px 20px"
+              size="large"
+              color="secondary"
+              variant="contained"
+              sx={{ 
+                width: "100%", 
+                p: "15px",
+                ...ButtonFilledOutlinedStyles(colors.grey[100], colors.grey[900])
+              }}
+            >
+              Edit Reel
+            </Button>
             {/* <Button
               onClick={handleReset}
               p="15px 20px"

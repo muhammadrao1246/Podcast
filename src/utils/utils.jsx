@@ -1,20 +1,25 @@
-import { ROUTES } from "src/routes/urls"
+import { ROUTES } from "src/routes"
 // import teamPlaceholder from "src/assets/images/team_placeholder.svg";
 
 
 import ColorThief from 'colorthief'
 import tinycolor from "tinycolor2";
 
-export function RunRateStringMaker(runRates){
-  let runRateNameMap = {
-    "currentRunRate": "CRR",
-    "requiredRunRate": "RRR",
-    "runsRequired": "RR",
-    "ballsRemaining": "BR"
-  }
-  return Object.keys(runRates).filter(key=>runRates[key] != null).map((key)=>{
-    return runRateNameMap[key] + ": " + runRates[key]
-  }).join(" • ")
+export const ButtonFilledOutlinedStyles = (backgroundColor, color, setOutlineHover = true)=>{
+  return {
+    backgroundColor: backgroundColor,
+    border: `1.5px solid ${backgroundColor}`,
+    color: color,
+    "&:hover": setOutlineHover ? {
+      backgroundColor: color,
+      color: backgroundColor,
+      border: `1.5px solid ${backgroundColor}`,
+    } : {
+      backgroundColor: backgroundColor,
+      color: color,
+      border: `1.5px solid ${backgroundColor}`,
+    },
+  };
 }
 
 // Utility
@@ -55,28 +60,4 @@ export function FindDateStringLong(date) {
     return date.toLocaleDateString("en-US", {dateStyle:"long"}) 
   }
   return ""
-}
-
-
-
-export function FindGroundLongName(ground) {
-  if (ground == null) {
-    return "Ground Unknown"
-  }
-  return typeof ground != "string" ? ground.longName : ground;
-}
-
-export function FindGroundShortName(ground) {
-  if (ground == null) {
-    return "Ground Unknown"
-  }
-  return typeof ground != "string" ? ground.shortName != null ? ground.shortName : ground.longName : ground;
-}
-
-export function FindGroundProfile(ground) {
-  return typeof ground != "string" && ground != null ? ROUTES.GROUNDS + "/" + ground.slug : "";
-}
-
-export function FindGroundImage(ground) {
-  return typeof ground != "string" ? ground.image != null ? ground.image : "" : "";
 }

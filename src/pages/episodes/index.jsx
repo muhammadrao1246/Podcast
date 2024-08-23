@@ -12,6 +12,7 @@ import EpisodeCard from "src/components/episodes/EpisodeCard";
 import { useGetEpisodesListMutation } from "src/services/api";
 import { ROUTES } from "src/routes";
 import { BusAlertTwoTone } from "@mui/icons-material";
+import { ButtonFilledOutlinedStyles } from "src/utils/utils";
 
 
 const Episodes = () => {
@@ -60,7 +61,8 @@ const Episodes = () => {
                 <Box>
                     <Button
                         sx={{
-                        backgroundColor: colors.blueAccent[700],
+                        backgroundColor: "transparent",
+                        border: `1.5px solid ${colors.grey[100]}`,
                         color: colors.grey[100],
                         fontSize: "14px",
                         fontWeight: "bold",
@@ -74,7 +76,8 @@ const Episodes = () => {
                     </Button>
                     <Button
                         sx={{
-                        backgroundColor: colors.blueAccent[700],
+                        backgroundColor: "transparent",
+                        border: `1.5px solid ${colors.grey[100]}`,
                         color: colors.grey[100],
                         fontSize: "14px",
                         fontWeight: "bold",

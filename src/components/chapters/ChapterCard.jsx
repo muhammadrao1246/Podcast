@@ -8,6 +8,7 @@ import { useUpdateEpisodeChapterMutation } from 'src/services/api';
 
 import { tokens } from "src/theme";
 import RangeSlider, {timeStringToSeconds, secondsToTimeString} from 'src/components/RangeSlider';
+import { ButtonFilledOutlinedStyles } from 'src/utils/utils';
 
 // SequenceElastic used when user expand or shrink the slider interval using chapter's current selected currStartTime and currEndTime all sequences will be filtered
 function SequenceElastic(sequences, currStartTime, currEndTime) {
@@ -110,9 +111,12 @@ const ChapterCard = ({onEditClick, episodeId, chapterId, chapterTitle, chapterMa
 
 
     return (
-        <Box m="20px">
+        <Box 
+        // m="20px" 
+        sx={{backgroundColor: colors.grey[900], border: `1px solid ${colors.grey[400]}`, borderRadius: "5px" }} 
+        p="20px">
             <Box display="flex" alignItems="center" gap="40px">
-                <Typography variant="h2">
+                <Typography variant="h2" color={colors.grey[100]}>
                     {chapterTitle}
                 </Typography>
                 <Typography variant="h3" color={colors.greenAccent[400]}>
@@ -127,35 +131,37 @@ const ChapterCard = ({onEditClick, episodeId, chapterId, chapterTitle, chapterMa
                     "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                 }}
             >
-                <Box mt="20px" borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 3" }}>
-                    <Typography  borderRadius="10px" p="20px" textAlign="justify" bgcolor={colors.grey[500]} sx={{ height: '400px', overflow: 'auto', scrollBehavior: "smooth"}} >{chapterTranscript}</Typography>
-                    {/* <Typography className={`${chapterId}-sequence-box`} borderRadius="10px" p="20px" textAlign="justify" bgcolor={colors.grey[500]} sx={{ height: '400px', overflow: 'auto', scrollBehavior: "smooth"}} >{text}</Typography> */}
+                <Box mt="20px" borderRadius="10px" sx={{ gridColumn: "span 3", 
+                    border: `1px solid ${colors.grey[300]}` 
+                    }}>
+                    <Typography  borderRadius="10px" p="20px" textAlign="justify" bgcolor={colors.grey[600]} color={"#e0e0e0"} sx={{ height: '400px', overflow: 'auto', scrollBehavior: "smooth"}} >{chapterTranscript}</Typography>
+                    {/* <Typography className={`${chapterId}-sequence-box`} borderRadius="10px" p="20px" textAlign="justify" bgcolor={colors.grey[600]} sx={{ height: '400px', overflow: 'auto', scrollBehavior: "smooth"}} >{text}</Typography> */}
                     {/* <Typography borderRadius="0 0 10px 10px" p="20px" bgcolor={colors.grey[800]}>{episodeTranscript}</Typography> */}
                 </Box>
-                <Box mt="20px" display="flex" height="fit-content" justifyContent="space-between" flexDirection="column" p="10px" borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 1" }}>
+                <Box mt="20px" display="flex" height="fit-content" justifyContent="space-between" flexDirection="column" p="10px" borderRadius="10px" 
+                bgcolor={colors.grey[600]} sx={{ gridColumn: "span 1",border: `1px solid ${colors.grey[300]}`  }}>
                     <img
                     alt="chapterImage"
                     width="100%"
                     src={`${src}`}
                     />
-                    <Box borderRadius="10px" bgcolor={colors.grey[600]} display="flex" justifyContent="space-between" alignItems="center" p="10px" width="100%" mt="15px">
+                    <Box borderRadius="10px" bgcolor={colors.grey[400]} display="flex" justifyContent="space-between" alignItems="center" p="10px" width="100%" mt="15px">
                         <IconButton>
-                            <ShareOutlined />
+                            <ShareOutlined sx={{color: "#e0e0e0"}} />
                         </IconButton>
                         <IconButton>
-                            <OndemandVideoOutlined />
+                            <OndemandVideoOutlined sx={{color: "#e0e0e0"}} />
                         </IconButton>
                         <IconButton>
-                            <FileDownloadOutlined />
+                            <FileDownloadOutlined sx={{color: "#e0e0e0"}} />
                         </IconButton>
                         <IconButton>
-                            <EditOutlined />
+                            <EditOutlined sx={{color: "#e0e0e0"}} />
                         </IconButton>
                     </Box>
                 </Box>
                 <Box display="flex" justifyContent="space-between" gap="10px" alignItems="center" sx={{ gridColumn: "span 3" }}>
-                    <Typography borderRadius="10px" p="15px 20px" bgcolor={colors.grey[800]} >{secondsToTimeString(currStartTime, false)}</Typography>
-                    
+                    <Typography sx={{border: `1px solid ${colors.grey[300]}` }} borderRadius="10px" p="15px 20px" bgcolor={colors.grey[600]} color={"#e0e0e0"} >{secondsToTimeString(currStartTime, false)}</Typography>
                     <RangeSlider
                         key={chapterId+'-slider'}
                         timeStamps={timeStamps}
@@ -166,12 +172,18 @@ const ChapterCard = ({onEditClick, episodeId, chapterId, chapterTitle, chapterMa
                         endTime={currEndTime}
                         min_step={min_step}
                     />
-                    <Typography borderRadius="10px" p="15px 20px" bgcolor={colors.grey[800]} >{secondsToTimeString(currEndTime, false)}</Typography>
+                    <Typography sx={{border: `1px solid ${colors.grey[300]}` }} borderRadius="10px" p="15px 20px" bgcolor={colors.grey[600]} color={"#e0e0e0"} >{secondsToTimeString(currEndTime, false)}</Typography>
                 </Box>
                 <Box display="flex" justifyContent="space-between" alignItems="center"  gap="10px" sx={{ gridColumn: "span 1" }}>
                     {/* <Button onClick={handleReset} p="15px 20px" size="large" color='info' variant='outlined' sx={{ width: "100%", p: "15px" }}>Reset</Button>
                     <Button onClick={handleGenerate} p="15px 20px" size="large" color='secondary' variant='contained' sx={{ width: "100%", p: "15px" }}>Generate</Button> */}
-                    <Button onClick={onEditClick} p="15px 20px" size="large" color='secondary' variant='contained' sx={{ width: "100%", p: "15px" }}>Edit Chapter</Button>
+                    <Button onClick={onEditClick}
+                 
+                    p="15px 20px" size="large" 
+                    // color="info" 
+                    // variant='contained' 
+                    
+                    sx={{ width: "100%", p: "15px",...ButtonFilledOutlinedStyles(colors.grey[100], colors.grey[900])}}>Edit Chapter</Button>
                 </Box>
             </Box>
             

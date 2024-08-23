@@ -8,6 +8,7 @@ import { ClosableToast } from "src/components/Toast";
 import { secondsToTimeString } from "src/components/RangeSlider";
 import { debounce } from "lodash";
 import SequenceContentBox from "src/components/SequenceContentBox";
+import { ButtonFilledOutlinedStyles } from "src/utils/utils";
 
 export const ChapterContentEditor = React.memo(function ChapterContentEditor({open, setOpen, episodeId, chapterId, title, startSeq, endSeq, startTime, endTime, refresher}){
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -118,7 +119,8 @@ export const ChapterContentEditor = React.memo(function ChapterContentEditor({op
         <Box
         //   mt="20px"
           borderRadius="10px"
-          bgcolor={colors.grey[800]}
+          bgcolor={colors.grey[600]}
+          color="#e0e0e0"
             p="20px"
         //   sx={{ gridColumn: "span 3" }}
           className={`${chapterId}-edit-sequence-box`}
@@ -159,7 +161,9 @@ export const ChapterContentEditor = React.memo(function ChapterContentEditor({op
           <Typography
             borderRadius="10px"
             p="15px 20px"
-            bgcolor={colors.grey[800]}
+            
+          bgcolor={colors.grey[600]}
+          color="#e0e0e0"
           >
             {secondsToTimeString(currStartTime, false)}
           </Typography>
@@ -174,7 +178,9 @@ export const ChapterContentEditor = React.memo(function ChapterContentEditor({op
           <Typography
             borderRadius="10px"
             p="15px 20px"
-            bgcolor={colors.grey[800]}
+            
+          bgcolor={colors.grey[600]}
+          color="#e0e0e0"
           >
             {secondsToTimeString(currEndTime, false)}
           </Typography>
@@ -184,12 +190,15 @@ export const ChapterContentEditor = React.memo(function ChapterContentEditor({op
         <Button 
               size="large"
               color="info"
-              variant="text"
+              variant="outlined"
               onClick={handleClose}>Cancel</Button>
         <Button
               size="large"
               color="secondary"
               variant="contained"
+              sx={{
+              ...ButtonFilledOutlinedStyles(colors.greenAccent[400], colors.grey[900], false)
+            }}
               onClick={handleSave}>Save</Button>
       </DialogActions>
     </Dialog>
@@ -306,7 +315,8 @@ export const ReelContentEditor = React.memo(function ReelContentEditor({open, se
         <Box
         //   mt="20px"
           borderRadius="10px"
-          bgcolor={colors.grey[800]}
+          bgcolor={colors.grey[600]}
+          color="#e0e0e0"
             p="20px"
         //   sx={{ gridColumn: "span 3" }}
           className={`${chapterId}-edit-sequence-box`}
@@ -347,7 +357,8 @@ export const ReelContentEditor = React.memo(function ReelContentEditor({open, se
           <Typography
             borderRadius="10px"
             p="15px 20px"
-            bgcolor={colors.grey[800]}
+          bgcolor={colors.grey[600]}
+          color="#e0e0e0"
           >
             {secondsToTimeString(currStartTime, false)}
           </Typography>
@@ -362,7 +373,8 @@ export const ReelContentEditor = React.memo(function ReelContentEditor({open, se
           <Typography
             borderRadius="10px"
             p="15px 20px"
-            bgcolor={colors.grey[800]}
+          bgcolor={colors.grey[600]}
+          color="#e0e0e0"
           >
             {secondsToTimeString(currEndTime, false)}
           </Typography>
@@ -372,12 +384,16 @@ export const ReelContentEditor = React.memo(function ReelContentEditor({open, se
         <Button 
               size="large"
               color="info"
-              variant="text"
+              variant="outlined"
               onClick={handleClose}>Cancel</Button>
         <Button
               size="large"
               color="secondary"
               variant="contained"
+              sx={{
+              ...ButtonFilledOutlinedStyles(colors.greenAccent[400], colors.grey[900], false)
+            }}
+              // sx={{...ButtonFilledOutlinedStyles(colors.grey[100], colors.grey[900], false)}}
               onClick={handleSave}>Save</Button>
       </DialogActions>
     </Dialog>

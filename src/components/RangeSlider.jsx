@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
+import { useTheme } from '@mui/material';
+import { tokens } from 'src/theme';
 
 export const timeStringToSeconds = (timeString) => {
   const [hours, minutes, seconds, frames] = timeString.split(':').map(Number);
@@ -41,6 +43,11 @@ const ValueLabelComponent = (props) => {
 
 
 const RangeSlider = ({ timeStamps, startTime, endTime, handleChange, min_step, isDisabled }) => {
+  
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
+
   const maxMarksToShow = 5; // Limit number of marks shown
   const step = Math.max(1, Math.floor(timeStamps.length / maxMarksToShow));
 
@@ -89,8 +96,8 @@ const RangeSlider = ({ timeStamps, startTime, endTime, handleChange, min_step, i
   return (
     <Slider
       disabled={isDisabled}
-      sx={{width: "65%"}}
-      color="secondary"
+      sx={{width: "65%", color: `${colors.grey[300]} !important`, }}
+      // color="secondary"
       value={sliderValue}
       onChange={handleSliderChange}
       step={min_step}

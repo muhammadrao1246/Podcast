@@ -15,35 +15,45 @@ const Topbar  = () => {
     const colorMode = useContext(ColorModeContext);
 
     return (
-        <Box display="flex" justifyContent="space-between" p={2}>
+        <Box display="flex" justifyContent="space-between" p={2} backgroundColor="#350d36">
             {/* Search Bar */}
-            <Box 
+            <Box
+             display="flex"
+             justifyContent="center"
+             alignItems="center"
+             width="100%"
+            >
+<Box 
             display="flex" 
-            backgroundColor={colors.primary[400]}
-            borderRadius="3px">
-                <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
-                <IconButton type="button" sx={{ p: 1 }}>
-                    <SearchIcon />
+            backgroundColor="#653e66"
+            borderRadius="5px"
+            width="50%"
+            height="30px"
+            >
+                <InputBase size="medium" sx={{ ml: 2, flex: 1, color: "#e0e0e0" }} placeholder="Search" />
+                <IconButton type="button" sx={{ p: 1}}>
+                    <SearchIcon sx={{ color: "#e0e0e0" }}/>
                 </IconButton>
+            </Box>
             </Box>
             {/* Icons */}
             <Box display="flex">
                 <IconButton onClick={colorMode.toggleColorMode}>
                     {theme.palette.mode === 'dark' ? (
-                        <DarkModeOutlinedIcon />
+                        <LightModeOutlinedIcon sx={{ color:"#e0e0e0" }} />
                     ) : (
-                        <LightModeOutlinedIcon />
+                        <DarkModeOutlinedIcon sx={{ color:"#e0e0e0" }} />
                     )}
                     
                 </IconButton>
                 <IconButton>
-                    <NotificationsOutlinedIcon />
+                    <NotificationsOutlinedIcon sx={{ color:"#e0e0e0" }} />
                 </IconButton>
                 <IconButton>
-                    <SettingsOutlinedIcon />
+                    <SettingsOutlinedIcon sx={{ color:"#e0e0e0" }} />
                 </IconButton>
                 <IconButton>
-                    <PersonOutlinedIcon />
+                    <PersonOutlinedIcon sx={{ color:"#e0e0e0" }} />
                 </IconButton>
             </Box>
         </Box>

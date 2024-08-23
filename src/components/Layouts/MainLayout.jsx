@@ -37,16 +37,16 @@ const MainLayout = () => {
           // ref={loader}
           onLoaderFinished={()=>setProgress(0)}
         />
-    <div className="app" style={{scrollBehavior:"smooth"}}>
+    <div className="app" style={{scrollBehavior:"smooth", overflow: "hidden"}}>
       <Sidebar />
       {/* shown for large data operation */}
       {loading && <LongLoader />}
   {/* <LongLoader /> */}
-      <main className="content">
+      <main className="content" style={{overflow: "auto", position: "relative", marginLeft: "-1px"}}>
         <Topbar />
         {/* screen loader not configured currently */}
-        <Suspense fallback={<ScreenLoader />}>
-                  <Outlet context={{loader: [loading, setLoading], progress: [progress, setProgress]}} />
+        <Suspense  fallback={<ScreenLoader />}>
+                  <Outlet context={{loader: [loading, setLoading], progress: [progress, setProgress]}}  />
         </Suspense>
       </main>
     </div>

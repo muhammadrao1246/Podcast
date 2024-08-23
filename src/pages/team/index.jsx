@@ -60,14 +60,14 @@ const Team = () => {
                     borderBottom: "none",
                 },
                 "& .name-column--cell" : {
-                    color: colors.greenAccent[300]
+                    color: colors.greenAccent[200]
                 },
                 "& .MuiDataGrid-columnHeader" : {
                     backgroundColor: colors.blueAccent[700],
                     borderBottom: "none",
                 },
                 "& .MuiDataGrid-virtualScroller" : {
-                    backgroundColor: colors.primary[400],
+                    backgroundColor: colors.blueAccent[900],
                 },
                 "& .MuiDataGrid-footerContainer" : {
                     borderTop: "none",
