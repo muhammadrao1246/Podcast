@@ -84,7 +84,8 @@ const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_
                       "&:hover": {
                           color: isDeleted ? colors.grey[500] : colors.grey[400]
                       },
-                      textDecoration: isDeleted ? "line-through" : "unset"
+                      textDecoration: isDeleted ? "line-through" : "unset",
+                      fontSize: "1.2em", wordSpacing: "5px",
                   }}
               >
                   {words}

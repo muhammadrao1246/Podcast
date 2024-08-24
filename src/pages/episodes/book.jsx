@@ -55,7 +55,7 @@ const Book = () => {
                         sx={{
                             "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                             "& .MuiPickersLayout-root": {
-                                background: `${colors.primary[400]} !important`,
+                                background: `${colors.primary[900]} !important`,
                             },
                             "& .MuiPickersDay-root.Mui-selected": {
                                 backgroundColor: `#6870fa !important`,
@@ -64,7 +64,7 @@ const Book = () => {
                         >
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="Episode Name"
                                 onBlur={handleBlur}

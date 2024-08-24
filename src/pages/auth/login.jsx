@@ -69,7 +69,7 @@ const Login = () => {
     }
 
     return (
-      <Box height="100vh" display="flex" flexDirection="column">
+      <Box height="100vh" bgcolor={colors.primary[600]} display="flex" flexDirection="column">
         <Box
           display="flex"
           alignItems="start"
@@ -77,11 +77,11 @@ const Login = () => {
           p={2}
           width="100vw"
         >
-          <IconButton onClick={colorMode.toggleColorMode}>
+          <IconButton  onClick={colorMode.toggleColorMode}>
             {theme.palette.mode === "dark" ? (
-              <DarkModeOutlinedIcon />
+              <LightModeOutlinedIcon sx={{color: "#e0e0e0"}} />
             ) : (
-              <LightModeOutlinedIcon />
+              <DarkModeOutlinedIcon sx={{color: "#e0e0e0"}} />
             )}
           </IconButton>
         </Box>
@@ -96,7 +96,7 @@ const Login = () => {
             maxWidth="400px"
             padding="32px"
             borderRadius="8px"
-            bgcolor={colors.primary[400]}
+            bgcolor={colors.primary[900]}
           >
             <Typography
               variant="h2"

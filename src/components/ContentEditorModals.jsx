@@ -125,15 +125,19 @@ export const ChapterContentEditor = React.memo(function ChapterContentEditor({op
         //   sx={{ gridColumn: "span 3" }}
           className={`${chapterId}-edit-sequence-box`}
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "5px",
-            height: "300px",
+            
+            maxHeight: "300px",
             overflow: "auto",
             scrollBehavior: "smooth",
           }}
         >
+           <Box
+           sx={{
+            display: "flex",
+            justifyContent: "flex-start",
+            flexWrap: "wrap",
+            gap: "5px",
+          }}> 
             {
                 chapterSequences.length > 0 && chapterSequences.map((seq, index)=>(
                     <SequenceContentBox 
@@ -149,6 +153,7 @@ export const ChapterContentEditor = React.memo(function ChapterContentEditor({op
                             />
                 ))
             }
+            </Box>
         </Box>
         <Box
           mt="20px"
@@ -321,30 +326,35 @@ export const ReelContentEditor = React.memo(function ReelContentEditor({open, se
         //   sx={{ gridColumn: "span 3" }}
           className={`${chapterId}-edit-sequence-box`}
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "5px",
-            height: "300px",
+            
+            maxHeight: "300px",
             overflow: "auto",
             scrollBehavior: "smooth",
           }}
         >
-            {
-                reelSequences.length > 0 && reelSequences.map((seq, index)=>(
-                    <SequenceContentBox 
-                                key={seq.id}
-                                id={seq.id}
-                                index={index}
-                                word={seq.id in editedSequences.current ? editedSequences.current[seq.id] : seq.words}
-                                sequence_number={seq.sequence_number}
-                                isDeletedInList={deletedSequences.current.has(seq.id)}
-                                onUndoDelete={()=>handleUndoDelete(seq.id)}
-                                onEdit={handleEdit}
-                                onDelete={()=>handleDelete(seq.id)}
-                            />
-                ))
-            }
+           <Box
+           sx={{
+            display: "flex",
+            justifyContent: "flex-start",
+            flexWrap: "wrap",
+            gap: "5px",
+          }}> 
+              {
+                  reelSequences.length > 0 && reelSequences.map((seq, index)=>(
+                      <SequenceContentBox 
+                                  key={seq.id}
+                                  id={seq.id}
+                                  index={index}
+                                  word={seq.id in editedSequences.current ? editedSequences.current[seq.id] : seq.words}
+                                  sequence_number={seq.sequence_number}
+                                  isDeletedInList={deletedSequences.current.has(seq.id)}
+                                  onUndoDelete={()=>handleUndoDelete(seq.id)}
+                                  onEdit={handleEdit}
+                                  onDelete={()=>handleDelete(seq.id)}
+                              />
+                  ))
+              }
+            </Box>
         </Box>
         <Box
           mt="20px"

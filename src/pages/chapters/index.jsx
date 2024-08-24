@@ -91,8 +91,11 @@ const Chapters = () => {
                         chapterMakerName={""} 
                         chapterTranscript={ch.content} 
                         episodeTranscript={episode.content}
+                        startTimeStamp = {ch.start_time}
+                        endTimeStamp = {ch.end_time}
                         startTime={ch.num_start_time}
                         endTime={ch.num_end_time}
+                        videoLink={episode.video_link}
                         src={"/images/benedwards.png"}
                         startSeq={ch.start_sequence_number}
                         endSeq={ch.end_sequence_number}

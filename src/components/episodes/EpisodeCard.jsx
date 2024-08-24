@@ -15,9 +15,10 @@ import { DeleteOutlineOutlined, Launch, } from "@mui/icons-material";
 import { useDeleteEpisodesMutation } from "src/services/api";
 
 import { Link as DOMLink, Link, useOutletContext } from "react-router-dom";
-import { ButtonFilledOutlinedStyles } from "src/utils/utils";
+import { ButtonFilledOutlinedStyles, DropboxSharedToDownloadableConverter } from "src/utils/utils";
+import MUIPlayer from "../MUIPlayer";
 
-const EpisodeCard = ({ id, image, title, content, start_time, end_time, refresher, download }) => {
+const EpisodeCard = ({ id, image, title, content, start_time, end_time, videoLink, refresher, download }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   
@@ -46,13 +47,20 @@ const EpisodeCard = ({ id, image, title, content, start_time, end_time, refreshe
         // border: `1px solid ${colors.primary[500]}`,
       }}
     >
-      <CardMedia
+      {/* <CardMedia
         sx={{
           height: 140,
           backgroundColor: `${colors.primary[400]} !important`,
         }}
         image={`/images/episode.png`}
+        
         title="green iguana"
+      /> */}
+      <MUIPlayer 
+          startTime={0}
+          controls={true}
+          height="225px"
+          src={DropboxSharedToDownloadableConverter(videoLink)}
       />
       <CardContent
         sx={{ backgroundColor: `${colors.primary[900]} !important` }}

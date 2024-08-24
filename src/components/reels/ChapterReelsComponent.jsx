@@ -149,7 +149,10 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                                   reelId={reel.id}
                                   reelTitle={reel.title} 
                                   reelTranscript={reel.content}
+                                  startTimeStamp = {reel.start_time}
+                                  endTimeStamp = {reel.end_time}
                                   startTime={reel.num_start_time}
+                                  videoLink={chapter.video_link}
                                   endTime={reel.num_end_time}
                                   startSeq={reel.start_sequence_number}
                                   endSeq={reel.end_sequence_number}

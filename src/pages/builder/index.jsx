@@ -103,6 +103,7 @@ const Episodes = () => {
                             content={ep.content}
                             start_time={ep.start_time}
                             end_time={ep.end_time}
+                            videoLink={ep.video_link}
                             refresher={()=>setRefreshNeeded(refreshNeeded+1)}
                             download={ep.download_link}
                         />

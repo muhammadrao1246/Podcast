@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { Box, Typography, Button, useTheme,IconButton, Card, CardMedia, CardContent, CardActions, Accordion, AccordionActions, AccordionSummary, AccordionDetails } from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Box, Typography, Button, useTheme,IconButton, } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { tokens } from "src/theme";
-import { ClosedCaptionOffOutlined, TuneOutlined, EditOutlined, FileDownloadOutlined, ShareOutlined, OndemandVideoOutlined, DeleteForeverOutlined, DeleteOutlineRounded, DeleteOutline, DeleteOutlineOutlined } from '@mui/icons-material';
+import { EditOutlined, FileDownloadOutlined, ShareOutlined, OndemandVideoOutlined, DeleteForeverOutlined, DeleteOutlineRounded, DeleteOutline, DeleteOutlineOutlined } from '@mui/icons-material';
 
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useDeleteReelsMutation, useUpdateEpisodeChapterMutation, useUpdateReelMutation } from 'src/services/api';
@@ -11,7 +10,10 @@ import { useDeleteReelsMutation, useUpdateEpisodeChapterMutation, useUpdateReelM
 import RangeSlider, {timeStringToSeconds, secondsToTimeString} from 'src/components/RangeSlider';
 import $ from 'jquery'
 import { ClosableToast } from 'src/components/Toast';
-import { ButtonFilledOutlinedStyles } from 'src/utils/utils';
+import { ButtonFilledOutlinedStyles, DropboxSharedToDownloadableConverter } from 'src/utils/utils';
+
+import ReactPlayer from 'react-player/file';
+import MUIPlayer from '../MUIPlayer';
 
 export function SequenceElastic(sequences, currStartTime, currEndTime) {
     console.log({sequences, currStartTime, currEndTime})
@@ -28,7 +30,7 @@ export function SequenceTextJoiner(sequences) {
     .join(" ");
 }
 
-const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTranscript, startSeq, endSeq, startTime, endTime, src, sequences, timeStamps, min_step, refresher}) => {
+const ReelCard = ({onEditClick, videoLink, episodeId, chapterId, reelId, reelTitle, reelTranscript, startSeq, endSeq, startTimeStamp, endTimeStamp, startTime, endTime, src, sequences, timeStamps, min_step, refresher}) => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
     
     const [loading, setLoading] = useOutletContext().loader
@@ -43,7 +45,6 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
     const [startSequence, setStartSequence] = React.useState(startSeq)
     const [endSequence, setEndSequence] = React.useState(endSeq)
     
-
 
     // const [text, setText] = React.useState(SequenceTextJoiner(SequenceElastic(sequences, currStartTime, currEndTime)));
 
@@ -167,7 +168,11 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
             variant="contained"
             color="error"
             sx={{
-              ...ButtonFilledOutlinedStyles(colors.redAccent[400], colors.grey[900], false)
+              ...ButtonFilledOutlinedStyles(
+                colors.redAccent[400],
+                colors.grey[900],
+                false
+              ),
             }}
           >
             Delete Reel
@@ -192,7 +197,9 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
                 height: "400px",
                 overflow: "auto",
                 scrollBehavior: "smooth",
-                border: `1px solid ${colors.grey[300]}` 
+                border: `1px solid ${colors.grey[300]}`,
+                fontSize: "1.2em",
+                wordSpacing: "5px",
               }}
             >
               {reelTranscript}
@@ -223,9 +230,32 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
             p="10px"
             borderRadius="10px"
             bgcolor={colors.grey[600]}
-            sx={{ gridColumn: "span 1", border: `1px solid ${colors.grey[300]}`  }}
+            sx={{
+              gridColumn: "span 1",
+              border: `1px solid ${colors.grey[300]}`,
+              
+            }}
           >
-            <img alt="chapterImage" width="100%" src={`${src}`} />
+            {/* <img alt="chapterImage" width="100%" src={`${src}`} /> */}
+            {/* <video controls width={"100%"} height={"100%"} crossOrigin="anonymous" src="https://dl.dropboxusercontent.com/s/3sotdlsh65220732ig3qc/Final-Main-Ep-MultiCam1.mp4?rlkey=d66buj1tyuhkylf3ldb0k7cs0&e=1&st=6ftvtxhe&bmus=1&dl=0"></video> */}
+            {/* <ReactPlayer
+              controls
+              stopOnUnmount={true}
+              onBufferEnd={(e)=>console.log(e)}
+              width="100%"
+              height="100%"
+              url={DropboxSharedToDownloadableConverter(
+                "https://www.dropbox.com/scl/fi/3sotdlsh65220732ig3qc/Final-Main-Ep-MultiCam1.mp4?rlkey=d66buj1tyuhkylf3ldb0k7cs0&e=1&st=6ftvtxhe&bmus=1&dl=0"
+              )}
+            /> */}
+            <MUIPlayer
+              key={reelId}
+              startTime={startTime}
+              endTime={endTime}
+              src={DropboxSharedToDownloadableConverter(
+                `${videoLink}#t=${parseInt(startTime)},${parseInt(endTime)}`
+              )}
+            />
             <Box
               borderRadius="10px"
               bgcolor={colors.grey[400]}
@@ -262,7 +292,7 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
               p="15px 20px"
               bgcolor={colors.grey[600]}
               color="#e0e0e0"
-              sx={{border: `1px solid ${colors.grey[300]}` }}
+              sx={{ border: `1px solid ${colors.grey[300]}` }}
             >
               {secondsToTimeString(currStartTime, false)}
             </Typography>
@@ -281,7 +311,7 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
               p="15px 20px"
               bgcolor={colors.grey[600]}
               color="#e0e0e0"
-              sx={{border: `1px solid ${colors.grey[300]}` }}
+              sx={{ border: `1px solid ${colors.grey[300]}` }}
             >
               {secondsToTimeString(currEndTime, false)}
             </Typography>
@@ -299,10 +329,13 @@ const ReelCard = ({onEditClick, episodeId, chapterId, reelId, reelTitle, reelTra
               size="large"
               color="secondary"
               variant="contained"
-              sx={{ 
-                width: "100%", 
+              sx={{
+                width: "100%",
                 p: "15px",
-                ...ButtonFilledOutlinedStyles(colors.grey[100], colors.grey[900])
+                ...ButtonFilledOutlinedStyles(
+                  colors.grey[100],
+                  colors.grey[900]
+                ),
               }}
             >
               Edit Reel

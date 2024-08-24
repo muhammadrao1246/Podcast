@@ -12,14 +12,14 @@ import FormAlertsComponent from "src/components/FormAlertsComponent";
 
   
 const initialValues = {
-    project_link: "",
+    video_link: "",
     sheet_link: "",
     excel_file: "",
 };
 
 const checkoutSchema = yup.object().shape({
-  project_link: yup.string().required("required").url(),
-  sheet_link: yup.string().url(),
+  video_link: yup.string().required("required").url("Not a valid URL"),
+  sheet_link: yup.string().url("Not a valid URL"),
 //   excel_file: yup.object().shape({
 //     file: yup
 //         .mixed()
@@ -49,7 +49,7 @@ const Create = () => {
         setLoading(true)
         const formData = new FormData();
         formData.append("sheet_link", values.sheet_link)
-        formData.append("project_link", values.project_link)
+        formData.append("video_link", values.video_link)
         formData.append("excel_file", values.excel_file)
         console.log(values);
         const response = await saveEpisode(formData)
@@ -131,22 +131,36 @@ const Create = () => {
                   "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                 }}
               >
-                <TextField
+                {/* <TextField
                   fullWidth
-                  variant="filled"
+                  variant="outlined"
                   type="text"
                   label="Link Premier Pro Project"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.project_link}
-                  name="project_link"
-                  error={!!touched.project_link && !!errors.project_link}
-                  helperText={touched.project_link && errors.project_link}
-                  sx={{ gridColumn: "span 3" }}
+                  value={values.video_link}
+                  name="video_link"
+                  error={!!touched.video_link && !!errors.video_link}
+                  helperText={touched.video_link && errors.video_link}
+                  sx={{ gridColumn: "span 4", borderRadius: "5px" }}
+                /> */}
+                
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  type="text"
+                  label="Link Podcast Video"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.video_link}
+                  name="video_link"
+                  error={!!touched.video_link && !!errors.video_link}
+                  helperText={touched.video_link && errors.video_link}
+                  sx={{ gridColumn: "span 4", borderRadius: "5px" }}
                 />
                 <TextField
                   fullWidth
-                  variant="filled"
+                  variant="outlined"
                   type="text"
                   label="Link Episode Sheet"
                   onBlur={handleBlur}
@@ -155,7 +169,7 @@ const Create = () => {
                   name="sheet_link"
                   error={!!touched.sheet_link && !!errors.sheet_link}
                   helperText={touched.sheet_link && errors.sheet_link}
-                  sx={{ gridColumn: "span 3" }}
+                  sx={{ gridColumn: "span 4", borderRadius: "5px" }}
                 />
                 <Typography
                   justifyContent="center"
@@ -172,13 +186,13 @@ const Create = () => {
                   style={{ display: "none" }}
                 />
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   size="large"
-                  color="secondary"
+                  color="primary"
                   startIcon={<CloudUpload />}
                   onClick={handleUploadButtonClick}
                   component="span"
-                  sx={{ gridColumn: "span 3" }}
+                  sx={{ gridColumn: "span 4" }}
                 >
                   Upload File
                 </Button>

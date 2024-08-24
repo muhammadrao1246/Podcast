@@ -5,6 +5,19 @@ import { ROUTES } from "src/routes"
 import ColorThief from 'colorthief'
 import tinycolor from "tinycolor2";
 
+// HH:MM:SS:FF
+export const TimeStampToSeconds = (stamp)=>{
+  console.log(stamp)
+  let {hours, minutes, seconds, frames} = stamp.split(":")
+  let calc = (parseInt(hours) * 3600) + (parseInt(minutes) * 60) + parseInt(seconds) + (parseInt(frames) / 30)
+  console.log(calc)
+  return calc
+}
+
+export const DropboxSharedToDownloadableConverter=  (url)=>{
+  return url.replace("https://www.dropbox.com/scl/fi/", "https://dl.dropboxusercontent.com/s/")
+}
+
 export const ButtonFilledOutlinedStyles = (backgroundColor, color, setOutlineHover = true)=>{
   return {
     backgroundColor: backgroundColor,

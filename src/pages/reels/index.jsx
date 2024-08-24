@@ -53,6 +53,7 @@ const Reels = () => {
                     data.map(ch => (
                         <ChapterReelsComponent 
                             key={ch.id+"-accord"}
+                            // videoLink={ch.video_link}
                             episodeId={episode_id}
                             chapterId={ch.id}
                             chapterTitle={ch.title}

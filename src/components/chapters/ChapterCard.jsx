@@ -8,7 +8,8 @@ import { useUpdateEpisodeChapterMutation } from 'src/services/api';
 
 import { tokens } from "src/theme";
 import RangeSlider, {timeStringToSeconds, secondsToTimeString} from 'src/components/RangeSlider';
-import { ButtonFilledOutlinedStyles } from 'src/utils/utils';
+import { ButtonFilledOutlinedStyles, DropboxSharedToDownloadableConverter } from 'src/utils/utils';
+import MUIPlayer from '../MUIPlayer';
 
 // SequenceElastic used when user expand or shrink the slider interval using chapter's current selected currStartTime and currEndTime all sequences will be filtered
 function SequenceElastic(sequences, currStartTime, currEndTime) {
@@ -27,7 +28,7 @@ function SequenceTextJoiner(sequences) {
 }
 
 
-const ChapterCard = ({onEditClick, episodeId, chapterId, chapterTitle, chapterMakerName, chapterTranscript, episodeTranscript, startSeq, endSeq, startTime, endTime, src, sequences, timeStamps, min_step, refresher}) => {
+const ChapterCard = ({onEditClick, videoLink, episodeId, chapterId, chapterTitle, chapterMakerName, chapterTranscript, episodeTranscript, startSeq, endSeq, startTimeStamp, endTimeStamp, startTime, endTime, src, sequences, timeStamps, min_step, refresher}) => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
 
     const [loading, setLoading] = useOutletContext().loader // progress screen control
@@ -134,17 +135,24 @@ const ChapterCard = ({onEditClick, episodeId, chapterId, chapterTitle, chapterMa
                 <Box mt="20px" borderRadius="10px" sx={{ gridColumn: "span 3", 
                     border: `1px solid ${colors.grey[300]}` 
                     }}>
-                    <Typography  borderRadius="10px" p="20px" textAlign="justify" bgcolor={colors.grey[600]} color={"#e0e0e0"} sx={{ height: '400px', overflow: 'auto', scrollBehavior: "smooth"}} >{chapterTranscript}</Typography>
+                    <Typography borderRadius="10px" p="20px" textAlign="justify" bgcolor={colors.grey[600]} color={"#e0e0e0"} sx={{ height: '400px', fontSize: "1.2em", wordSpacing: "5px", overflow: 'auto', scrollBehavior: "smooth"}} >{chapterTranscript}</Typography>
                     {/* <Typography className={`${chapterId}-sequence-box`} borderRadius="10px" p="20px" textAlign="justify" bgcolor={colors.grey[600]} sx={{ height: '400px', overflow: 'auto', scrollBehavior: "smooth"}} >{text}</Typography> */}
                     {/* <Typography borderRadius="0 0 10px 10px" p="20px" bgcolor={colors.grey[800]}>{episodeTranscript}</Typography> */}
                 </Box>
                 <Box mt="20px" display="flex" height="fit-content" justifyContent="space-between" flexDirection="column" p="10px" borderRadius="10px" 
                 bgcolor={colors.grey[600]} sx={{ gridColumn: "span 1",border: `1px solid ${colors.grey[300]}`  }}>
-                    <img
+                    {/* <img
                     alt="chapterImage"
                     width="100%"
                     src={`${src}`}
-                    />
+                    /> */} 
+            <MUIPlayer
+              startTime={startTime}
+              endTime={endTime}
+              src={DropboxSharedToDownloadableConverter(
+                `${videoLink}#t=${parseInt(startTime)},${parseInt(endTime)}`
+              )}
+            />
                     <Box borderRadius="10px" bgcolor={colors.grey[400]} display="flex" justifyContent="space-between" alignItems="center" p="10px" width="100%" mt="15px">
                         <IconButton>
                             <ShareOutlined sx={{color: "#e0e0e0"}} />

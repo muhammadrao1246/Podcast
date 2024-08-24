@@ -68,7 +68,7 @@ const Signup = () => {
     }
 
     return (
-      <Box height="100vh" display="flex" flexDirection="column">
+      <Box height="100vh" bgcolor={colors.primary[700]} display="flex" flexDirection="column">
         <Box
           display="flex"
           alignItems="start"
@@ -78,9 +78,9 @@ const Signup = () => {
         >
           <IconButton onClick={colorMode.toggleColorMode}>
             {theme.palette.mode === "dark" ? (
-              <DarkModeOutlinedIcon />
+              <DarkModeOutlinedIcon   sx={{color: "#e0e0e0"}} />
             ) : (
-              <LightModeOutlinedIcon />
+              <LightModeOutlinedIcon  sx={{color: "#e0e0e0"}} />
             )}
           </IconButton>
         </Box>
@@ -95,7 +95,7 @@ const Signup = () => {
             maxWidth="400px"
             padding="32px"
             borderRadius="8px"
-            bgcolor={colors.primary[400]}
+            bgcolor={colors.primary[900]}
           >
             <Typography
               variant="h2"
@@ -165,7 +165,7 @@ const Signup = () => {
                   />
                   {/* <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="Username"
                                 onBlur={handleBlur}
@@ -216,7 +216,7 @@ const Signup = () => {
                     <Link
                       LinkComponent={DOMLink}
                       to={"#"}
-                      color={colors.greenAccent[400]}
+                      color={colors.greenAccent[200]}
                       sx={{ ml: "5px", mr: "5px" }}
                     >
                       Terms of Services
@@ -225,7 +225,7 @@ const Signup = () => {
                     <Link
                       LinkComponent={DOMLink}
                       to={"#"}
-                      color={colors.greenAccent[400]}
+                      color={colors.greenAccent[200]}
                       sx={{ ml: "5px" }}
                     >
                       Privacy Policy
@@ -244,7 +244,7 @@ const Signup = () => {
                     <Link
                       component={DOMLink}
                       to={ROUTES.LOGIN}
-                      color={colors.greenAccent[400]}
+                      color={colors.greenAccent[200]}
                       sx={{ ml: "5px" }}
                     >
                       Login

@@ -19,25 +19,8 @@ export default defineConfig({
   build: {
     rollupOptions:{
       external: [
-        // 'js/jquery.appear.js',
-        // 'js/countdown.min.js',
-        // 'js/waypoints.min.js',
-        // 'js/jquery.counterup.min.js',
-        // 'js/wow.min.js',
-        // 'js/apexcharts.js',
-        // 'js/select2.min.js',
-        // 'js/owl.carousel.min.js',
-        // 'js/jquery.magnific-popup.min.js',
-        // 'js/smooth-scrollbar.js',
-        // 'js/lottie.js',
-        // 'js/core.js',
-        // 'js/charts.js',
-        // 'js/animated.js',
-        // 'js/kelly.js',
-        // 'js/maps.js',
-        // 'js/worldLow.js',
-        // 'js/chart-custom.js',
-        // 'js/custom.js',
+        // "js/mui-player-desktop-plugin.min.js"
+        // ""
       ],
     }
   }

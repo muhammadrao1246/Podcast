@@ -76,7 +76,7 @@ const Create = () => {
                         >
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="First Name"
                                 onBlur={handleBlur}
@@ -89,7 +89,7 @@ const Create = () => {
                             />
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="Last Name"
                                 onBlur={handleBlur}
@@ -102,7 +102,7 @@ const Create = () => {
                             />
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="Email"
                                 onBlur={handleBlur}
@@ -115,7 +115,7 @@ const Create = () => {
                             />
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="Age"
                                 onBlur={handleBlur}
@@ -128,7 +128,7 @@ const Create = () => {
                             />
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="Contact Number"
                                 onBlur={handleBlur}
@@ -141,7 +141,7 @@ const Create = () => {
                             />
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="Registrar ID"
                                 onBlur={handleBlur}
@@ -154,7 +154,7 @@ const Create = () => {
                             />
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="Address"
                                 onBlur={handleBlur}
@@ -167,7 +167,7 @@ const Create = () => {
                             />
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="City"
                                 onBlur={handleBlur}
@@ -180,7 +180,7 @@ const Create = () => {
                             />
                             <TextField
                                 fullWidth
-                                variant="filled"
+                                variant="outlined"
                                 type="text"
                                 label="Zip Code"
                                 onBlur={handleBlur}
