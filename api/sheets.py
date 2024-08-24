@@ -50,7 +50,7 @@ class DatabaseToGoogleSheetUpdater:
                     "sequences": [seq.id for seq in ch.sequences.get_queryset()],
                     "reels": {
                         f"{rl.reel_number}": [seq.id for seq in rl.sequences.get_queryset()]
-                    for rl in [ch_reel for ch_reel in all_reels]}
+                    for rl in [ch_reel for ch_reel in all_reels if ch_reel.chapter == ch]}
                 } 
                 for ch in all_chapters}
             
@@ -68,12 +68,15 @@ class DatabaseToGoogleSheetUpdater:
                 reel_number = ""
                 for c_num, c_data in chapter_sequence_dict.items():
                     if sequence.id in c_data["sequences"]:
+                        print(f"Sequence {sequence.id} found in Chapter {c_num}")
                         chapter_number = c_num
                         for r_num, r_data in c_data["reels"].items():
                             if sequence.id in r_data:
+                                print(f"Sequence {sequence.id} found in Reel {r_num}")
                                 reel_number = r_num
                                 break
                         break
+
 
                 self.chapter_sheet_dict["Chapter"].append(chapter_number)
 
@@ -130,7 +133,7 @@ class DatabaseToGoogleSheetUpdater:
                     
 
             self.chapters_sheet_dataframe = pd.DataFrame(self.chapter_sheet_dict)
-            
+        print(self.chapter_filtered_sheet_reel_col_data)
         print(self.chapters_sheet_dataframe.head(50))
 
     def update_google_sheet(self, sheet_link):
@@ -190,8 +193,8 @@ class DatabaseToGoogleSheetUpdater:
 
 
 class GoogleSheetProcessor:
-    def __init__(self, sheet, project_url: str, isFile: bool):
-        self.project_url = project_url
+    def __init__(self, sheet, video_url: str, isFile: bool):
+        self.video_url = video_url
 
         start_time = time.time()
         if not isFile:
@@ -315,7 +318,7 @@ class GoogleSheetProcessor:
             start_time=None,
             end_time=None,
             sheet_link=self.sheet_url,
-            project_link=self.project_url
+            video_link=self.video_url
         )
 
         sequence_models = []

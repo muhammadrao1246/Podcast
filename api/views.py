@@ -46,7 +46,7 @@ class Tester(APIView):
         # pr.save_full_episode_series_sequence()
         
         # ep = EpisodeModel.objects.filter(sheet_link__icontains="http").order_by("-created_at").first()
-        ep = EpisodeModel.objects.get(id="d76e4639-d7a3-4fd9-9321-922a58415809")
+        ep = EpisodeModel.objects.get(id="150563a4-6faf-472b-abc0-5a7cdf532f07")
         up = DatabaseToGoogleSheetUpdater(ep)
         
         return Response({
@@ -121,6 +121,7 @@ class EpisodeListApi(generics.ListAPIView):
 class EpisodeDetailApi(APIView):
     permission_classes = [IsAuthenticated]
     
+    # @method_decorator(cache_page(60 * 60 * 24)) 
     def get(self, request, uid):
         
         episode_model = EpisodeModel.objects.filter(id = uid).first()
@@ -168,6 +169,8 @@ class ChapterListApi(generics.ListAPIView):
             episode = episode_id)
         return filtered
     
+    
+    # @method_decorator(cache_page(60 * 60 * 24))
     def list(self, request, *args, **kwargs):
         
         queryset = self.filter_queryset(self.get_queryset())
@@ -192,6 +195,8 @@ class ChapterDetailApi(APIView):
     permission_classes = [IsAuthenticated]
 
     # reading chapter's detail info
+    
+    # @method_decorator(cache_page(60 * 60 * 24))
     def get(self, request, episode_id, uid):
         verify = ModelExistenceChecker.chapter_verifier(self.request, episode_id, uid)
         if type(verify) is dict:

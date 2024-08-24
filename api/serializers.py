@@ -23,24 +23,24 @@ class SheetSerializer(serializers.Serializer):
     sheet_link = serializers.URLField(required=False)
     excel_file = serializers.FileField(required=False)
     
-    project_link = serializers.URLField(required=True,error_messages={
-                    'required': 'Project Link is required.',
+    video_link = serializers.URLField(required=True,error_messages={
+                    'required': 'Video Link is required.',
                 })
     
     class Meta:
-        fields = ["sheet_url", "project_url", "excel_file"]
+        fields = ["sheet_url", "video_link", "excel_file"]
     
     def validate(self, attrs):
         
         # user = self.context.get("user")
-        project_link = attrs["project_link"]
+        video_link = attrs["video_link"]
         sheet_link = attrs.get("sheet_link", None)
         excel_file = attrs.get("excel_file", None)
         if bool(sheet_link is not None) == bool(excel_file is not None):
             raise ValidationError("Only One Sheet URL or Excel File is required. ")
         elif sheet_link is not None:
             
-            pr = GoogleSheetProcessor(sheet=sheet_link, project_url=project_link, isFile=False)
+            pr = GoogleSheetProcessor(sheet=sheet_link, video_url=video_link, isFile=False)
             
             print(pr.__str__())
             # pr.get_episode()
@@ -50,7 +50,7 @@ class SheetSerializer(serializers.Serializer):
             
         elif excel_file is not None:
             
-            pr = GoogleSheetProcessor(sheet=excel_file, project_url=project_link, isFile=True)
+            pr = GoogleSheetProcessor(sheet=excel_file, video_url=video_link, isFile=True)
             
             print(pr.__str__())
             # pr.get_episode()
@@ -127,7 +127,7 @@ class EpisodeListSerializer(serializers.ModelSerializer):
     download_link = serializers.SerializerMethodField()
     class Meta:
         model = EpisodeModel
-        fields = ['id', 'title', 'content', 'download_link', 'start_time', 'end_time', 'sheet_link', 'project_link']
+        fields = ['id', 'title', 'content', 'download_link', 'start_time', 'end_time', 'sheet_link', 'video_link']
         
     def get_content(self, episode: EpisodeModel):
         return episode.content[:100] + "..."
@@ -160,8 +160,8 @@ class EpisodeDetailSerializer(serializers.ModelSerializer):
     sheet_link = serializers.URLField(required=True,error_messages={
                     'required': 'Sheet Link is required.',
                 })
-    project_link = serializers.URLField(required=True,error_messages={
-                    'required': 'Project Link is required.',
+    video_link = serializers.URLField(required=True,error_messages={
+                    'required': 'Video Link is required.',
                 })
     
     sequences = SequenceSerializer(many=True, read_only=True)
@@ -169,7 +169,7 @@ class EpisodeDetailSerializer(serializers.ModelSerializer):
     sliderData = serializers.SerializerMethodField()
     class Meta:
         model = EpisodeModel
-        fields = ['id', 'title', 'sliderData', 'sequences', 'min_difference', 'content', 'start_time', 'end_time', 'sheet_link', 'project_link']
+        fields = ['id', 'title', 'sliderData', 'sequences', 'min_difference', 'content', 'start_time', 'end_time', 'sheet_link', 'video_link']
 
     
     def get_sliderData(self, ep: EpisodeModel):
@@ -340,9 +340,16 @@ class ChapterListSerializer(serializers.ModelSerializer):
     
     start_sequence_number = serializers.SerializerMethodField()
     end_sequence_number = serializers.SerializerMethodField()
+    
+    video_link = serializers.SerializerMethodField()
     class Meta:
         model = ChapterModel
-        fields = ['id', 'episode_id', 'title', 'content', 'start_sequence_number', 'end_sequence_number', 'num_start_time', 'num_end_time', 'start_time', 'end_time', "chapter_number"]
+        fields = ['id', 'episode_id', 'title', 'video_link', 'content', 'start_sequence_number', 'end_sequence_number', 'num_start_time', 'num_end_time', 'start_time', 'end_time', "chapter_number"]
+    
+        
+    def get_video_link(self, ch: ChapterModel):
+        print("Reading Video")
+        return ch.episode.video_link
     
     # def get_content(self, ch: ChapterModel):
     #     return ch.content[:200]
@@ -381,7 +388,7 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
     chapter_number = serializers.IntegerField(required=True, error_messages={
                     'required': 'Chapter Number is required.',
                 })
-    
+    video_link = serializers.SerializerMethodField()
     
     min_difference = serializers.SerializerMethodField()
     sliderData = serializers.SerializerMethodField()
@@ -400,8 +407,11 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
         model = ChapterModel
         # fields = ['id', 'episode_id', 'title', 'content', 'start_time', 'end_time', 'start_sequence_number', "end_sequence_number", "chapter_number"]
         
-        fields = ['id', 'episode_id', 'title', 'content', 'start_sequence_number', 'end_sequence_number', 'num_start_time', 'num_end_time', 'start_time', 'end_time', 'sliderData', 'min_difference', "sequences", "chapter_number"]
+        fields = ['id', 'episode_id', 'title', 'content', 'video_link', 'start_sequence_number', 'end_sequence_number', 'num_start_time', 'num_end_time', 'start_time', 'end_time', 'sliderData', 'min_difference', "sequences", "chapter_number"]
     
+    def get_video_link(self, ch: ChapterModel):
+        print(ch.episode.video_link)
+        return ch.episode.video_link
     
     def get_sliderData(self, ch: ChapterModel):
         sequences_ordered = []
