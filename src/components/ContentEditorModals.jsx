@@ -1,5 +1,5 @@
 
-import { Box, Typography, Button, useTheme, Dialog, DialogTitle, DialogContent, DialogActions, useMediaQuery } from "@mui/material";
+import { Box, Typography, Button, useTheme, Dialog, DialogTitle, DialogContent, DialogActions, useMediaQuery, IconButton } from "@mui/material";
 import { tokens } from "src/theme";
 import { useOutletContext, useParams } from "react-router-dom";
 import React from "react";
@@ -9,6 +9,7 @@ import { secondsToTimeString } from "src/components/RangeSlider";
 import { debounce } from "lodash";
 import SequenceContentBox from "src/components/SequenceContentBox";
 import { ButtonFilledOutlinedStyles } from "src/utils/utils";
+import { RedoOutlined, Undo, UndoOutlined, UndoRounded } from "@mui/icons-material";
 
 export const ChapterContentEditor = React.memo(function ChapterContentEditor({open, setOpen, episodeId, chapterId, title, startSeq, endSeq, startTime, endTime, refresher}){
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -36,6 +37,10 @@ export const ChapterContentEditor = React.memo(function ChapterContentEditor({op
   const editedSequences = React.useRef({});
   const deletedSequences = React.useRef(new Set())
 
+  
+  const [unActions, setUnActions] = React.useState([])
+  const [reActions, setReActions] = React.useState([])
+  
 
   const [getChapterDetail,] = useGetEpisodeChapterDetailMutation()
   const getChapterDetailFunc = async () => {
@@ -94,27 +99,108 @@ export const ChapterContentEditor = React.memo(function ChapterContentEditor({op
 };
 
 
+  const addToUndo = (action) => {
+    setUnActions((prev) => [...prev, action]);
+    setReActions([]); // Clear redo stack when a new action is performed
+  };
 
-  const handleEdit = (id, newWords)=>{
-    editedSequences.current[id] = newWords;
+  
+// will be recreated only one time when the chapterSequences is set and the function will be cached
+const handleEdit = React.useCallback((id, newWords) => {
+  // Capture current state before editing
+  const previousWords = chapterSequences.find(seq => seq.id === id)?.words || '';
+  addToUndo({ type: "edit", id, previousWords, newWords });
+  // Proceed with editing
+  editedSequences.current[id] = newWords;
+  console.log("Edited", editedSequences.current);
+}, [chapterSequences]);
+
+// direct modifying the state are without creating a new so no need to add dependincies
+const handleDelete = React.useCallback((id) => {
+  // Capture current state before deleting
+  const sequenceToDelete = chapterSequences.find(seq => seq.id === id);
+  
+  if (sequenceToDelete) {
+    addToUndo({ type: "delete", id, sequence: sequenceToDelete });
+    deletedSequences.current.add(id);
   }
   
-  const handleDelete = React.useCallback(debounce((id) => {
-        // setChapterSequences(prevSequences => prevSequences.filter(seq => seq.id !== id));
-        deletedSequences.current.add(id)
-        console.log(`${id} Deleted: `, editedSequences.current, deletedSequences.current)
-    }, 300), []);
+  console.log(`Deleted: `, deletedSequences.current);
+  
 
-  const handleUndoDelete = React.useCallback(debounce((id) => {
-        // setChapterSequences(prevSequences => prevSequences.filter(seq => seq.id !== id));
+}, [chapterSequences]);
+
+
+// accessing the updated states variables by defining them in dependencies
+//  or by working with functional updates to work always with the latest ones states in all scenario
+const handleUndoDelete = React.useCallback((id) => {
+  // Restore the state before deletion
+  deletedSequences.current.delete(id);
+
+  // remove it from undo section to prevent it
+  setUnActions(prev => [...prev.filter(seq=>!(seq.id == id && seq.type == "delete"))])
+  console.log(`UnDeleted: `, deletedSequences.current);
+}, []);
+
+const handleAction = (action) => {
+  if (action === "undo" && unActions.length > 0) {
+    const lastAction = unActions.pop();
+
+    if (lastAction.type === "edit") {
+      const { id, previousWords } = lastAction;
+      editedSequences.current[id] = previousWords; // Restore previous words
+    } else if (lastAction.type === "delete") {
+      const { id } = lastAction;
+      handleUndoDelete(id); // Restore the deleted sequence
+    }
+    
+    setUnActions([...unActions]);
+    setReActions((prev) => [...prev, lastAction]);
+  } else if (action === "redo" && reActions.length > 0) {
+    const lastAction = reActions.pop();
+
+    if (lastAction.type === "edit") {
+      const { id, newWords } = lastAction;
+      editedSequences.current[id] = newWords; // Apply the edit again
+    } else if (lastAction.type === "delete") {
+      const { id } = lastAction;
+      deletedSequences.current.add(id); // Apply the delete again
+    }
+    
+    setReActions([...reActions]);
+    setUnActions((prev) => [...prev, lastAction]);
+  }
+  
+  // console.log("Actions", unActions, reActions);
+};
+
+  
+  // const handleDelete = React.useCallback(debounce((id) => {
+  //       // setChapterSequences(prevSequences => prevSequences.filter(seq => seq.id !== id));
+  //       deletedSequences.current.add(id)
+  //       console.log(`${id} Deleted: `, editedSequences.current, deletedSequences.current)
+  //   }, 300), []);
+
+  // const handleUndoDelete = React.useCallback(debounce((id) => {
+  //       // setChapterSequences(prevSequences => prevSequences.filter(seq => seq.id !== id));
         
-        deletedSequences.current.delete(id)
-        console.log(`${id} UnDeleted: `, editedSequences.current, deletedSequences.current)
-    }, 300), []);
+  //       deletedSequences.current.delete(id)
+  //       console.log(`${id} UnDeleted: `, editedSequences.current, deletedSequences.current)
+  //   }, 300), []);
     
   return (
     <Dialog maxWidth="md" open={open} fullWidth={true} onClose={handleClose}>
-      <DialogTitle>Edit {title}</DialogTitle>
+      <DialogTitle display="flex" justifyContent="space-between" alignItems="center">
+        Edit {title}
+        <Box display="flex" gap="1em">
+          <IconButton title="Undo" onClick={()=>handleAction("undo")} disabled={unActions.length == 0} size="small">
+            <UndoOutlined />
+          </IconButton>
+          <IconButton title="Redo" onClick={()=>handleAction("redo")} disabled={reActions.length == 0} size="small">
+            <RedoOutlined />
+          </IconButton>
+        </Box>
+      </DialogTitle>
       <DialogContent>
         <Box
         //   mt="20px"
@@ -237,12 +323,15 @@ export const ReelContentEditor = React.memo(function ReelContentEditor({open, se
   const editedSequences = React.useRef({});
   const deletedSequences = React.useRef(new Set())
 
+  const [unActions, setUnActions] = React.useState([])
+  const [reActions, setReActions] = React.useState([])
+  
 
   const [getReelDetail,] = useGetReelsDetailMutation()
   const getReelDetailFunc = async () => {
     setLoading(true)
     const response = await getReelDetail({episodeId, chapterId, reelId})
-    setLoading(false)
+    
       if (!!response.error) {
           let dataObject = response.error.data;
           console.log(dataObject.errors);
@@ -251,7 +340,9 @@ export const ReelContentEditor = React.memo(function ReelContentEditor({open, se
       } else {
           let dataObject = response.data.data;
           setReelSequences(dataObject.sequences)
+          console.log("Reels Sequences Loaded")
       }
+    setLoading(false)
   }
 
 
@@ -263,59 +354,128 @@ export const ReelContentEditor = React.memo(function ReelContentEditor({open, se
 
   const [updateReel,] = useUpdateReelMutation()
   const handleSave = async (e) => {
-    // all deleted sequences previous editing will not be saved
-    deletedSequences.current.forEach(id=>delete editedSequences.current[id])
-    let body = {
-        sequences: reelSequences.filter(seq=>!deletedSequences.current.has(seq.id)).map(seq => seq.id),
-        start_sequence_number: startSeq,
-        end_sequence_number: endSeq,
-        edit_sequences: editedSequences.current,
-        // deleted_sequences: Array.from(deletedSequences.current)
-    };
-    console.log(body)
-    // return
-    setLoading(true);
-    
-    requestAnimationFrame(async () => {
-        const response = await updateReel({episodeId, chapterId, reelId, body});
-        
-        if (!!response.error) {
-            let dataObject = response.error.data;
-            Object.keys(dataObject.errors).forEach((errorType) => {
-                ClosableToast(dataObject.errors[errorType][0], "error", 2000);
-            });
-        } else {
-            handleClose();
-            ClosableToast("Reel Updated Successfully!", "success", 2000);
-            setTimeout(() => {
-                refresher();
-            }, 1000);
-        }
-    });
+      // all deleted sequences previous editing will not be saved
+      deletedSequences.current.forEach(id=>delete editedSequences.current[id])
+      let body = {
+          sequences: reelSequences.filter(seq=>!deletedSequences.current.has(seq.id)).map(seq => seq.id),
+          start_sequence_number: startSeq,
+          end_sequence_number: endSeq,
+          edit_sequences: editedSequences.current,
+          // deleted_sequences: Array.from(deletedSequences.current)
+      };
+      console.log(body)
+      // return
+      setLoading(true);
+      
+      requestAnimationFrame(async () => {
+          const response = await updateReel({episodeId, chapterId, reelId, body});
+          
+          if (!!response.error) {
+              let dataObject = response.error.data;
+              Object.keys(dataObject.errors).forEach((errorType) => {
+                  ClosableToast(dataObject.errors[errorType][0], "error", 2000);
+              });
+          } else {
+              handleClose();
+              ClosableToast("Reel Updated Successfully!", "success", 2000);
+              setTimeout(() => {
+                  refresher();
+              }, 1000);
+          }
+      });
+  }
+
+const addToUndo = (action) => {
+  setUnActions((prev) => [...prev, action]);
+  setReActions([]); // Clear redo stack when a new action is performed
 };
 
+// will be recreated only one time when the reelSequences is set and the function will be cached
+const handleEdit = React.useCallback((id, newWords) => {
+  // Capture current state before editing
+  const previousWords = reelSequences.find(seq => seq.id === id)?.words || '';
+  addToUndo({ type: "edit", id, previousWords, newWords });
+  // Proceed with editing
+  editedSequences.current[id] = newWords;
+  console.log("Edited", editedSequences.current);
+}, [reelSequences]);
 
-
-  const handleEdit = (id, newWords)=>{
-    editedSequences.current[id] = newWords;
+// direct modifying the state are without creating a new so no need to add dependincies
+const handleDelete = React.useCallback((id) => {
+  // Capture current state before deleting
+  const sequenceToDelete = reelSequences.find(seq => seq.id === id);
+  
+  if (sequenceToDelete) {
+    addToUndo({ type: "delete", id, sequence: sequenceToDelete });
+    deletedSequences.current.add(id);
   }
   
-  const handleDelete = React.useCallback(debounce((id) => {
-        // setChapterSequences(prevSequences => prevSequences.filter(seq => seq.id !== id));
-        deletedSequences.current.add(id)
-        console.log(`${id} Deleted: `, editedSequences.current, deletedSequences.current)
-    }, 300), []);
+  console.log(`Deleted: `, deletedSequences.current);
+  
 
-  const handleUndoDelete = React.useCallback(debounce((id) => {
-        // setChapterSequences(prevSequences => prevSequences.filter(seq => seq.id !== id));
-        
-        deletedSequences.current.delete(id)
-        console.log(`${id} UnDeleted: `, editedSequences.current, deletedSequences.current)
-    }, 300), []);
+}, [reelSequences]);
+
+
+// accessing the updated states variables by defining them in dependencies
+//  or by working with functional updates to work always with the latest ones states in all scenario
+const handleUndoDelete = React.useCallback((id) => {
+  // Restore the state before deletion
+  deletedSequences.current.delete(id);
+
+  // remove it from undo section to prevent it
+  setUnActions(prev => [...prev.filter(seq=>!(seq.id == id && seq.type == "delete"))])
+  console.log(`UnDeleted: `, deletedSequences.current);
+}, []);
+
+const handleAction = (action) => {
+  if (action === "undo" && unActions.length > 0) {
+    const lastAction = unActions.pop();
+
+    if (lastAction.type === "edit") {
+      const { id, previousWords } = lastAction;
+      editedSequences.current[id] = previousWords; // Restore previous words
+    } else if (lastAction.type === "delete") {
+      const { id } = lastAction;
+      handleUndoDelete(id); // Restore the deleted sequence
+    }
     
+    setUnActions([...unActions]);
+    setReActions((prev) => [...prev, lastAction]);
+  } else if (action === "redo" && reActions.length > 0) {
+    const lastAction = reActions.pop();
+
+    if (lastAction.type === "edit") {
+      const { id, newWords } = lastAction;
+      editedSequences.current[id] = newWords; // Apply the edit again
+    } else if (lastAction.type === "delete") {
+      const { id } = lastAction;
+      deletedSequences.current.add(id); // Apply the delete again
+    }
+    
+    setReActions([...reActions]);
+    setUnActions((prev) => [...prev, lastAction]);
+  }
+  
+  // console.log("Actions", unActions, reActions);
+};
+
+React.useEffect(()=>{
+  console.log("Actions", unActions, reActions);
+},[unActions, reActions])
+
   return (
     <Dialog maxWidth="md" open={open} fullWidth={true} onClose={handleClose}>
-      <DialogTitle>Edit {title}</DialogTitle>
+      <DialogTitle display="flex" justifyContent="space-between" alignItems="center">
+        Edit {title}
+        <Box display="flex" gap="1em">
+          <IconButton title="Undo" onClick={()=>handleAction("undo")} disabled={unActions.length == 0} size="small">
+            <UndoOutlined />
+          </IconButton>
+          <IconButton title="Redo" onClick={()=>handleAction("redo")} disabled={reActions.length == 0} size="small">
+            <RedoOutlined />
+          </IconButton>
+        </Box>
+      </DialogTitle>
       <DialogContent>
         <Box
         //   mt="20px"

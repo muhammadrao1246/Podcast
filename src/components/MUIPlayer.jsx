@@ -8,7 +8,7 @@ import ReactPlayer from 'react-player/file';
 
 
 function MUIPlayer({src, startTime, endTime, controls=true, height="250px"}) {
-    console.log(src)
+    // console.log(src)
     const [isPlaying, setIsPlaying] = React.useState(false);
 
     const [isReady, setIsReady] = React.useState(false);

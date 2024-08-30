@@ -8,6 +8,7 @@ import { useOutletContext, useParams } from "react-router-dom";
 import React from "react";
 import { useGetEpisodeChaptersListMutation } from "src/services/api";
 import ChapterReelsComponent from "src/components/reels/ChapterReelsComponent";
+import { ROUTES } from "src/routes";
 // import ChapterReelsComponent from "src/components/reels/ChapterReelsComponent";
 // import { C } from "@fullcalendar/core/internal-common";
 
@@ -33,7 +34,7 @@ const Reels = () => {
         } else {
             let dataObject = response.data.data;
             setData(dataObject.results)
-            console.log(dataObject)
+            // console.log(dataObject)
 
         }
         setLoading(false)
@@ -43,10 +44,9 @@ const Reels = () => {
         getChaptersListfunc()
     },[])
 
-    console.log("Data: ",data)
     return (
         <Box m="20px">
-            <Header title="Reel Maker" subtitle="List of all Reels" />
+            <Header title="Reel Maker" backButtonRoute={ROUTES.EPISODES} subtitle="List of all Reels" />
 
             <Box sx={{ flexGrow: 1 }}>
                 {

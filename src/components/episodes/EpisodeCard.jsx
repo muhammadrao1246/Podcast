@@ -117,8 +117,8 @@ const EpisodeCard = ({ id, image, title, content, start_time, end_time, videoLin
           </Button>
         </Box>
         <Box>
-          <IconButton>
-            <DeleteOutlineOutlined onClick={handleDelete} />
+          <IconButton onClick={handleDelete}>
+            <DeleteOutlineOutlined  />
           </IconButton>
           <IconButton
             title="Download or Go To Google Sheet"

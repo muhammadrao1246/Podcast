@@ -7,10 +7,9 @@ import tinycolor from "tinycolor2";
 
 // HH:MM:SS:FF
 export const TimeStampToSeconds = (stamp)=>{
-  console.log(stamp)
   let {hours, minutes, seconds, frames} = stamp.split(":")
   let calc = (parseInt(hours) * 3600) + (parseInt(minutes) * 60) + parseInt(seconds) + (parseInt(frames) / 30)
-  console.log(calc)
+  // console.log(calc)
   return calc
 }
 
@@ -73,4 +72,17 @@ export function FindDateStringLong(date) {
     return date.toLocaleDateString("en-US", {dateStyle:"long"}) 
   }
   return ""
+}
+export function SequenceElastic(sequences, currStartTime, currEndTime) {
+  // console.log({ sequences, currStartTime, currEndTime });
+  return sequences
+    .filter(
+      (seq) => seq.num_start_time >= currStartTime && seq.num_end_time <= currEndTime
+    );
+}
+
+export function SequenceTextJoiner(sequences) {
+  return sequences
+    .map((seq) => seq.words)
+    .join(" ");
 }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Box, Typography, Button, useTheme,IconButton, } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { tokens } from "src/theme";
-import { EditOutlined, FileDownloadOutlined, ShareOutlined, OndemandVideoOutlined, DeleteForeverOutlined, DeleteOutlineRounded, DeleteOutline, DeleteOutlineOutlined } from '@mui/icons-material';
+import { EditOutlined, FileDownloadOutlined, ShareOutlined, OndemandVideoOutlined,  } from '@mui/icons-material';
 
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useDeleteReelsMutation, useUpdateEpisodeChapterMutation, useUpdateReelMutation } from 'src/services/api';
@@ -12,23 +12,7 @@ import $ from 'jquery'
 import { ClosableToast } from 'src/components/Toast';
 import { ButtonFilledOutlinedStyles, DropboxSharedToDownloadableConverter } from 'src/utils/utils';
 
-import ReactPlayer from 'react-player/file';
 import MUIPlayer from '../MUIPlayer';
-
-export function SequenceElastic(sequences, currStartTime, currEndTime) {
-    console.log({sequences, currStartTime, currEndTime})
-    return sequences
-      .filter(
-        (seq) =>
-          seq.num_start_time >= currStartTime && seq.num_end_time <= currEndTime
-      )
-}
-
-export function SequenceTextJoiner(sequences) {
-    return sequences
-    .map((seq) => seq.words)
-    .join(" ");
-}
 
 const ReelCard = ({onEditClick, videoLink, episodeId, chapterId, reelId, reelTitle, reelTranscript, startSeq, endSeq, startTimeStamp, endTimeStamp, startTime, endTime, src, sequences, timeStamps, min_step, refresher}) => {
     const isNonMobile = useMediaQuery("(min-width:600px)");

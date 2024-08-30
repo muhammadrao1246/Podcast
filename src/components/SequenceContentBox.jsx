@@ -6,7 +6,8 @@ import { tokens } from "src/theme";
 import EditSequencePopover from "src/components/EditSequencePopover";
 import { DeleteForeverOutlined, EditNoteOutlined } from "@mui/icons-material";
 
-const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_number, word, onEdit, onDelete, onUndoDelete, isDeletedInList}){
+const SequenceContentBox = React.memo(
+  function SequenceContentBox({id, sequence_number, word, onEdit, onDelete, onUndoDelete, isDeletedInList}){
     
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -17,6 +18,11 @@ const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_
   
     const [words, setWords] = React.useState(word)
     const anchorEl = React.useRef(null);
+
+    React.useEffect(()=>{
+      setWords(word)
+      setIsDeleted(isDeletedInList)
+    },[word, isDeletedInList])
   
     const [contextMenu, setContextMenu] = React.useState(null);
     const handleContextMenu = (event) => {
@@ -122,6 +128,7 @@ const SequenceContentBox = React.memo(function SequenceContentBox({id, sequence_
               />
           </div>
       )
-  })
+  }
+)
 
 export default SequenceContentBox;

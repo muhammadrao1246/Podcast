@@ -113,7 +113,7 @@ const ChapterCard = ({onEditClick, videoLink, episodeId, chapterId, chapterTitle
 
     return (
         <Box 
-        // m="20px" 
+        mb="20px" 
         sx={{backgroundColor: colors.grey[900], border: `1px solid ${colors.grey[400]}`, borderRadius: "5px" }} 
         p="20px">
             <Box display="flex" alignItems="center" gap="40px">

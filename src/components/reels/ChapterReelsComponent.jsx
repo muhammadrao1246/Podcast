@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Box, Typography, Button, useTheme,IconButton, Card, CardMedia, CardContent, CardActions, Accordion, AccordionActions, AccordionSummary, AccordionDetails, LinearProgress, CircularProgress, Divider, Modal, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { tokens } from "src/theme";
+import { tokens, useMode } from "src/theme";
 import { ClosedCaptionOffOutlined, TuneOutlined, EditOutlined, FileDownloadOutlined, ShareOutlined, OndemandVideoOutlined, AddCircleOutlineRounded } from '@mui/icons-material';
 
 
@@ -11,7 +11,8 @@ import { ClosedCaptionOffOutlined, TuneOutlined, EditOutlined, FileDownloadOutli
 import RangeSlider, {timeStringToSeconds, secondsToTimeString} from 'src/components/RangeSlider';
 
 import { useAddReelMutation, useGetEpisodeChapterDetailMutation, useGetReelsListMutation } from "src/services/api";
-import ReelCard, { SequenceElastic, SequenceTextJoiner } from './ReelCard';
+import ReelCard, {  } from './ReelCard';
+import { SequenceElastic, SequenceTextJoiner } from 'src/utils/utils';
 import { useOutletContext } from 'react-router-dom';
 import $ from 'jquery'
 import { ClosableToast } from '../Toast';
@@ -25,8 +26,6 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-
-    console.log(episodeId, chapterId)
 
     // getting the chapter details which is loaded as list
     const [chapter, setChapter] = React.useState(null)
@@ -46,7 +45,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
             setChapter(dataObject)
             await getReelfunc()
             // const {access_token} =  getToken()
-            console.log(dataObject)
+            // console.log(dataObject)
         }
     }
 
@@ -64,7 +63,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
         } else {
             let dataObject = response.data.data;
             setReels(dataObject.results)
-            console.log(dataObject)
+            // console.log(dataObject)
         }
     }
 
@@ -97,13 +96,15 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
             getChapterDetailFunc()
         }
     }
-
     
     return (
         <div>
             <Accordion sx={{
               backgroundColor: colors.grey[900],
-              border: `1px solid ${colors.grey[400]}`
+              // backgroundColor: theme.palette.mode == "dark" ? colors.primary[500] : colors.grey[900],
+              border: `1px solid ${theme.palette.mode == "dark" ? colors.grey[400] : colors.grey[900]}`,
+              borderRadius: 0,
+              marginBottom: "5px !important"
             }} onChange={(handleAccordion)}>
                 <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
@@ -140,7 +141,7 @@ const ChapterReelsComponent = ({episodeId, chapterId, chapterTitle}) => {
                                 >Design</Button>
                             </Box>
                         </Box>
-                        <Box borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 4", border: `1px solid ${colors.grey[400]}` }}>
+                        <Box borderRadius="10px" bgcolor={colors.grey[800]} sx={{ gridColumn: "span 4", border: `1px solid ${theme.palette.mode == "dark" ? colors.grey[400] : colors.grey[800]}` }}>
                         { chapter != null && reels.map((reel, index)=>
                             <React.Fragment key={reel.id+reel.start_sequence_number.toString()+reel.end_sequence_number.toString()}>
                               <ReelCard 
@@ -336,9 +337,11 @@ function AddReelComponent({ open, setOpen, episodeId, chapterId, startSeq, endSe
           bgcolor={colors.grey[600]}
           color="#e0e0e0"
             sx={{
-              height: "300px",
+              maxHeight: "300px",
               overflow: "auto",
               scrollBehavior: "smooth",
+              fontSize: "1.2em",
+                wordSpacing: "5px",
             }}
           >
             {text}

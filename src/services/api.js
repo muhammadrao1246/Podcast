@@ -104,8 +104,8 @@ export const userAuthApi = createApi({
     deleteEpisodes: builder.mutation({
         query: (episode)=>{
             return  {
-                url: `episodes/${episode}/delete`,
-                method: "GET",
+                url: `episodes/${episode}`,
+                method: "DELETE",
                 // body: user,
                 headers: {
                     'Content-Type': 'application/json',
