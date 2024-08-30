@@ -135,7 +135,11 @@ class EpisodeListSerializer(serializers.ModelSerializer):
     
     def get_download_link(self, episode: EpisodeModel):
         if "episodes/" in episode.sheet_link:
-            return FileManager.url(episode.sheet_link)
+            url = FileManager.url(episode.sheet_link)
+            if DEBUG and USE_CLOUD_STORAGE == "local":
+                url = "http://127.0.0.1:8000"+url
+            
+            return url
         return episode.sheet_link
 
 
@@ -324,7 +328,7 @@ class ChapterUpdateSerializer(serializers.Serializer):
 
                 # raise ValidationError("Testing")
                 # Commit the transaction before running DatabaseToGoogleSheetUpdater
-                DatabaseToGoogleSheetUpdater(episode_model)
+                DatabaseToGoogleSheetUpdater(episode_model, chapter_model, None, previousStartSequence=start, previousEndSequence=end)
         except DatabaseError as ex:
             raise ValidationError("Unable to update sheet data. Some Error Occured.")
 
@@ -474,9 +478,13 @@ class ReelDeleteSerializer(serializers.Serializer):
         try:
             # starting a transaction session so if there any error occurs all changes to the database will be rolled back
             with transaction.atomic():
+                # first delete all reel sequences 
+                sequences = reel_model.sequences.all()
+                startSequenceNumber, endSequenceNumber = sequences.first().sequence_number, sequences.last().sequence_number
                 reel_model.delete()
                 # Commit the transaction before running DatabaseToGoogleSheetUpdater
-                DatabaseToGoogleSheetUpdater(episode_model)
+                DatabaseToGoogleSheetUpdater(episode_model, chapter_model, reel_model, startSequenceNumber, endSequenceNumber, isDelete=True)
+                
         except DatabaseError as ex:
             print(ex)
             raise ValidationError("Unable to delete reel. Some Error Occured.")
@@ -577,8 +585,9 @@ class ReelUpdateSerializer(serializers.Serializer):
                     orl.sequences.remove(*new_sequence_models)
                     self.update_chapter_reels(orl)
                 
+                
                 # Commit the transaction before running DatabaseToGoogleSheetUpdater
-                DatabaseToGoogleSheetUpdater(episode_model)
+                DatabaseToGoogleSheetUpdater(episode_model, chapter_model, reel_model, previousStartSequence=start, previousEndSequence=end)
         except DatabaseError as ex:
             print(ex)
             raise ValidationError("Unable to update reel. Some Error Occured.")
@@ -657,7 +666,8 @@ class ReelAddSerializer(serializers.Serializer):
                 
                 
                 # Commit the transaction before running DatabaseToGoogleSheetUpdater
-                DatabaseToGoogleSheetUpdater(episode_model)
+                
+                DatabaseToGoogleSheetUpdater(episode_model, chapter_model, reel_model, start, end, isAdd=True)
         except DatabaseError as ex:
             print(ex)
             raise ValidationError("Unable to add reel. Some Error Occured.")

@@ -24,6 +24,9 @@ from google.oauth2.service_account import Credentials
 # environ.Env.read_env()
 env = os.getenv
 
+# APP NAME
+APP_NAME = env("APP_NAME")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -145,8 +148,6 @@ EMAIL_HOST_PASSWORD = env("MAIL_PASSWORD")
 
 EMAIL_FROM_NAME = env("MAIL_FROM_NAME")
 
-# APP NAME
-APP_NAME = env("APP_NAME")
 
 
 # SETTING CUSTOM USER MODEL
@@ -286,8 +287,8 @@ USE_TZ = True
 
 # Serving files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-if env("USE_CLOUD_STORAGE") == "aws":
+USE_CLOUD_STORAGE = env("USE_CLOUD_STORAGE")
+if USE_CLOUD_STORAGE == "aws":
     # S3 BUCKET
     AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
@@ -314,7 +315,7 @@ if env("USE_CLOUD_STORAGE") == "aws":
     # setting media files backend
     DEFAULT_FILE_STORAGE = 'api.backends.PublicMediaStorage'
 
-elif env("USE_CLOUD_STORAGE") == "azure":
+elif USE_CLOUD_STORAGE == "azure":
     DEFAULT_FILE_STORAGE = 'api.backends.AzureMediaStorage'
     STATICFILES_STORAGE = 'api.backends.AzureStaticStorage'
 

@@ -1,8 +1,10 @@
+import json
 from math import floor
 from django.core.mail import EmailMessage
 from core.settings import *
 from .models import *
 from django.core.files.storage import default_storage
+import logging
 
 class FileManager:
     @staticmethod
@@ -25,6 +27,12 @@ class FileManager:
     def url(filepath):
         return default_storage.url(filepath)
     
+class DataDumper:
+    @staticmethod
+    def dump_to_file(filename, data):
+        with FileManager.open(f"/media/{filename}", 'tw+') as fp:
+            json.dump(data, fp, indent=4)
+            
 class ModelExistenceChecker:
     @staticmethod
     def chapter_verifier(request, episode_id, chapter_id):
