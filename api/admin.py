@@ -9,11 +9,11 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ["email", 'full_name', 'profile_image', "is_active", "is_third_party"]
+    list_display = ["email", 'fullname', 'profile_image', "is_active", "is_third_party"]
     list_filter = ["is_active", "is_third_party"]
     fieldsets = [
         ("User Credentials", {"fields": ["email", "password"]}),
-        ("Personal info", {"fields": ["full_name", "profile_image"]}),
+        ("Personal info", {"fields": ["fullname", "profile_image"]}),
         ("Permissions", {"fields": ["is_active", "is_third_party"]}),
     ]
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -23,7 +23,7 @@ class UserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ["wide"],
-                "fields": ["email", 'profile_image', "full_name", "password1", "password2"],
+                "fields": ["email", 'profile_image', "fullname", "password1", "password2"],
             },
         ),
     ]
@@ -34,3 +34,4 @@ class UserAdmin(BaseUserAdmin):
 
 # Now register the new UserAdmin...
 admin.site.register(UserModel, UserAdmin)
+admin.site.register(EpisodeModel)

@@ -100,26 +100,27 @@ from core.settings import *
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, full_name, password=None, **extra_fields):
+    def create_user(self, email, fullname, password=None, **extra_fields):
         if not email:
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
-        user = self.model(email=email, full_name=full_name, **extra_fields)
+        extra_fields["is_third_party"] = not bool(password) 
+        user = self.model(email=email, fullname=fullname, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, full_name, password=None, **extra_fields):
+    def create_superuser(self, email, fullname, password=None, **extra_fields):
         # extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        return self.create_user(email, full_name, password, **extra_fields)
+        return self.create_user(email, fullname, password, **extra_fields)
 
 
 class UserModel(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     
     email = models.EmailField(unique=True)
-    full_name = models.CharField(max_length=255)
+    fullname = models.CharField(max_length=255)
     profile_image = models.ImageField(upload_to="user", null=True, default=None)
     is_active = models.BooleanField(default=True)
     is_third_party = models.BooleanField(default=False)
@@ -130,7 +131,7 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name']
+    REQUIRED_FIELDS = ['fullname']
 
     def __str__(self):
         return self.email

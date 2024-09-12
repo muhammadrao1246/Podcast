@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import path, re_path, include
 from . import views
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
+    
     
     path("", views.Tester.as_view()),
     path("auth/register", views.UserRegistrationApi.as_view()),

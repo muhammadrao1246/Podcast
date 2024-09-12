@@ -1,5 +1,6 @@
 import time
 from django.shortcuts import get_object_or_404
+import requests
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics, filters
@@ -22,7 +23,6 @@ from django.views.decorators.cache import cache_page
 from .utils import *
 from .models import *
 from .serializers import *
-from .requests import *
 from .mixins import *
 from .sheets import *
 from .filters import *
@@ -33,7 +33,7 @@ from operator import or_, not_, and_
 import pandas as pd
 from dateutil.relativedelta import relativedelta   
 
-from rest_framework_simplejwt.tokens import RefreshToken
+# from rest_framework_simplejwt.tokens import RefreshToken
 
 # tester
 class Tester(APIView):
@@ -374,9 +374,11 @@ class UserRegistrationApi(APIView):
             password = serializer.validated_data.get("password")
             
             serializer.save()
+            
             user_model = authenticate(email=email, password=password)
             print(user_model)
-            token = get_user_token(user_model)
+            # token = get_user_token(user_model)
+            token = TokenManager.get_token(email, password)
             return ApiResponseMixin().structure(request, Response(data={
                     "token": token,
                     "user": UserDetailSerializer(instance=user_model).data
@@ -405,7 +407,9 @@ class UserLoginApi(APIView):
             
             if user is not None:
                 start = time.time()
-                token = get_user_token(user)
+                # token = get_user_token(user)
+                token = TokenManager.get_token(email, password)
+
                 duration = (time.time() - start) * 1000
                 print("Token generation: ", duration, " ms")
                 
@@ -442,7 +446,9 @@ class UserProfileUpdateApi(APIView):
     def put(self, request: HttpRequest):
         data = request.data
         
-        serializer = UserProfileSerializer(instance=request.user, data=data, partial=True)
+        serializer = UserProfileSerializer(instance=request.user, data=data, partial=True, context={
+            "user_model": request.user
+        })
         if serializer.is_valid():
             user = serializer.validated_data
             
@@ -476,7 +482,7 @@ class UserPasswordChangeApi(APIView):
 
 class UserPasswordForgotApi(APIView):
     
-    def get(self, request: HttpRequest):
+    def post(self, request: HttpRequest):
         data = request.data
         
         serializer = UserPasswordForgotSerializer(data=data)
@@ -490,7 +496,15 @@ class UserPasswordForgotApi(APIView):
             return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), errors=serializer.errors)
 
 class UserPasswordResetApi(APIView):
-    
+    def get(self, request: HttpRequest, uid, token):
+        data = request.data
+        
+        user = TokenManager.check_reset_token_uid(uid, token)
+        if user is not None:
+            return ApiResponseMixin().structure(request, Response(data="Password Reset Token is Valid!", status=status.HTTP_200_OK), [])
+        else:
+            return ApiResponseMixin().structure(request, Response(data="Invalid Data!", status=status.HTTP_400_BAD_REQUEST), errors=[])
+
     def post(self, request: HttpRequest, uid, token):
         data = request.data
         

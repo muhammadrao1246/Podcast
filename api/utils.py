@@ -1,11 +1,58 @@
 import json
 from math import floor
 from django.core.mail import EmailMessage
+import requests
 from core.settings import *
 from .models import *
 from django.core.files.storage import default_storage
 import logging
 
+
+
+from django.utils.encoding import smart_str, DjangoUnicodeDecodeError, force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+
+class TokenManager:
+    @staticmethod
+    def get_token(email, password):
+        response = requests.post(f'{APP_URL}/api/oauth/token', data = {
+                   'username': email,
+                   'password': password,
+                   'client_id': DEFAULT_AUTH_CLIENT_KEY,
+                   'client_secret': DEFAULT_AUTH_CLIENT_SECRET,
+                   'grant_type':'password'
+               })
+        
+        return {
+            'access_token': response.json()['access_token'],
+            'refresh_token': response.json()['refresh_token'],
+        }
+        
+    @staticmethod
+    def check_reset_token_uid(uid, token):
+        try:
+            user_id = smart_str(urlsafe_base64_decode(uid))
+            user = UserModel.objects.get(id = user_id)
+
+            if not PasswordResetTokenGenerator().check_token(user, token):
+                return None
+        
+        except DjangoUnicodeDecodeError as ex:
+            return None
+            
+        return user
+    
+    @staticmethod
+    def create_reset_token_uid(user: UserModel):
+        uid = urlsafe_base64_encode(force_bytes(user.id))
+        print("Encoded UID: ", uid)
+        token = PasswordResetTokenGenerator().make_token(user)
+        print("Token Generated: ", token)
+        
+        return uid, token
+        
 class FileManager:
     @staticmethod
     def exists(filepath):

@@ -12,7 +12,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 from .sheets import GoogleSheetProcessor, DatabaseToGoogleSheetUpdater
-from .utils import UTIL, FileManager
+from .utils import UTIL, FileManager, TokenManager
 
 from .models import *
 from core.settings import *
@@ -750,26 +750,20 @@ class UserPasswordResetSerializer(serializers.Serializer):
         fields = ['password', 'password2']
     
     def validate(self, data):
-        try:
             uid = self.context.get("uid")
             token = self.context.get("token")
             
             if data['password'] != data['password2']:
                 raise serializers.ValidationError("Passwords do not match.")
             
-            
-            user_id = smart_str(urlsafe_base64_decode(uid))
-            user = UserModel.objects.get(id = user_id)
-            
-            if not PasswordResetTokenGenerator().check_token(user, token):
-                raise serializers.ValidationError("Invalid or Outdated Password Reset Link.")
+            user = TokenManager.check_reset_token_uid(uid, token)
+            if user is None:
+                raise ValidationError("Invalid or Outdated Password Reset Link.")
             
             user.set_password(data['password'])
             user.save()
-        except DjangoUnicodeDecodeError as ex:
             
-            raise serializers.ValidationError("Invalid or Outdated Password Reset Link.")
-        return data
+            return data
 
 class UserPasswordForgotSerializer(serializers.Serializer):
     
@@ -778,22 +772,29 @@ class UserPasswordForgotSerializer(serializers.Serializer):
                     'invalid': 'Enter a valid email address.'
                 })
     
+    frontend_password_reset_route = serializers.URLField(required=True, error_messages={
+                    'required': 'Password Reset Route URL is required.',
+                    })
     class Meta:
-        model = UserModel
-        fields = ['email']
+        fields = ['email', 'frontend_password_reset_route']
+        
+    def validate_frontend_password_reset_route(self, frontend_password_reset_route):
+        if frontend_password_reset_route[-1] == "/":
+            raise ValidationError("URL should not have Forward Slash at the end")
+        return frontend_password_reset_route
     
     def validate(self, data):
         email = data.get("email")
+        password_reset_route = data.get("frontend_password_reset_route")
         user = UserModel.objects.filter(email=email)
         if user.exists():
             if user.filter(is_third_party = False).exists():
                 fetched = user.first()
                 print(email)
-                uid = urlsafe_base64_encode(force_bytes(fetched.id))
-                print("Encoded UID: ", uid)
-                token = PasswordResetTokenGenerator().make_token(fetched)
-                print("Token Generated: ", token)
-                link = f'{9}/api/auth/reset/{uid}/{token}'
+                
+                uid, token = TokenManager.create_reset_token_uid(fetched)
+                
+                link = f'{password_reset_route}/{uid}/{token}'
                 print("Password Reset Link: ", link)
                 
                 email_data = {
@@ -850,20 +851,22 @@ class UserProfileSerializer(serializers.ModelSerializer):
                     'invalid': 'Enter a valid email address.'
                 })
     profile_image = serializers.ImageField(required=False)
-    full_name = serializers.CharField(max_length=255, required=True, error_messages={
+    fullname = serializers.CharField(max_length=255, required=True, error_messages={
                     'required': 'Full name is required.',
                     'max_length': 'Full name cannot be longer than 255 characters.'
                 })
     
     class Meta:
         model = UserModel
-        fields = ['email', 'full_name', 'profile_image']
+        fields = ['email', 'fullname', 'profile_image']
         read_only_fields = ['email']
-        
+    
     
     def validate_profile_image(self, image):
         # image = self.cleaned_data.get('profile_image', False)
-        print(image.__dict__)
+        user_model = self.context.get("user_model")
+        
+        # print(image.__dict__)
         if hasattr(image, "_file"):
             return image
         if image:
@@ -876,6 +879,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             image._name = id+"."+extension
             image.field_name = id
             # print(image.__dict__)
+            
+            # delete previous image
+            print('Previous Image: ', user_model.profile_image)
+            if user_model.profile_image.name != '':
+                FileManager.delete(user_model.profile_image.name)
             
         return image
 
@@ -899,12 +907,12 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
 class UserDetailSerializer(serializers.ModelSerializer):
     
-    email = serializers.EmailField(required=True, error_messages={
+    email = serializers.EmailField(required=True, label="Email", error_messages={
                     'required': 'Email is required.',
                     'unique': 'An account with this email already exists.',
                     'invalid': 'Enter a valid email address.'
                 })
-    full_name = serializers.CharField(max_length=255, error_messages={
+    fullname = serializers.CharField(max_length=255, label="Name", error_messages={
                     'required': 'Full name is required.',
                     'max_length': 'Full name cannot be longer than 255 characters.'
                 })
@@ -915,12 +923,22 @@ class UserDetailSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True, min_length=8, required=True, error_messages = {
                     'required': 'Confirm password is required.'
                 })
-    
+    profile_image = serializers.SerializerMethodField()
     class Meta:
         model = UserModel
-        fields = ['email', 'full_name', 'password', 'password2', 'profile_image', 'is_third_party']
+        fields = ['email', 'fullname', 'password', 'password2', 'profile_image', 'is_third_party']
         
     
+    def get_profile_image(self, user: UserModel):
+        relative_url = user.profile_image.name
+        if relative_url != "":
+            url = FileManager.url(relative_url)
+            
+            if DEBUG and USE_CLOUD_STORAGE == "local":
+                url = "http://127.0.0.1:8000"+url
+            
+            return url
+        return None
     
     def validate_email(self, email):
         if UserModel.objects.filter(email=email).exists():

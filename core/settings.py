@@ -15,14 +15,20 @@ from pathlib import Path
 import os
 import environ
 from datetime import timedelta
+
 import gspread
+
 from google.oauth2.service_account import Credentials
 
+from oauth2_provider import settings as oauth2_settings
 
 # initiazlizing environment variables
 # env = environ.Env()
 # environ.Env.read_env()
 env = os.getenv
+
+# APP URL
+APP_URL = env('APP_URL')
 
 # APP NAME
 APP_NAME = env("APP_NAME")
@@ -93,7 +99,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
-    'rest_framework_simplejwt',
+    # 'rest_framework_simplejwt',
+    # oauth2 apps
+    'oauth2_provider',
+    'social_django',
+    'drf_social_oauth2',
+    
     'django_filters',
     'storages',
     'api',
@@ -124,6 +135,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                # oauth2 context_processors
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -134,9 +149,67 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        
+        # 'oauth2_provider.ext.rest_framework.OAuth2Authentication',  # django-oauth-toolkit < 1.0.0
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',  # django-oauth-toolkit >= 1.0.0
+        'drf_social_oauth2.authentication.SocialAuthentication',
     )
 }
+
+# AUTH BACKENDS
+AUTHENTICATION_BACKENDS = (
+    
+    # Google  OAuth2
+    'social_core.backends.google.GoogleOAuth2',
+    
+    # Facebook OAuth2
+    'social_core.backends.facebook.FacebookAppOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+
+    # drf_social_oauth2
+    'drf_social_oauth2.backends.DjangoOAuth2',
+
+    # Django
+    'django.contrib.auth.backends.ModelBackend',
+    
+    # "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+
+# expires in 6 months
+oauth2_settings.DEFAULTS['ACCESS_TOKEN_EXPIRE_SECONDS'] = 3600 * 24 # 1 month token expiry date
+
+# DEFAULT PASSWORD BASED SYSTEM SECURITY CREDENTIALS
+DEFAULT_AUTH_CLIENT_KEY=env('DEFAULT_AUTH_CLIENT_KEY')
+DEFAULT_AUTH_CLIENT_SECRET=env('DEFAULT_AUTH_CLIENT_SECRET')
+
+# SOCIAL AUTH CONFIG
+
+# Facebook configuration
+SOCIAL_AUTH_FACEBOOK_KEY = env('SOCIAL_AUTH_FACEBOOK_KEY')
+SOCIAL_AUTH_FACEBOOK_SECRET = env('SOCIAL_AUTH_FACEBOOK_SECRET')
+
+# Define SOCIAL_AUTH_FACEBOOK_SCOPE to get extra permissions from Facebook.
+# Email is not sent by default, to get it, you must request the email permission.
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id, name, email'
+    # picture'
+}
+
+SOCIAL_AUTH_USER_FIELDS=['email','fullname','password']
+
+# Google configuration
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+
+# Define SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE to get extra permissions from Google.
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+]
+
 
 # Email Settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -145,7 +218,6 @@ EMAIL_PORT = env("MAIL_PORT")
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = env("MAIL_FROM_ADDRESS")
 EMAIL_HOST_PASSWORD = env("MAIL_PASSWORD")
-
 EMAIL_FROM_NAME = env("MAIL_FROM_NAME")
 
 
@@ -155,15 +227,11 @@ PASSWORD_RESET_TIMEOUT = 900 # 900 sec == 15 min
 
 AUTH_USER_MODEL = "api.UserModel"
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    # "allauth.account.auth_backends.AuthenticationBackend",
-)
-
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
 
 # LOGIN_REDIRECT_URL = "/dashboard"
 # LOGOUT_REDIRECT_URL = "/login"
