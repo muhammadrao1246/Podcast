@@ -22,10 +22,10 @@ import {ROUTES} from 'src/routes';
 
 import "src/assets/css/index.css"
 
-import MainLayout from 'src/components/Layouts/MainLayout';
-import AuthLayout from 'src/components/Layouts/AuthLayout';
-import Login from 'src/pages/auth/Login';
-import Signup from 'src/pages/auth/Signup';
+import MainLayout from './components/Layouts/MainLayout';
+import AuthLayout from './components/Layouts/AuthLayout';
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import { PrivateRoute, PublicRoute } from './helpers/protectors';
