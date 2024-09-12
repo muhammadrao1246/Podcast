@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-import { Box, Button, TextField, Typography, useTheme, IconButton, Link } from '@mui/material';
+import { Box, Button, TextField, Typography, useTheme, IconButton, Link, Divider } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 
@@ -13,13 +13,25 @@ import { Link as DOMLink } from "react-router-dom";
 
 import { useRegisterUserMutation } from "src/services/api";
 import { ColorModeContext, tokens } from "src/theme";
-import { getToken, storeToken } from "src/services/token";
-import { setUserToken } from "src/services/authSlice";
+
 import FormAlertsComponent from "src/components/FormAlertsComponent";
+
 import { ROUTES } from "src/routes";
 
+
+import ReactFacebookLogin from 'react-facebook-login';
+import ReactGoogleLogin from 'react-google-login';
+import { VITE_SOCIAL_AUTH_FACEBOOK_KEY, VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY } from 'src/config';
+
+import { FacebookOutlined, Google } from '@mui/icons-material';
+import { useDispatch } from 'react-redux';
+import { setUserToken } from 'src/services/authSlice';
+import { setUserInfo } from 'src/services/userSlice';
+import { storeToken } from 'src/services/token';
+import { render } from '@fullcalendar/core/preact';
+
 const validationSchema = yup.object().shape({
-    full_name: yup.string().required("required"),
+    fullname: yup.string().required("required"),
     email: yup.string().required("required").email(),
     password: yup.string().required("required").min(8),
     password2: yup.string().required("required").oneOf([yup.ref('password'), null], 'Passwords must match'),
@@ -27,6 +39,7 @@ const validationSchema = yup.object().shape({
 
 const Signup = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -54,7 +67,8 @@ const Signup = () => {
         } else {
             console.log("Registration Success")
             let dataObject = response.data.data;
-            storeToken(dataObject.token)
+            dispatch(setUserToken(dataObject.token))
+            dispatch(setUserInfo(dataObject.user))
             SetApiMessage([{
               type: 'success',
               message: ["User registered successfully!"],
@@ -67,8 +81,18 @@ const Signup = () => {
 
     }
 
+    
+    function responseFb(response) {
+      console.log(response);
+      // facebookLogin(response.accessToken);
+    }
+    function responseGoogle(response) {
+      console.log(response);
+      // googleLogin(response.accessToken);
+    }
+
     return (
-      <Box height="100vh" bgcolor={colors.primary[700]} display="flex" flexDirection="column">
+      <Box height="100vh" bgcolor={colors.primary[600]} sx={{overflowY: "auto", position: "relative"}} display="flex" flexDirection="column">
         <Box
           display="flex"
           alignItems="start"
@@ -126,7 +150,7 @@ const Signup = () => {
             
             <Formik
               initialValues={{
-                full_name: "",
+                fullname: "",
                 // username: "",
                 email: "",
                 password: "",
@@ -144,6 +168,7 @@ const Signup = () => {
                 handleChange,
                 handleSubmit,
               }) => (
+                <>
                 <Form
                   style={{
                     display: "flex",
@@ -153,15 +178,15 @@ const Signup = () => {
                 >
                   <TextField
                     fullWidth
-                    variant="filled"
+                    variant="outlined"
                     type="text"
                     label="Name"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.full_name}
-                    name="full_name"
-                    error={!!touched.full_name && !!errors.full_name}
-                    helperText={touched.full_name && errors.full_name}
+                    value={values.fullname}
+                    name="fullname"
+                    error={!!touched.fullname && !!errors.fullname}
+                    helperText={touched.fullname && errors.fullname}
                   />
                   {/* <TextField
                                 fullWidth
@@ -177,7 +202,7 @@ const Signup = () => {
                             /> */}
                   <TextField
                     fullWidth
-                    variant="filled"
+                    variant="outlined"
                     type="email"
                     label="Email"
                     onBlur={handleBlur}
@@ -189,7 +214,7 @@ const Signup = () => {
                   />
                   <TextField
                     fullWidth
-                    variant="filled"
+                    variant="outlined"
                     type="password"
                     label="Password"
                     onBlur={handleBlur}
@@ -201,7 +226,7 @@ const Signup = () => {
                   />
                   <TextField
                     fullWidth
-                    variant="filled"
+                    variant="outlined"
                     type="password"
                     label="Confirm Password"
                     onBlur={handleBlur}
@@ -214,8 +239,8 @@ const Signup = () => {
                   <Typography variant="body2" align="left" gutterBottom>
                     By signing up, you confirm that you've read and accept our
                     <Link
-                      LinkComponent={DOMLink}
-                      to={"#"}
+                      component={DOMLink}
+                      to={"#toc"}
                       color={colors.greenAccent[200]}
                       sx={{ ml: "5px", mr: "5px" }}
                     >
@@ -223,8 +248,8 @@ const Signup = () => {
                     </Link>
                     and
                     <Link
-                      LinkComponent={DOMLink}
-                      to={"#"}
+                      component={DOMLink}
+                      to={"#privacy_policy"}
                       color={colors.greenAccent[200]}
                       sx={{ ml: "5px" }}
                     >
@@ -251,6 +276,57 @@ const Signup = () => {
                     </Link>
                   </Typography>
                 </Form>
+                {/* <Box
+                style={{
+                  marginTop: theme.spacing(3),
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: theme.spacing(2),
+                }}
+                >
+                  <Divider />
+                  <Box display="flex" justifyContent="center" gap="10px">
+                    <ReactFacebookLogin
+                      appId={VITE_SOCIAL_AUTH_FACEBOOK_KEY}
+                      size="small"
+                      autoLoad={false}
+                      fields="name,email,picture"
+                      scope="public_profile,email"
+                      callback={responseFb}
+                      icon={<FacebookOutlined sx={{fontSize: "2.5em"}} />}
+                      textButton=''
+                      containerStyle={{display: "flex", width: "min-content", height: "min-content"}}
+                      buttonStyle={{borderRadius: "100%", justifyContent: "center", alignItems: "center", width: "50px", height: "50px", padding: "2px", display: "flex"}}
+                    />
+                    <ReactGoogleLogin
+                      key={"signup-google"}
+                      clientId={VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}
+                      autoLoad={false}
+                      scope='profile email'
+                      onSuccess={responseGoogle}
+                      onFailure={(error) => console.error('Google authentication failed:', error)}
+                      buttonText=''
+                      // disabled={false}
+                      prompt='consent'
+                      fetchBasicProfile={true}
+                      render={(renderProps=>(
+                        <IconButton sx={{
+                            backgroundColor: "#e2726e", padding: "2px",
+                            width: "50px", height: "50px",
+                            display: "flex",
+                            '&:hover': {
+                              backgroundColor: "#e2726e",
+                            }
+                          }} onClick={renderProps.onClick} disabled={renderProps.disabled}>
+                          <Google sx={{fontSize: "2.2em", margin: 0, marginLeft: "-.5px", padding: 0, color: "white"}} />
+                        </IconButton>
+                      ))}                   
+                      cookiePolicy={'single_host_origin'}
+                    />
+
+                  </Box>
+                </Box> */}
+                </>
               )}
             </Formik>
           </Box>

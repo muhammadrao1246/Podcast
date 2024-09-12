@@ -2,9 +2,7 @@ import React from 'react'
 import {
   Routes,
   Route,
-  createBrowserRouter,
   isRouteErrorResponse,
-  RouterProvider,
   useRouteError,
 } from "react-router-dom";
 import { ColorModeContext, useMode } from "./theme";
@@ -24,10 +22,13 @@ import {ROUTES} from 'src/routes';
 
 import "src/assets/css/index.css"
 
-import MainLayout from './components/Layouts/MainLayout';
-import AuthLayout from './components/Layouts/AuthLayout';
-import Login from './pages/auth/login';
-import Signup from './pages/auth/signup';
+import MainLayout from 'src/components/Layouts/MainLayout';
+import AuthLayout from 'src/components/Layouts/AuthLayout';
+import Login from 'src/pages/auth/Login';
+import Signup from 'src/pages/auth/Signup';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import { PrivateRoute, PublicRoute } from './helpers/protectors';
 
 
 // all pages components are declared here
@@ -64,6 +65,8 @@ function ErrorHandler(){
   return <h1>Unknown Error</h1>
 }
 
+
+
 function App() {
   const [theme, colorMode] = useMode();
 
@@ -79,7 +82,7 @@ function App() {
         <CssBaseline />
         <Routes>
           {/* Routes that include the sidebar and topbar */}
-          <Route ErrorBoundary={<ErrorHandler />} path="/" element={<MainLayout />}>
+          <Route errorElement={<ErrorHandler />} path="/" element={<PrivateRoute><MainLayout /></PrivateRoute>}>
             <Route path={ROUTES.DASHBOARD} element={<DASHBOARD_PAGE />} />
             <Route path={ROUTES.TEAM} element={<TEAM_PAGE />} />
             <Route path={ROUTES.GUESTS} element={<GUESTS_PAGE />} />
@@ -92,10 +95,13 @@ function App() {
             <Route path={ROUTES.REELS} element={<EPISODES_REELS_PAGE />} />
           </Route>
           {/* Routes that do not include the sidebar and topbar */}
-          <Route ErrorBoundary={<ErrorHandler />} path="/" element={<AuthLayout />}>
+          <Route errorElement={<ErrorHandler />} path="/" element={<PublicRoute><AuthLayout /></PublicRoute>}>
             <Route index path={ROUTES.LOGIN} element={<Login />} />
             <Route path={ROUTES.SIGNUP} element={<Signup />} />
+            <Route path={ROUTES.FORGOT} element={<ForgotPassword />} />
+            <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
           </Route>
+          <Route path='*' element={<h1>Page Not Found</h1>} />
         </Routes>
       </ThemeProvider>
     </ColorModeContext.Provider>

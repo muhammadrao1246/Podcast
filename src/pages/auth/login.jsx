@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-import { Box, Button, TextField, Typography, useTheme, IconButton, Link } from '@mui/material';
+import { Box, Button, TextField, Typography, useTheme, IconButton, Link, Divider } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 
@@ -13,10 +13,19 @@ import { Link as DOMLink } from "react-router-dom";
 
 import { useLoginUserMutation } from "src/services/api";
 import { ColorModeContext, tokens } from "src/theme";
-import { getToken, storeToken } from "src/services/token";
-import { setUserToken } from "src/services/authSlice";
+
 import FormAlertsComponent from "src/components/FormAlertsComponent";
+
 import { ROUTES } from "src/routes";
+import ReactFacebookLogin from 'react-facebook-login';
+import ReactGoogleLogin from 'react-google-login';
+import { VITE_SOCIAL_AUTH_FACEBOOK_KEY, VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY } from 'src/config';
+
+import { FacebookOutlined, Google } from '@mui/icons-material';
+import { useDispatch } from 'react-redux';
+import { setUserToken } from 'src/services/authSlice';
+import { setUserInfo } from 'src/services/userSlice';
+import { storeToken } from 'src/services/token';
 
 const validationSchema = yup.object().shape({
     email: yup.string().required("required").email(),
@@ -25,6 +34,7 @@ const validationSchema = yup.object().shape({
 
 const Login = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -53,23 +63,31 @@ const Login = () => {
         } else {
             console.log("Login Success")
             let dataObject = response.data;
-            console.log(dataObject.data.token)
-            // setUserToken(dataObject.data.token)
-            storeToken(dataObject.data.token)
+            dispatch(setUserToken(dataObject.data.token))
+            dispatch(setUserInfo(dataObject.data.user))
             SetApiMessage([{
                 type: 'success',
-                message: ["User registered successfully!"],
+                message: ["User logged in successfully!"],
               }])
             console.log(dataObject)
             setTimeout(() => {
                 navigate(ROUTES.DASHBOARD)
             }, 1500);
         }
+        
+    }
 
+    function responseFb(response) {
+      console.log(response);
+      // facebookLogin(response.accessToken);
+    }
+    function responseGoogle(response) {
+      console.log(response);
+      // googleLogin(response.accessToken);
     }
 
     return (
-      <Box height="100vh" bgcolor={colors.primary[600]} display="flex" flexDirection="column">
+      <Box height="100vh" bgcolor={colors.primary[600]} style={{overflow: "auto", position: "relative"}} display="flex" flexDirection="column">
         <Box
           display="flex"
           alignItems="start"
@@ -135,6 +153,7 @@ const Login = () => {
                 handleChange,
                 handleSubmit,
               }) => (
+                <>
                 <Form
                   style={{
                     display: "flex",
@@ -144,7 +163,8 @@ const Login = () => {
                 >
                   <TextField
                     fullWidth
-                    variant="filled"
+                    color="primary"
+                    variant="outlined"
                     type="email"
                     label="Email"
                     onBlur={handleBlur}
@@ -156,7 +176,7 @@ const Login = () => {
                   />
                   <TextField
                     fullWidth
-                    variant="filled"
+                    variant="outlined"
                     type="password"
                     label="Password"
                     onBlur={handleBlur}
@@ -169,7 +189,9 @@ const Login = () => {
                     <Link
                     component={DOMLink}
                      variant="body2" align="right" gutterBottom
-                      color={colors.greenAccent[400]}>
+                      color={colors.greenAccent[400]}
+                      to={ROUTES.FORGOT}
+                      >
                       Forgot Password?
                     </Link>
                   <Button
@@ -191,9 +213,62 @@ const Login = () => {
                       Sign Up
                     </Link>
                   </Typography>
+                  
                 </Form>
+                {/* <Box
+                style={{
+                  marginTop: theme.spacing(3),
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: theme.spacing(2),
+                }}
+                >
+                  <Divider />
+                  <Box display="flex" justifyContent="center" gap="10px">
+                    <ReactFacebookLogin
+                      appId={VITE_SOCIAL_AUTH_FACEBOOK_KEY}
+                      size="small"
+                      autoLoad={false}
+                      fields="name,email,picture"
+                      scope="public_profile,email"
+                      callback={responseFb}
+                      icon={<FacebookOutlined sx={{fontSize: "2.5em"}} />}
+                      textButton=''
+                      containerStyle={{display: "flex", width: "min-content", height: "min-content"}}
+                      buttonStyle={{borderRadius: "100%", justifyContent: "center", alignItems: "center", width: "50px", height: "50px", padding: "2px", display: "flex"}}
+                    />
+                    <ReactGoogleLogin
+                      key={"login-google"}
+                      clientId={VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}
+                      autoLoad={false}
+                      scope='profile email'
+                      onSuccess={responseGoogle}
+                      // onFailure={responseGoogle}
+                      buttonText=''
+                      disabled={false}
+                      prompt='consent'
+                      fetchBasicProfile={true}
+                      render={(renderProps=>(
+                        <IconButton sx={{
+                            backgroundColor: "#e2726e", padding: "2px",
+                            width: "50px", height: "50px",
+                            display: "flex",
+                            '&:hover': {
+                              backgroundColor: "#e2726e",
+                            }
+                          }} onClick={renderProps.onClick}>
+                          <Google sx={{fontSize: "2.2em", margin: 0, marginLeft: "-.5px", padding: 0, color: "white"}} />
+                        </IconButton>
+                      ))}                   
+                      cookiePolicy={'single_host_origin'}
+                    />
+
+                  </Box>
+                </Box> */}
+                </>
               )}
             </Formik>
+            
           </Box>
         </Box>
       </Box>

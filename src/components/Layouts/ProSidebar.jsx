@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 // import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "src/theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -18,17 +18,20 @@ import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import { VideoSettingsOutlined } from "@mui/icons-material";
+import { useUser } from "src/helpers/hooks";
+import { capitalize } from "lodash";
+import { ROUTES } from "src/routes";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   return (
     <MenuItem
-      active={selected === title}
+      active={selected}
       style={{
         color: "#e0e0e0",
       }}
-      onClick={() => setSelected(title)}
+      // onClick={() => setSelected(to)}
       icon={icon}
       component={<Link to={to} />}
     >
@@ -37,12 +40,22 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
   );
 };
 
+const HasBaseAddress = (currentRoute, route)=>{
+  const slice = currentRoute.slice(0, route.length)
+  return  slice === route
+}
+
 const ProSidebar = () => {
   const theme = useTheme();
+  const currentLocation = useLocation().pathname
+
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [selected, setSelected] = useState("Dashboard");
-
+  
+  // const [selected, setSelected] = useState(ROUTES.DASHBOARD);
+  
+  const currentUser = useUser()
+  
   return (
     <Box
       sx={{
@@ -107,7 +120,8 @@ const ProSidebar = () => {
                   alt="profile-user"
                   width="100px"
                   height="100px"
-                  src={`/images/user.png`}
+                  // src={`/images/user.png`}
+                  src={currentUser.profile_image}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>
@@ -118,7 +132,7 @@ const ProSidebar = () => {
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  Ben Edwards
+                  {capitalize( currentUser.fullname )}
                 </Typography>
                 {/* <Typography variant="h5" color={colors.greenAccent[500]}>
                   Podcast Admin
@@ -130,10 +144,10 @@ const ProSidebar = () => {
           <Box padding={isCollapsed ? undefined : "5%"}>
             <Item
               title="Dashboard"
-              to="/dashboard"
+              to={ROUTES.DASHBOARD}
               icon={<HomeOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
+              selected={HasBaseAddress(currentLocation, ROUTES.DASHBOARD)}
+              // setSelected={setSelected}
             />
 
             {/* <Typography
@@ -145,31 +159,31 @@ const ProSidebar = () => {
             </Typography> */}
             <Item
               title="Manage Team"
-              to="/team"
+              to={ROUTES.TEAM}
               icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
+              selected={HasBaseAddress(currentLocation, ROUTES.TEAM)}
+              // setSelected={setSelected}
             />
             <Item
               title="Guests"
-              to="/guests"
+              to={ROUTES.GUESTS}
               icon={<ContactsOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
+              selected={HasBaseAddress(currentLocation, ROUTES.GUESTS)}
+              // setSelected={setSelected}
             />
             <Item
               title="Episodes"
-              to="/episodes"
+              to={ROUTES.EPISODES}
               icon={<OndemandVideoOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
+              selected={HasBaseAddress(currentLocation, ROUTES.EPISODES)}
+              // setSelected={setSelected}
             />
             <Item
               title="Builder"
-              to="/builder"
+              to={ROUTES.BUILDER}
               icon={<VideoSettingsOutlined />}
-              selected={selected}
-              setSelected={setSelected}
+              selected={HasBaseAddress(currentLocation, ROUTES.BUILDER)}
+              // setSelected={setSelected}
             />
             {/* <Item
               title="Invoices Balances"

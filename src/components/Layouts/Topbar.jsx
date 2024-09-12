@@ -1,5 +1,5 @@
-import { Box, IconButton, useTheme } from "@mui/material";
-import { useContext } from "react";
+import { Box, IconButton, useTheme} from "@mui/material";
+import React, { useContext } from "react";
 import { ColorModeContext, tokens } from "src/theme";
 import InputBase from "@mui/material/InputBase";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
@@ -9,10 +9,27 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 
+import Tooltip from '@mui/material/Tooltip';
+import { AccountMenu } from "../Menus";
+
 const Topbar  = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const colorMode = useContext(ColorModeContext);
+
+    const [open, setOpen] = React.useState(null)
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const openMenu = React.useCallback((e, menu_name)=>{
+        setAnchorEl(event.target);
+        setOpen(menu_name)
+        
+    },[])
+
+    const closeMenu = React.useCallback((e)=>{
+        setAnchorEl(null)
+        setOpen(null)
+    },[])
 
     return (
         <Box display="flex" justifyContent="space-between" p={2} backgroundColor="#350d36">
@@ -52,10 +69,18 @@ const Topbar  = () => {
                 <IconButton>
                     <SettingsOutlinedIcon sx={{ color:"#e0e0e0" }} />
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={e=>openMenu(e, "account-menu")}>
                     <PersonOutlinedIcon sx={{ color:"#e0e0e0" }} />
                 </IconButton>
             </Box>
+            {
+                anchorEl !== null && (
+                    <>
+                    <AccountMenu anchorEl={anchorEl} open={open === "account-menu"} onClose={closeMenu} />
+                    </>
+                )
+            }
+            
         </Box>
     );
 }
