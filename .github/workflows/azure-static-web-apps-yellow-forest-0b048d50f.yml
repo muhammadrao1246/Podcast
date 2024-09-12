@@ -34,6 +34,12 @@ jobs:
           ###### End of Repository/Build Configurations ######
         env: # Add environment variables here
           VITE_APP_BACKEND_SERVER: ${{ secrets.VITE_APP_BACKEND_SERVER}}
+          VITE_DEFAULT_AUTH_CLIENT_KEY: ${{ secrets.VITE_DEFAULT_AUTH_CLIENT_KEY}}
+          VITE_DEFAULT_AUTH_CLIENT_SECRET: ${{ secrets.VITE_DEFAULT_AUTH_CLIENT_SECRET}}
+          VITE_SOCIAL_AUTH_FACEBOOK_KEY: ${{ secrets.VITE_SOCIAL_AUTH_FACEBOOK_KEY}}
+          VITE_SOCIAL_AUTH_FACEBOOK_SECRET: ${{ secrets.VITE_SOCIAL_AUTH_FACEBOOK_SECRET}}
+          VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: ${{ secrets.VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}}
+          VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: ${{ secrets.VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET}}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
