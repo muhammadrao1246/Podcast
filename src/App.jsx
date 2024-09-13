@@ -24,8 +24,8 @@ import "src/assets/css/index.css"
 
 import MainLayout from 'src/components/Layouts/MainLayout';
 import AuthLayout from 'src/components/Layouts/AuthLayout';
-import Login from 'src/pages/auth/Login';
-import Signup from 'src/pages/auth/Signup';
+import Login from 'src/pages/auth/login';
+import Signup from 'src/pages/auth/signup';
 import ForgotPassword from 'src/pages/auth/ForgotPassword';
 import { PrivateRoute, PublicRoute } from 'src/helpers/protectors';
 import ResetPassword from 'src/pages/auth/ResetPassword';

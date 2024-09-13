@@ -29,7 +29,7 @@ import { setUserToken } from 'src/services/authSlice';
 import { setUserInfo } from 'src/services/userSlice';
 import { storeToken } from 'src/services/token';
 import { render } from '@fullcalendar/core/preact';
-
+ 
 const validationSchema = yup.object().shape({
     fullname: yup.string().required("required"),
     email: yup.string().required("required").email(),
