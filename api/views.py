@@ -377,8 +377,18 @@ class UserRegistrationApi(APIView):
             
             user_model = authenticate(email=email, password=password)
             print(user_model)
-            # token = get_user_token(user_model)
-            token = TokenManager.get_token(email, password)
+            
+            
+            manager = TokenManager()
+            token = manager.get_token(request, email, password)
+                
+            if token is None:
+                return ApiResponseMixin().structure(request, Response(status=status.HTTP_400_BAD_REQUEST), errors={
+                        "non_field_errors": [
+                            "Unable to Generate Token"
+                        ]
+                    })
+                
             return ApiResponseMixin().structure(request, Response(data={
                     "token": token,
                     "user": UserDetailSerializer(instance=user_model).data
@@ -393,7 +403,7 @@ class UserLoginApi(APIView):
         start = time.time()
         
         serializer = UserLoginSerializer(data=data)
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             email = serializer.validated_data.get("email")
             password = serializer.validated_data.get("password")
             print(email, password)
@@ -408,7 +418,15 @@ class UserLoginApi(APIView):
             if user is not None:
                 start = time.time()
                 # token = get_user_token(user)
-                token = TokenManager.get_token(email, password)
+                manager = TokenManager()
+                token = manager.get_token(request, email, password)
+                
+                if token is None:
+                    return ApiResponseMixin().structure(request, Response(status=status.HTTP_400_BAD_REQUEST), errors={
+                        "non_field_errors": [
+                            "Unable to Generate Token"
+                        ]
+                    })
 
                 duration = (time.time() - start) * 1000
                 print("Token generation: ", duration, " ms")

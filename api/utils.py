@@ -1,36 +1,81 @@
 import json
 from math import floor
-from django.core.mail import EmailMessage
 import requests
 from core.settings import *
 from .models import *
 from django.core.files.storage import default_storage
 import logging
 
+from oauth2_provider.models import Application, AccessToken, RefreshToken
+from oauth2_provider.settings import oauth2_settings
+from oauth2_provider.views.mixins import OAuthLibMixin
+from oauthlib.oauth2.rfc6749.errors import (
+    InvalidClientError,
+    UnsupportedGrantTypeError,
+    AccessDeniedError,
+    MissingClientIdError,
+    InvalidRequestError,
+)
 
+from rest_framework.request import Request
 
+from django.core.mail import EmailMessage
+from django.http import HttpRequest
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError, force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
+        
+        
+        
  
-class TokenManager:
-    @staticmethod
-    def get_token(email, password):
-        response = requests.post(f'{APP_URL}/api/oauth/token', data = {
+class TokenManager(OAuthLibMixin):
+    """
+    Implements an endpoint to provide access tokens
+
+    The endpoint is used in the following flows:
+
+    * Authorization code
+    * Password
+    * Client credentials
+    """
+
+    server_class = oauth2_settings.OAUTH2_SERVER_CLASS
+    validator_class = oauth2_settings.OAUTH2_VALIDATOR_CLASS
+    oauthlib_backend_class = oauth2_settings.OAUTH2_BACKEND_CLASS
+    
+    # To Obtain Token from Oauth create_token method
+    def __request_token(self, request: Request, payload):
+        
+        httpRequest = request._request
+        httpRequest.POST = httpRequest.POST.copy() # mutabel copy
+        httpRequest.POST.clear()
+        httpRequest.POST.update(**payload)
+        print(httpRequest.POST)
+        
+        try:
+            url, headers, body, status = self.create_token_response(httpRequest)
+        except AccessToken.DoesNotExist:
+            return None
+        
+        
+        tokenDict = json.loads(body)
+        print(tokenDict)
+        return tokenDict
+
+        
+    def get_token(self, request: Request, email, password):
+        
+        payload = {
                    'username': email,
                    'password': password,
                    'client_id': DEFAULT_AUTH_CLIENT_KEY,
                    'client_secret': DEFAULT_AUTH_CLIENT_SECRET,
                    'grant_type':'password'
-               })
-        resp = response.json()
-        print(resp)
+               }
         
-        return {
-            'access_token': resp['access_token'],
-            'refresh_token': resp['refresh_token'],
-        }
+        return self.__request_token(request, payload)
+        
         
     @staticmethod
     def check_reset_token_uid(uid, token):
