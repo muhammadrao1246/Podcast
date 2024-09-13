@@ -40,7 +40,7 @@ jobs:
           VITE_SOCIAL_AUTH_FACEBOOK_SECRET: ${{ secrets.VITE_SOCIAL_AUTH_FACEBOOK_SECRET}}
           VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: ${{ secrets.VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}}
           VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: ${{ secrets.VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET}}
-          NPM_CONFIG_LEGACY_PEER_DEPS: true
+          # NPM_CONFIG_LEGACY_PEER_DEPS: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
