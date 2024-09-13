@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from 'src/App.jsx'
+import App from 'src/App'
 
 import { BrowserRouter } from 'react-router-dom';
 import { persistor, store } from 'src/services/store'

@@ -22,13 +22,13 @@ import {ROUTES} from 'src/routes';
 
 import "src/assets/css/index.css"
 
-import MainLayout from 'components/Layouts/MainLayout';
-import AuthLayout from 'components/Layouts/AuthLayout';
-import Login from 'pages/auth/Login';
-import Signup from 'pages/auth/Signup';
-import ForgotPassword from 'pages/auth/ForgotPassword';
-import { PrivateRoute, PublicRoute } from 'helpers/protectors';
-import ResetPassword from 'pages/auth/ResetPassword';
+import MainLayout from '/src/components/Layouts/MainLayout';
+import AuthLayout from '/src/components/Layouts/AuthLayout';
+import Login from '/src/pages/auth/Login';
+import Signup from '/src/pages/auth/Signup';
+import ForgotPassword from '/src/pages/auth/ForgotPassword';
+import { PrivateRoute, PublicRoute } from '/src/helpers/protectors';
+import ResetPassword from '/src/pages/auth/ResetPassword';
 
 
 // all pages components are declared here
