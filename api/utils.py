@@ -24,10 +24,12 @@ class TokenManager:
                    'client_secret': DEFAULT_AUTH_CLIENT_SECRET,
                    'grant_type':'password'
                })
+        resp = response.json()
+        print(resp)
         
         return {
-            'access_token': response.json()['access_token'],
-            'refresh_token': response.json()['refresh_token'],
+            'access_token': resp['access_token'],
+            'refresh_token': resp['refresh_token'],
         }
         
     @staticmethod
