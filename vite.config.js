@@ -20,6 +20,10 @@ export default defineConfig({
       src: '/src',
       pages: '/src/pages',
       components: '/src/components',
+      helpers: '/src/helpers',
+      assets: '/src/assets',
+      services: '/src/services',
+      utils: '/src/utils'
     }
   },
   build: {
