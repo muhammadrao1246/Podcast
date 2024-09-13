@@ -24,14 +24,17 @@ import "src/assets/css/index.css"
 
 import MainLayout from 'src/components/Layouts/MainLayout';
 import AuthLayout from 'src/components/Layouts/AuthLayout';
-import Login from 'src/pages/auth/Login';
-import Signup from 'src/pages/auth/Signup';
-import ForgotPassword from 'src/pages/auth/ForgotPassword';
-import ResetPassword from 'src/pages/auth/ResetPassword';
+
 import { PrivateRoute, PublicRoute } from 'src/helpers/protectors';
 
 
 // all pages components are declared here
+
+const LOGIN_PAGE = React.lazy(() => import("src/pages/auth/Login"))
+const SIGNUP_PAGE = React.lazy(() => import("src/pages/auth/Signup"))
+const FORGOT_PASSWORD_PAGE = React.lazy(() => import("src/pages/auth/ForgotPassword"))
+const RESET_PASSWORD_PAGE = React.lazy(() => import("src/pages/auth/ResetPassword"))
+
 const DASHBOARD_PAGE = React.lazy(() => import("src/pages/dashboard/index"))
 const TEAM_PAGE = React.lazy(() => import("src/pages/team/index"))
 const BUILDER_PAGE = React.lazy(() => import("src/pages/builder/index"))
@@ -96,10 +99,10 @@ function App() {
           </Route>
           {/* Routes that do not include the sidebar and topbar */}
           <Route errorElement={<ErrorHandler />} path="/" element={<PublicRoute><AuthLayout /></PublicRoute>}>
-            <Route index path={ROUTES.LOGIN} element={<Login />} />
-            <Route path={ROUTES.SIGNUP} element={<Signup />} />
-            <Route path={ROUTES.FORGOT} element={<ForgotPassword />} />
-            <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
+            <Route index path={ROUTES.LOGIN} element={<LOGIN_PAGE />} />
+            <Route path={ROUTES.SIGNUP} element={<SIGNUP_PAGE />} />
+            <Route path={ROUTES.FORGOT} element={<FORGOT_PASSWORD_PAGE />} />
+            <Route path={ROUTES.RESET_PASSWORD} element={<RESET_PASSWORD_PAGE />} />
           </Route>
           <Route path='*' element={<h1>Page Not Found</h1>} />
         </Routes>
