@@ -539,10 +539,10 @@ class DatabaseToGoogleSheetUpdater:
                                     if sequence_id in r_data:
                                         print(f"Sequence {sequence_id} found in Reel {r_num}")
                                         reel_number = r_num
-                                        self.chapter_filtered_sheet_reel_col_data.append([reel_number])
                                         break
                                 break
-
+                        
+                        self.chapter_filtered_sheet_reel_col_data.append([reel_number])
                         if sequence.sequence_number >= self.previousStartSequence and sequence.sequence_number <= self.previousEndSequence:
                             self.chapters_sheet_partial.append([sequence.words, chapter_number])
                         
