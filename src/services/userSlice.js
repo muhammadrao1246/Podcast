@@ -13,7 +13,7 @@ export const userSlice = createSlice({
     setUserInfo: (state, action) => {
       state.email = action.payload.email
       state.fullname = action.payload.fullname
-      state.profile_image = action.payload.profile_image ?? "public/images/user.png"
+      state.profile_image = action.payload.profile_image ?? "/images/user.png"
     },
     unsetUserInfo: (state, action) => {
       state.email = initialState.email
