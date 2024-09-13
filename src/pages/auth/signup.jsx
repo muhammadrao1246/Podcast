@@ -19,9 +19,9 @@ import FormAlertsComponent from "src/components/FormAlertsComponent";
 import { ROUTES } from "src/routes";
 
 
-import ReactFacebookLogin from 'react-facebook-login';
-import ReactGoogleLogin from 'react-google-login';
-import { VITE_SOCIAL_AUTH_FACEBOOK_KEY, VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY } from 'src/config';
+// import ReactFacebookLogin from 'react-facebook-login';
+// import ReactGoogleLogin from 'react-google-login';
+// import { VITE_SOCIAL_AUTH_FACEBOOK_KEY, VITE_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY } from 'src/config';
 
 import { FacebookOutlined, Google } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
