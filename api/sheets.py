@@ -185,14 +185,24 @@ class DatabaseToGoogleSheetUpdater:
             reel_model = self.reel_model
             reel_number = reel_model.reel_number
             
+            # before the updation how much sequences was in the reel 
+            # so the update array will be of that size 
+            # to put '' in place of deleted ones and value in undeleted ones
             previous_reel_sequences_count = chapter_sequences.filter(sequence_number__gte = self.previousStartSequence, sequence_number__lte = self.previousEndSequence).count()
             
             # reels_before = ReelModel.objects.filter(episode=self.episode_model, chapter=chapter_model, reel_number__lt = reel_model.reel_number).prefetch_related('sequences')
             # reels_after = ReelModel.objects.filter(episode=self.episode_model, chapter=chapter_model, reel_number__gt = reel_model.reel_number).prefetch_related('sequences')
             
             
-            chapters_before = ChapterModel.objects.filter(episode=self.episode_model, chapter_number__lt = chapter_model.chapter_number)
-            total_sequences_before = sum([ch.sequences.all().count() for ch in chapters_before])
+            chapters_before_sequences = ChapterModel.objects.filter(
+                episode=self.episode_model, chapter_number__lt = chapter_model.chapter_number
+            ).annotate(
+                sequences_count=Count("sequences")
+            ).aggregate(
+                total_sequences_of_all_chapter=Sum("sequences_count")
+            )
+            
+            total_sequences_before = chapters_before_sequences["total_sequences_of_all_chapter"] or 0
             total_sequences_before =  total_sequences_before + 1
             
             # all_chapters = reels_before | ChapterModel.objects.filter(pk=chapter_model.id) | reels_after
@@ -249,15 +259,17 @@ class DatabaseToGoogleSheetUpdater:
             for sequence in chapter_sequences.iterator(1500):
                 if sequence.sequence_number >= self.previousStartSequence and sequence.sequence_number <= self.previousEndSequence:
                     previous_reel_sequences[prevIndex] = sequence
+                    # print(sequence.words, sep=" ", end=" ")
                     prevIndex += 1
                 if sequence.sequence_number == self.previousStartSequence:
                     startIndex = totalIndex
-                    print(f"Prev Seq Found Start: ", startIndex)
                 if sequence.sequence_number == self.previousEndSequence:
                     endIndex = totalIndex
-                    print(f"Prev Seq Found End: ", startIndex)
+                    break
                 totalIndex += 1
                 
+            print(f"Prev Seq Found Start: ", startIndex)
+            print(f"Prev Seq Found End: ", startIndex)
             print(f"Reel Area Inside Chapter Sequence Indexes: ", startIndex, " ", endIndex, " ", total_sequences_before)
             self.chapter_filtered_reel_col_editable_range_start = total_sequences_before + startIndex
             self.chapter_filtered_reel_col_editable_range_end = total_sequences_before + endIndex
@@ -281,7 +293,9 @@ class DatabaseToGoogleSheetUpdater:
                                 
 
                         if currReelStartSequence > 0 and sequence.sequence_number <= self.previousEndSequence:
-                            self.chapters_sheet_partial.append(sequence.words)
+                            self.chapters_sheet_partial.append([sequence.words, str(chapter_model.chapter_number)])
+                            # print(sequence.words, sep=" ", end=" ")
+                            
                         
                         # preparing array where sequence belong to chapters for chapter filtered reel column
                         self.chapter_filtered_sheet_reel_col_data.append(reel_num)
@@ -346,15 +360,20 @@ class DatabaseToGoogleSheetUpdater:
                                 "sheetId": gexcel.worksheet('Copy CSV Here')._properties['sheetId'],
                                 "startRowIndex": self.chapter_sheet_text_col_editable_range_start,
                                 "endRowIndex": self.chapter_sheet_text_col_editable_range_end+1,
-                                "startColumnIndex": 3,  # D column
-                                "endColumnIndex": 4
+                                "startColumnIndex": 3,  # D and E column
+                                "endColumnIndex": 5
                             },
                             "rows":[
                                 {
                                     "values": [
                                         {
                                             "userEnteredValue": { 
-                                                "stringValue": row
+                                                "stringValue": row[0]
+                                            }
+                                        },
+                                        {
+                                            "userEnteredValue": { 
+                                                "stringValue": row[1]
                                             }
                                         },
                                     ]
@@ -370,17 +389,22 @@ class DatabaseToGoogleSheetUpdater:
                                 "sheetId": gexcel.worksheet('Chapters')._properties['sheetId'],  # Get sheet ID dynamically
                                 "startRowIndex": self.chapter_sheet_text_col_editable_range_start,
                                 "endRowIndex": self.chapter_sheet_text_col_editable_range_end+1,
-                                "startColumnIndex": 3,  # D column
-                                "endColumnIndex": 4
+                                "startColumnIndex": 3,  # D and E column
+                                "endColumnIndex": 5
                             },
                             "rows": [
                                 {
                                     "values": [
                                         {
                                             "userEnteredValue": { 
-                                                "stringValue": row
+                                                "stringValue": row[0]
                                             }
-                                        } 
+                                        },
+                                        {
+                                            "userEnteredValue": { 
+                                                "stringValue": row[1]
+                                            }
+                                        },
                                     ]
                                 }
                                 for row in self.chapters_sheet_partial
@@ -389,6 +413,9 @@ class DatabaseToGoogleSheetUpdater:
                         }
                     }
                 ]
+            
+            
+            # DataDumper.dump_to_file("request.json",batch_updates)
             
             # Execute the batch update
             gexcel.batch_update(batch_updates)
@@ -445,12 +472,14 @@ class DatabaseToGoogleSheetUpdater:
                     # chapters_sheet_df = openpyxl.utils.dataframe.dataframe_to_rows(self.chapters_sheet_dataframe, index=False, header=True)
                     # print(chapters_sheet.print_title_rows)
                     for r_idx, rowData in enumerate(self.chapters_sheet_partial, self.chapter_sheet_text_col_editable_range_start+1):
-                        chapters_sheet[f"D{r_idx}"] = rowData # Text Column Value
+                        chapters_sheet[f"D{r_idx}"] = rowData[0] # Text Column Value
+                        chapters_sheet[f"E{r_idx}"] = rowData[1] # Chapter Column Value
 
                     copy_csv_here_sheet = workbook["Copy CSV Here"]
                     # Update "Text" column in "Copy CSV Here" sheet
                     for rowIndex, rowData in enumerate(self.chapters_sheet_partial, self.chapter_sheet_text_col_editable_range_start+1):
-                        copy_csv_here_sheet[f"D{rowIndex}"].value = rowData
+                        copy_csv_here_sheet[f"D{rowIndex}"].value = rowData[0]
+                        copy_csv_here_sheet[f"E{rowIndex}"].value = rowData[1]
 
                 end_time = time.time()
                 print(f"In Memory Modifications Done -> {end_time - start_time} seconds.")
