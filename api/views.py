@@ -118,10 +118,11 @@ class EpisodeListApi(generics.ListAPIView):
         # return response
         return ApiResponseMixin().structure(request, response, errors, *args, **kwargs)
 
+
 class EpisodeDetailApi(APIView):
     permission_classes = [IsAuthenticated]
     
-    # @method_decorator(cache_page(60 * 60 * 24)) 
+    @method_decorator(cache_page(60 * 60 * 24 * 30)) 
     def get(self, request, uid):
         
         episode_model = EpisodeModel.objects.filter(id = uid).first()
@@ -171,6 +172,7 @@ class ChapterListApi(generics.ListAPIView):
     
     
     # @method_decorator(cache_page(60 * 60 * 24))
+    @method_decorator(cache_page(5))
     def list(self, request, *args, **kwargs):
         
         queryset = self.filter_queryset(self.get_queryset())

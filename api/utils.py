@@ -124,8 +124,10 @@ class FileManager:
 class DataDumper:
     @staticmethod
     def dump_to_file(filename, data):
-        with FileManager.open(f"/media/{filename}", 'tw+') as fp:
+        with FileManager.open(f"debug/{filename}", "tw+") as fp:
             json.dump(data, fp, indent=4)
+            
+        
             
 class ModelExistenceChecker:
     @staticmethod

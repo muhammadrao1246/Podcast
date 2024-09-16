@@ -301,7 +301,6 @@ class ChapterUpdateSerializer(serializers.Serializer):
                 raise ValidationError(f'{chapter_model.title} cannot be a subset of {och.title}')
 
         print("UPDATING CHAPTERS IN THE DATABASE")
-
         try:
             # starting a transaction session so if there any error occurs all changes to the database will be rolled back
             with transaction.atomic():
@@ -313,6 +312,9 @@ class ChapterUpdateSerializer(serializers.Serializer):
                     )
                     update_sequence.is_valid()
 
+                # before change how much was there
+                total_previous_sequences = chapter_model.sequences.all().count()
+                
                 # delete sequences from current manytomany sequences queryset
                 # getting new sequences and attaching to chapters
                 # new_sequence_models = SequenceModel.objects.filter(episode=episode_model, sequence_number__gte = start, sequence_number__lte = end )
@@ -328,7 +330,7 @@ class ChapterUpdateSerializer(serializers.Serializer):
 
                 # raise ValidationError("Testing")
                 # Commit the transaction before running DatabaseToGoogleSheetUpdater
-                DatabaseToGoogleSheetUpdater(episode_model, chapter_model, None, previousStartSequence=start, previousEndSequence=end)
+                DatabaseToGoogleSheetUpdater(episode_model, chapter_model, None, totalPreviousSequences=total_previous_sequences, previousStartSequence=start, previousEndSequence=end)
         except DatabaseError as ex:
             raise ValidationError("Unable to update sheet data. Some Error Occured.")
 
@@ -352,7 +354,6 @@ class ChapterListSerializer(serializers.ModelSerializer):
     
         
     def get_video_link(self, ch: ChapterModel):
-        print("Reading Video")
         return ch.episode.video_link
     
     # def get_content(self, ch: ChapterModel):
@@ -557,7 +558,7 @@ class ReelUpdateSerializer(serializers.Serializer):
             
         
         # raise ValidationError(f'This Reel cannot be a subset of existing reel.')
- 
+
         print("UPDATING REEL IN THE DATABASE")
         try:
             # starting a transaction session so if there any error occurs all changes to the database will be rolled back
@@ -571,12 +572,14 @@ class ReelUpdateSerializer(serializers.Serializer):
                     )
                     update_sequence.is_valid()
 
+                # old 
+                total_previous_sequences = reel_model.sequences.all().count()
                 # getting new sequences and attaching to reel
                 # new_sequence_models = chapter_model.sequences.filter(sequence_number__gte = start, sequence_number__lte = end )
                 # delete sequences from current manytomany sequences queryset
                 
                 new_sequence_models = chapter_model.sequences.filter(episode=episode_model, id__in=rl_sequences)
-
+                
         
                 reel_model.sequences.set(new_sequence_models, clear=True)
                 self.update_chapter_reels(reel_model)
@@ -587,7 +590,7 @@ class ReelUpdateSerializer(serializers.Serializer):
                 
                 
                 # Commit the transaction before running DatabaseToGoogleSheetUpdater
-                DatabaseToGoogleSheetUpdater(episode_model, chapter_model, reel_model, previousStartSequence=start, previousEndSequence=end)
+                DatabaseToGoogleSheetUpdater(episode_model, chapter_model, reel_model, totalPreviousSequences=total_previous_sequences, previousStartSequence=start, previousEndSequence=end)
         except DatabaseError as ex:
             print(ex)
             raise ValidationError("Unable to update reel. Some Error Occured.")
@@ -645,7 +648,7 @@ class ReelAddSerializer(serializers.Serializer):
         new_sequence_models = chapter_model.sequences.filter(sequence_number__gte = start, sequence_number__lte = end )
 
         # raise ValidationError(f'This Reel cannot be a subset of existing reel.')
- 
+        
         print("ADDING REEL IN THE DATABASE")
         try:
             # starting a transaction session so if there any error occurs all changes to the database will be rolled back

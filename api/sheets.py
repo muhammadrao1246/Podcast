@@ -5,27 +5,29 @@ import openpyxl.utils
 import openpyxl.utils.dataframe
 
 from .models import *
-from .utils import FileManager
+from .utils import FileManager, DataDumper
 
 import pandas as pd 
 import numpy as np
 import time
 
 from django.db import transaction
+from django.db.models.aggregates import Sum, Count
+
 
 from core.settings import GOOGLE_SHEET_CLIENT as gsclient
 
 class DatabaseToGoogleSheetUpdater:
 
-
     # Partially Updating Only The Chapter in the sheet
-    def __init__(self, episode_model: EpisodeModel | None, chapter_model: ChapterModel | None, reel_model: ReelModel | None, previousStartSequence, previousEndSequence, isDelete = False, isAdd = False):
+    def __init__(self, episode_model: EpisodeModel | None, chapter_model: ChapterModel | None, reel_model: ReelModel | None, previousStartSequence, previousEndSequence, totalPreviousSequences = None, isDelete = False, isAdd = False):
         self.episode_model = episode_model
         self.chapter_model = chapter_model
         self.reel_model = reel_model
         self.isDeleted = isDelete
         self.isAdd = isAdd
         
+        self.totalPreviousSequences = totalPreviousSequences
         self.previousStartSequence = previousStartSequence
         self.previousEndSequence = previousEndSequence
 
@@ -45,6 +47,7 @@ class DatabaseToGoogleSheetUpdater:
 
         # shortening the conditions
         if "episodes/" in episode_model.sheet_link:
+            self.isFile = True
             if reel_model is not None:
                 if isDelete:
                     self.get_reel_deleted_to_dataframe()
@@ -60,6 +63,7 @@ class DatabaseToGoogleSheetUpdater:
                 self.get_episode_to_dataframe()
                 self.update_episode_file_sheet(self.sheet_link)
         else:
+            self.isFile = False
             if reel_model is not None:
                 if isDelete:
                     self.get_reel_deleted_to_dataframe()
@@ -235,7 +239,8 @@ class DatabaseToGoogleSheetUpdater:
             start_time = time.time()
             self.chapters_sheet_partial = []
             
-            
+            # creating array with present updates and overwriting the previous sequences with ''
+            # so when the data will be updated the deleted sequences cells will get automatically to blank
             previous_reel_sequences = np.empty(previous_reel_sequences_count, dtype=SequenceModel)
             startIndex = 0
             endIndex = 0
@@ -467,15 +472,53 @@ class DatabaseToGoogleSheetUpdater:
             start_time = time.time()
             
             chapter_model = self.chapter_model
+            current_sequences = chapter_model.sequences.all()
+            total_current_sequences = current_sequences.count()
+            print(f"Total Current Sequences: {total_current_sequences}")
+            
             previous_ch_sequences = SequenceModel.objects.filter(episode=self.episode_model, sequence_number__gte = self.previousStartSequence, sequence_number__lte = self.previousEndSequence)
             
-            chapters_before = ChapterModel.objects.filter(episode=self.episode_model, chapter_number__lt = chapter_model.chapter_number).prefetch_related('sequences')
-            chapters_after = ChapterModel.objects.filter(episode=self.episode_model, chapter_number__gt = chapter_model.chapter_number).prefetch_related('sequences')
+            print(f"Total Previous Sequences: {self.totalPreviousSequences}")
             
-            # all_chapters = ChapterModel.objects.filter(episode=self.episode_model).prefetch_related('sequences')
-            all_chapters = chapters_before | ChapterModel.objects.filter(pk=chapter_model.id) | chapters_after
+            self.total_chapter_deleted_sequences = self.totalPreviousSequences - total_current_sequences
+            print(f"Total Deleted Sequences: {self.total_chapter_deleted_sequences}")
             
-            sequence_querysets = [ch.sequences for ch in chapters_before] + [previous_ch_sequences] + [ch.sequences for ch in chapters_after]
+            
+            # chapters_before = ChapterModel.objects.filter(episode=self.episode_model, chapter_number__lt = chapter_model.chapter_number).prefetch_related('sequences')
+            # chapters_after = ChapterModel.objects.filter(episode=self.episode_model, chapter_number__gt = chapter_model.chapter_number).prefetch_related('sequences')
+            
+            # # all_chapters = ChapterModel.objects.filter(episode=self.episode_model).prefetch_related('sequences')
+            # all_chapters = chapters_before | ChapterModel.objects.filter(pk=chapter_model.id) | chapters_after
+            
+            
+            # all sequences count of chapters before this chapter
+            
+            chapters_before_sequences = ChapterModel.objects.filter(
+                episode=self.episode_model, chapter_number__lt = chapter_model.chapter_number
+            ).annotate(
+                sequences_count=Count("sequences")
+            ).aggregate(
+                total_sequences_of_all_chapter=Sum("sequences_count")
+            )
+            
+            total_sequences_before_chapter = chapters_before_sequences["total_sequences_of_all_chapter"] or 0
+            print(f"Total Sequences Before Chapter: {total_sequences_before_chapter}")
+            
+            self.chapter_filtered_reel_col_editable_range_start = total_sequences_before_chapter + 1
+            
+            if self.isFile:
+                chapters_after_sequences = ChapterModel.objects.filter(
+                    episode=self.episode_model, chapter_number__gt = self.chapter_model.chapter_number
+                ).annotate(
+                    sequences_count=Count("sequences")
+                ).aggregate(
+                    total_sequences_of_all_chapter=Sum("sequences_count")
+                )
+                
+                self.total_sequences_after_chapter = chapters_after_sequences["total_sequences_of_all_chapter"] or 0
+                print(f"Total Sequences After Chapter: {self.total_sequences_after_chapter}")
+                
+            # sequence_querysets = [ch.sequences for ch in chapters_before] + [previous_ch_sequences] + [ch.sequences for ch in chapters_after]
             # min_start_time = all_chapters.first().start_time
             # max_end_time = all_chapters.last().end_time
             # sequences = SequenceModel.objects.filter(episode=self.episode_model, start_time__gte = min_start_time, end_time__lte = max_end_time).iterator(1000)
@@ -486,20 +529,28 @@ class DatabaseToGoogleSheetUpdater:
 
             # Build a dictionary for chapter and reel sequence ids
             start_time = time.time()
+            # chapter_sequence_dict = {
+            #     f"{ch.chapter_number}": {
+            #         "sequences": set(str(seq.id) for seq in (ch.sequences.all() if ch.id != chapter_model.id else chapter_model.sequences.all())),
+            #         "reels": {
+            #             f"{rl.reel_number}": set(str(seq.id) for seq in rl.sequences.all())
+            #             for rl in ReelModel.objects.filter(episode=self.episode_model, chapter=ch).prefetch_related('sequences')
+            #             # for rl in [arl for arl in all_chapter_reels if arl.chapter .chapter_number== ch.chapter_number]
+            #         }
+            #     }
+            #     for ch in all_chapters
+            # }
             chapter_sequence_dict = {
-                f"{ch.chapter_number}": {
-                    "sequences": set(str(seq.id) for seq in (ch.sequences.all() if ch.id != chapter_model.id else chapter_model.sequences.all())),
-                    "reels": {
-                        f"{rl.reel_number}": set(str(seq.id) for seq in rl.sequences.all())
-                        for rl in ReelModel.objects.filter(episode=self.episode_model, chapter=ch).prefetch_related('sequences')
-                        # for rl in [arl for arl in all_chapter_reels if arl.chapter .chapter_number== ch.chapter_number]
-                    }
+                "sequences": set(str(seq.id) for seq in current_sequences),
+                "reels": {
+                        f"{rl.reel_number}": set(str(seq.id) for seq in rl.sequences.all())        
+                    for rl in ReelModel.objects.filter(episode=self.episode_model, chapter=chapter_model).prefetch_related('sequences')
                 }
-                for ch in all_chapters
             }
 
             end_time = time.time()
             print(f"Chapter and Reels Id Dictionary is Ready -> {end_time - start_time} seconds.")
+
 
             """
             # calculating editable range for chapter data in Chapters Sheet
@@ -521,39 +572,51 @@ class DatabaseToGoogleSheetUpdater:
             print(self.reel_col_edit_range)
             """
             
+            
             # list preparation for partial updation            
             start_time = time.time()
             self.chapters_sheet_partial = []
-            for sequence_querset in sequence_querysets:
-                print(sequence_querset)
-                for sequence in sequence_querset.all():
-                        sequence.refresh_from_db()
+            for sequence in previous_ch_sequences.iterator(2000):
+            # for sequence_querset in sequence_querysets:
+                # print(sequence_querset)
+                # for sequence in sequence_querset.all():
+                #         sequence.refresh_from_db()
                         sequence_id = str(sequence.id)
                         chapter_number = ""
                         reel_number = ""
-                        for c_num, c_data in chapter_sequence_dict.items():
-                            if sequence_id in c_data["sequences"]:
-                                print(f"Sequence {sequence_id} found in Chapter {c_num}")
-                                chapter_number = c_num
-                                for r_num, r_data in c_data["reels"].items():
-                                    if sequence_id in r_data:
-                                        print(f"Sequence {sequence_id} found in Reel {r_num}")
-                                        reel_number = r_num
-                                        break
-                                break
+                        # for c_num, c_data in chapter_sequence_dict.items():
+                        #     if sequence_id in c_data["sequences"]:
+                        #         print(f"Sequence {sequence_id} found in Chapter {c_num}")
+                        #         chapter_number = c_num
+                        #         for r_num, r_data in c_data["reels"].items():
+                        #             if sequence_id in r_data:
+                        #                 print(f"Sequence {sequence_id} found in Reel {r_num}")
+                        #                 reel_number = r_num
+                        #                 break
+                        #         break
                         
-                        self.chapter_filtered_sheet_reel_col_data.append([reel_number])
+                        if sequence_id in chapter_sequence_dict["sequences"]:                            
+                            chapter_number = str(chapter_model.chapter_number)
+                            for r_num, r_data in chapter_sequence_dict["reels"].items():
+                                if sequence_id in r_data:
+                                    print(f"Sequence {sequence_id} found in Reel {r_num}")
+                                    reel_number = r_num
+                                    break
+                        
+                        # preparing array where sequence belong to chapters for chapter filtered reel column
+                        if chapter_number != "":
+                            self.chapter_filtered_sheet_reel_col_data.append([reel_number])
+                        
                         if sequence.sequence_number >= self.previousStartSequence and sequence.sequence_number <= self.previousEndSequence:
                             self.chapters_sheet_partial.append([sequence.words, chapter_number])
                         
-                        # preparing array where sequence belong to chapters for chapter filtered reel column
-                        # if chapter_number != "":
-                        #     self.chapter_filtered_sheet_reel_col_data.append([reel_number])
-                    
-            end_time = time.time()
+                        
+            self.chapter_filtered_sheet_reel_col_data = self.chapter_filtered_sheet_reel_col_data
             
+            end_time = time.time()
+            # raise ValidationError("sdasd")
             print(f"Chapters Sheet Partial List and Reel Col List is Created -> {end_time - start_time} seconds.")
-
+            
             # self.chapters_sheet_dataframe = pd.DataFrame(self.chapter_sheet_dict)
         # print(f"Chapter Filtered Reel Col Size in MB", self.chapter_filtered_sheet_reel_col_data.__sizeof__() / 1024)
         # print(f"Chapter Sheet Partial Size in MB", self.chapters_sheet_partial.__sizeof__() / 1024)
@@ -601,30 +664,6 @@ class DatabaseToGoogleSheetUpdater:
                     {
                         "updateCells": {
                             "range": {
-                                "sheetId": gexcel.worksheet('Chapter Filtered')._properties['sheetId'],
-                                "startRowIndex": 1,
-                                "endRowIndex": len(self.chapter_filtered_sheet_reel_col_data)+1,
-                                "startColumnIndex": 5,  # F column
-                                "endColumnIndex": 6
-                            },
-                            "rows": [
-                                {
-                                    "values": [
-                                        {
-                                            "userEnteredValue": { 
-                                                "stringValue": row[0] 
-                                            }
-                                        },
-                                    ]
-                                }
-                                for row in self.chapter_filtered_sheet_reel_col_data
-                            ],
-                            "fields": "userEnteredValue"
-                        }
-                    },
-                    {
-                        "updateCells": {
-                            "range": {
                                 "sheetId": gexcel.worksheet('Copy CSV Here')._properties['sheetId'],
                                 "startRowIndex": self.previousStartSequence,
                                 "endRowIndex": self.previousEndSequence+1,
@@ -649,6 +688,51 @@ class DatabaseToGoogleSheetUpdater:
                 ]
             }
             
+            if self.total_chapter_deleted_sequences > 0:
+                batch_updates["requests"].append(
+                    {
+                        "deleteRange": {
+                            "range": {
+                                "sheetId": gexcel.worksheet('Chapter Filtered')._properties['sheetId'],
+                                "startRowIndex": self.chapter_filtered_reel_col_editable_range_start,
+                                "endRowIndex": self.chapter_filtered_reel_col_editable_range_start + self.total_chapter_deleted_sequences,
+                                "startColumnIndex": 5,  # F column
+                                "endColumnIndex": 6
+                            },
+                            "shiftDimension": "ROWS"
+                        }
+                    }
+                )
+            
+            batch_updates["requests"].append(
+                    {
+                        "updateCells": {
+                            "range": {
+                                "sheetId": gexcel.worksheet('Chapter Filtered')._properties['sheetId'],
+                                "startRowIndex": self.chapter_filtered_reel_col_editable_range_start,
+                                "endRowIndex": self.chapter_filtered_reel_col_editable_range_start + len(self.chapter_filtered_sheet_reel_col_data),
+                                "startColumnIndex": 5,  # F column
+                                "endColumnIndex": 6
+                            },
+                            "rows": [
+                                {
+                                    "values": [
+                                        {
+                                            "userEnteredValue": { 
+                                                "stringValue": row[0] 
+                                            }
+                                        },
+                                    ]
+                                }
+                                for row in self.chapter_filtered_sheet_reel_col_data
+                            ],
+                            "fields": "userEnteredValue"
+                        }
+                    }
+            )
+            
+            
+            # DataDumper.dump_to_file("request.json",batch_updates)
             
             # Execute the batch update
             gexcel.batch_update(batch_updates)
@@ -683,7 +767,7 @@ class DatabaseToGoogleSheetUpdater:
             raise ValidationError("Unable to download and update google sheet. Check Google API credentials or Network Connection.")            
 
     def update_chapter_file_sheet(self, file_path):
-
+       
         try:
             with FileManager.open(file_path, "rb") as file:
                 workbook = openpyxl.load_workbook(file)
@@ -697,8 +781,18 @@ class DatabaseToGoogleSheetUpdater:
                     chapters_sheet[f"E{r_idx}"] = rowData[1] # Chapter Column Value
 
                 chapter_filtered_sheet = workbook["Chapter Filtered"]
+                editable_index_start = self.chapter_filtered_reel_col_editable_range_start + 1
+                total_current_sequences = len(self.chapter_filtered_sheet_reel_col_data)
+                
+                moving_start_index = editable_index_start + self.total_chapter_deleted_sequences
+                moving_end_index = moving_start_index + total_current_sequences + self.total_sequences_after_chapter
+                
+                # first delete the deleted cells
+                if self.total_chapter_deleted_sequences > 0:
+                    chapter_filtered_sheet.move_range(f"F{moving_start_index}:F{moving_end_index}", -self.total_chapter_deleted_sequences)
+                    
                 # Update "Reel" column in "Chapter Filtered" sheet
-                for row, reel_value in enumerate(self.chapter_filtered_sheet_reel_col_data, 2):
+                for row, reel_value in enumerate(self.chapter_filtered_sheet_reel_col_data, editable_index_start):
                     chapter_filtered_sheet[f"F{row}"].value = reel_value[0]
 
                 copy_csv_here_sheet = workbook["Copy CSV Here"]
